@@ -85,7 +85,13 @@ Return exactly these boolean fields:
 
     if response.status_code != 200:
         print("Azure API error:", response.status_code, response.text)
-        return None
+        return {
+            "urgency": False,
+            "money_request": False,
+            "impersonation": False,
+            "suspicious_link": False,
+            "threat_language": False
+        }
 
     result = response.json()
     print("Azure raw response:", json.dumps(result, indent=2))
@@ -155,6 +161,7 @@ def analyze():
     )
 
     if response.status_code != 200:
+        print("Anthropic error:", response.status_code, response.text)
         return jsonify({"error": response.text}), response.status_code
 
     result = response.json()
