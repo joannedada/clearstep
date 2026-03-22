@@ -6,10 +6,21 @@ import json
 app = Flask(__name__, static_folder='.', static_url_path='')
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT")
+AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
 
-def build_prompt(msg):
+def build_prompt(msg, detected_flags=None):
+    flags_text = "None"
+    if detected_flags:
+        flags_text = json.dumps(detected_flags)
+
     return f"""
 You are a calm, clear cognitive load reduction assistant. Analyze the message below and return ONLY a JSON object — no extra text, no markdown, no explanation.
+
+Detected signal flags from a pre-check:
+{flags_text}
 
 Rules:
 - risk_level: exactly one of "Safe", "Caution", or "High Risk"
@@ -19,6 +30,7 @@ Rules:
 - If Safe: signals must be ["No suspicious signals"], next_steps should be short and reassuring
 - Never use fear-based language. Never use jargon. Always be calm and supportive.
 - Only include signals that are clearly present in the message. Do not infer.
+- Use the detected signal flags only as support. Final judgment must still match the actual message.
 
 Return ONLY this JSON:
 {{
@@ -30,6 +42,68 @@ Return ONLY this JSON:
 
 Message: "{msg}"
 """
+
+def extract_signals_with_azure(msg):
+    if not all([AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT]):
+        return None
+
+    url = f"{AZURE_OPENAI_ENDPOINT}/openai/deployments/{AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version={AZURE_OPENAI_API_VERSION}"
+
+    system_prompt = """
+You are a strict classifier.
+Read the message and return ONLY valid JSON.
+Do not explain.
+Do not add markdown.
+Return exactly these boolean fields:
+
+{
+  "urgency": true,
+  "money_request": false,
+  "impersonation": false,
+  "suspicious_link": false,
+  "threat_language": false
+}
+"""
+
+    response = requests.post(
+        url,
+        headers={
+            "Content-Type": "application/json",
+            "api-key": AZURE_OPENAI_API_KEY
+        },
+        json={
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": msg}
+            ],
+            "temperature": 0,
+            "max_tokens": 150
+        },
+        timeout=20
+    )
+
+    if response.status_code != 200:
+        return None
+
+    result = response.json()
+    content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+    if not content:
+        return None
+
+    raw_text = content.strip().replace("```json", "").replace("```", "").strip()
+
+    try:
+        parsed = json.loads(raw_text)
+        return {
+            "urgency": bool(parsed.get("urgency", False)),
+            "money_request": bool(parsed.get("money_request", False)),
+            "impersonation": bool(parsed.get("impersonation", False)),
+            "suspicious_link": bool(parsed.get("suspicious_link", False)),
+            "threat_language": bool(parsed.get("threat_language", False)),
+        }
+    except Exception:
+        return None
 
 @app.route("/")
 def index():
@@ -46,7 +120,13 @@ def analyze():
     if not ANTHROPIC_API_KEY:
         return jsonify({"error": "Missing ANTHROPIC_API_KEY"}), 500
 
-    prompt = build_prompt(msg)
+    detected_flags = None
+    try:
+        detected_flags = extract_signals_with_azure(msg)
+    except Exception:
+        detected_flags = None
+
+    prompt = build_prompt(msg, detected_flags)
 
     response = requests.post(
         "https://api.anthropic.com/v1/messages",
