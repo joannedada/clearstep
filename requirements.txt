@@ -1,3 +1,8 @@
 Flask
 requests
 gunicorn
+requests
+azure-identity
+azure-keyvault-secrets
+azure-storage-blob
+opencensus-ext-azure
