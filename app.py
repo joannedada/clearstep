@@ -41,6 +41,8 @@ try:
     AZURE_OPENAI_DEPLOYMENT = secret_client.get_secret("AZURE-OPENAI-DEPLOYMENT").value
     AZURE_OPENAI_API_VERSION = secret_client.get_secret("AZURE-OPENAI-API-VERSION").value
     AZURE_OPENAI_ENDPOINT = secret_client.get_secret("AZURE-OPENAI-ENDPOINT").value
+    AZURE_CONTENT_SAFETY_ENDPOINT = secret_client.get_secret("AZURE-CONTENT-SAFETY-ENDPOINT").value
+    AZURE_CONTENT_SAFETY_KEY = secret_client.get_secret("AZURE-CONTENT-SAFETY-KEY").value
     print("Secrets loaded successfully from Key Vault.")
 except Exception as e:
     print(f"Key Vault unavailable, using environment variables: {e}")
