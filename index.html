@@ -1,651 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClearStep — Is This Safe?</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ClearStep — Is This Safe?</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-    :root {
-      --accent: #2F6F6F;
-      --bg: #F7F4F0;
-      --surface: #FFFFFF;
-      --border: #D8D2C8;
-      --text: #111010;
-      --muted: #5A5550;
-      --safe: #00875A;
-      --safe-bg: #E6F6F0;
-      --safe-border: #9ADFC3;
-      --caution: #A04A00;
-      --caution-bg: #FEF0DC;
-      --caution-border: #F0C070;
-      --danger: #B91C1C;
-      --danger-bg: #FEE8E8;
-      --danger-border: #F0AAAA;
-      --font-display: 'Bebas Neue', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
-      --font-mono: 'DM Mono', monospace;
-    }
+/* ── PALETTE ENGINE — CSS vars, swapped by JS ── */
+:root{
+  --bg:#F7F4F0;--bg2:#EDE7DB;--bg3:#D8D2C8;
+  --text:#111010;--muted:#5A5550;
+  --accent:#2F6F6F;
+  --safe:#00875A;--safe-bg:#E6F6F0;--safe-border:#9ADFC3;
+  --caution:#A04A00;--caution-bg:#FEF0DC;--caution-border:#F0C070;
+  --danger:#B91C1C;--danger-bg:#FEE8E8;--danger-border:#F0AAAA;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --fs:1rem;--lh:1.65;
+  --tr:background 0.4s,color 0.3s,border-color 0.3s;
+}
 
-    html, body {
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-    }
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:var(--fs);line-height:var(--lh);transition:var(--tr);}
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
-    }
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;padding:10px 1.5rem;transition:var(--tr);}
+.topbar-brand{font-family:var(--font-display);font-size:1.35rem;letter-spacing:0.06em;line-height:1;}
+.brand-clear{color:var(--text);}
+.brand-step{color:var(--accent);}
+.topbar-right{display:flex;gap:6px;}
+.tb-btn{display:flex;align-items:center;gap:5px;padding:0 10px;height:28px;border:1px solid var(--bg3);border-radius:4px;background:transparent;font-family:var(--font-body);font-size:0.72rem;color:var(--muted);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tb-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pal-dots{display:flex;gap:3px;}
+.pd{width:7px;height:7px;border-radius:50%;}
 
-    header {
-      margin-bottom: 2.5rem;
-      animation: fadeUp 0.6s ease both;
-    }
+/* ── READING LEVEL — in topbar ── */
+.rl-levels{display:flex;gap:3px;}
+.rl-btn{padding:2px 9px;border-radius:20px;border:1px solid var(--bg3);background:transparent;font-size:0.72rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.rl-btn:hover{border-color:var(--accent);color:var(--accent);}
+.rl-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
-    .brand {
-      font-family: var(--font-mono);
-      font-size: 0.95rem;
-      color: var(--text);
-      letter-spacing: 0.2em;
-    }
+/* ── MAIN WRAP ── */
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
 
-    h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 6vw, 3.6rem);
-      line-height: 0.92;
-      letter-spacing: 0.02em;
-      color: var(--text);
-    }
+/* ── HEADER ── */
+header{margin-bottom:2rem;animation:fadeUp 0.6s ease both;text-align:center;}
+h1{font-family:var(--font-display);font-size:clamp(3.2rem,9vw,5.5rem);line-height:0.92;letter-spacing:0.02em;color:var(--text);}
+.header-sub{margin-top:0.9rem;font-size:0.95rem;color:var(--muted);line-height:1.6;font-weight:400;}
 
-    h1 .qmark {
-      color: var(--text);
-      margin-left: 0.04em;
-    }
+/* ── INPUT CARD ── */
+.input-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:3px;padding:1.4rem;margin-bottom:1.1rem;animation:fadeUp 0.6s 0.1s ease both;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:var(--tr);}
+.input-label{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:0.65rem;display:block;}
+textarea{width:100%;min-height:120px;border:1px solid var(--bg3);border-radius:2px;padding:0.9rem 1rem;font-family:var(--font-body);font-size:0.95rem;line-height:var(--lh);color:var(--text);background:var(--bg);resize:vertical;outline:none;transition:border-color 0.2s,background 0.4s;font-weight:400;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:#A8A39C;}
+.input-footer{display:flex;align-items:flex-end;justify-content:space-between;margin-top:0.9rem;gap:1rem;flex-wrap:wrap;}
+.chips-label{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;}
+.examples{display:flex;flex-wrap:wrap;gap:0.35rem;}
+.example-btn{padding:0.28rem 0.75rem;border:1px solid var(--bg3);background:transparent;color:var(--muted);font-size:0.74rem;border-radius:2px;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);}
+.example-btn:hover{border-color:var(--accent);color:var(--accent);}
+.analyze-btn{padding:0.75rem 2rem;background:var(--text);color:var(--bg);border:none;border-radius:2px;font-family:var(--font-display);font-size:1.1rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.analyze-btn:hover{background:var(--accent);transform:translateY(-1px);}
+.analyze-btn:disabled{background:var(--bg3);color:var(--muted);cursor:not-allowed;transform:none;}
 
-    .header-sub {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: var(--muted);
-      line-height: 1.6;
-      max-width: 440px;
-      font-weight: 400;
-    }
+/* ── LOADING ── */
+.loading{display:none;align-items:center;gap:0.75rem;padding:1rem 0;color:var(--muted);font-size:0.82rem;font-family:var(--font-mono);letter-spacing:0.06em;}
+.loading.visible{display:flex;}
+.loading-dots{display:flex;gap:4px;}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:db 1.2s infinite;}
+.ld:nth-child(2){animation-delay:0.2s;}.ld:nth-child(3){animation-delay:0.4s;}
+@keyframes db{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-5px);opacity:1;}}
 
-    .input-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
-      animation: fadeUp 0.6s 0.1s ease both;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
-    }
+/* ── RESULT CARD ── */
+.result-card{display:none;background:var(--bg2);border:1px solid var(--bg3);border-radius:3px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.07);transition:var(--tr);}
+.result-card.visible{display:block;animation:fadeUp 0.5s ease both;}
+.result-header{padding:1.1rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;border-bottom:1px solid var(--bg3);}
+.risk-badge{font-family:var(--font-display);font-size:1.3rem;letter-spacing:0.08em;padding:0.28rem 0.9rem;border-radius:2px;flex-shrink:0;margin-top:0.1rem;}
+.risk-safe{background:var(--safe-bg);color:var(--safe);border:1px solid var(--safe-border);}
+.risk-caution{background:var(--caution-bg);color:var(--caution);border:1px solid var(--caution-border);}
+.risk-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
+.result-meaning{font-size:0.98rem;line-height:1.5;color:var(--text);font-weight:500;padding-top:0.15rem;}
+.result-body{padding:1.2rem 1.4rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
+@media(max-width:480px){.result-body{grid-template-columns:1fr;}}
+.rs-label{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;}
+.signals-list,.steps-list{display:flex;flex-direction:column;gap:0.48rem;list-style:none;}
+.signals-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.88rem;line-height:1.5;color:var(--text);}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:0.42em;}
+.sdot.safe{background:var(--safe);}.sdot.caution{background:var(--caution);}.sdot.danger{background:var(--danger);}
+.steps-list li{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;line-height:1.5;color:var(--text);}
+.step-num{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);background:var(--bg);border:1px solid var(--bg3);border-radius:2px;padding:0.1rem 0.4rem;flex-shrink:0;margin-top:0.18em;transition:var(--tr);}
 
-    .input-label {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-      display: block;
-    }
+/* ── EXPLAINABILITY PANEL ── */
+.explain-panel{border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;}
+.explain-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.78rem;color:var(--muted);background:none;border:none;font-family:var(--font-body);padding:0;transition:color 0.2s;}
+.explain-toggle:hover{color:var(--accent);}
+.explain-toggle .chevron{transition:transform 0.25s;}
+.explain-toggle.open .chevron{transform:rotate(180deg);}
+.explain-body{display:none;margin-top:0.75rem;}
+.explain-body.open{display:block;animation:fadeUp 0.25s ease both;}
+.explain-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:0.5rem;font-size:0.82rem;line-height:1.45;color:var(--muted);}
+.ei{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.58rem;font-weight:600;margin-top:0.12em;}
+.ei.flag{background:var(--bg3);color:var(--muted);}
+.ei.safe{background:var(--bg3);color:var(--muted);}
+.ei.info{background:var(--bg3);color:var(--muted);}
 
-    textarea {
-      width: 100%;
-      min-height: 130px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 1rem;
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      line-height: 1.65;
-      color: var(--text);
-      background: var(--bg);
-      resize: vertical;
-      outline: none;
-      transition: border-color 0.2s;
-      font-weight: 400;
-    }
+/* ── FOCUS SUPPORT BAR ── */
+.focus-bar{border-top:1px solid var(--bg3);padding:0.85rem 1.4rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.focus-label{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+.focus-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;border:1px solid var(--bg3);background:transparent;font-size:0.74rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.focus-btn:hover{border-color:var(--accent);color:var(--accent);}
+.focus-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.timer-disp{font-family:var(--font-mono);font-size:0.9rem;font-weight:500;color:var(--accent);min-width:40px;display:none;}
+.active-list{background:var(--bg);border:1px solid var(--bg3);border-top:none;padding:0.6rem 1.4rem;display:flex;flex-direction:column;gap:0.4rem;transition:background 0.4s;}
+.active-list-item{display:flex;align-items:center;justify-content:space-between;font-size:0.78rem;color:var(--text);}
+.active-list-item span{color:var(--muted);font-family:var(--font-body);font-size:0.76rem;}
+.active-cancel{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:2px 8px;font-size:0.7rem;color:var(--muted);cursor:pointer;font-family:var(--font-body);transition:all 0.2s;}
+.active-cancel:hover{border-color:var(--danger);color:var(--danger);}
 
-    textarea:focus { border-color: var(--text); }
-    textarea::placeholder { color: #A8A39C; }
+/* ── FEEDBACK ROW ── */
+.feedback-row{border-top:1px solid var(--bg3);padding:0.8rem 1.4rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.fb-label{font-size:0.78rem;color:var(--muted);}
+.fb-btn{display:flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;border:1px solid var(--bg3);background:transparent;font-size:0.76rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.fb-btn:hover{border-color:var(--accent);color:var(--accent);}
+.fb-btn.yes{background:var(--safe-bg);border-color:var(--safe);color:var(--safe);}
+.fb-btn.no{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);}
+.fb-thanks{font-size:0.74rem;color:var(--muted);display:none;}
+.fb-thanks.show{display:block;}
 
-    .input-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 1rem;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+/* ── ERROR / RESET / FOOTER ── */
+.error-msg{display:none;padding:0.9rem 1.2rem;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:3px;font-size:0.85rem;color:var(--danger);line-height:1.5;}
+.error-msg.visible{display:block;animation:fadeUp 0.3s ease both;}
+.reset-btn{display:none;margin-top:0.9rem;background:transparent;border:1px solid var(--bg3);color:var(--muted);font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.42rem 1rem;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+.reset-btn:hover{border-color:var(--text);color:var(--text);}
+.reset-btn.visible{display:inline-block;}
+footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.4rem;transition:var(--tr);}
+.foot-l{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+.foot-r{font-size:0.74rem;color:var(--muted);}
 
-    .chips-label {
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
+/* ── OVERLAYS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.panel{background:var(--bg);border-radius:12px;width:100%;max-width:500px;padding:22px;transform:translateY(10px);transition:opacity 0.3s,transform 0.3s,background 0.4s;}
+.overlay.open .panel{transform:translateY(0);}
+.panel-title{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
+.wiz-q{font-size:1.05rem;font-weight:500;color:var(--text);margin-bottom:1rem;line-height:1.4;}
+.wiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1.1rem;}
+.wiz-opt{background:var(--bg2);border:1.5px solid var(--bg3);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.wiz-opt:hover{border-color:var(--accent);}
+.wiz-opt.sel{border-color:var(--accent);background:var(--bg3);}
+.wiz-opt-t{font-size:0.8rem;font-weight:500;margin-bottom:2px;color:var(--text);}
+.wiz-opt-d{font-size:0.72rem;color:var(--muted);line-height:1.35;}
+.wiz-nav{display:flex;align-items:center;justify-content:space-between;}
+.wiz-dots{display:flex;gap:4px;}
+.wdot{width:5px;height:5px;border-radius:50%;background:var(--bg3);transition:background 0.2s;}
+.wdot.a{background:var(--accent);}.wdot.d{background:var(--muted);}
+.wiz-btns{display:flex;gap:6px;}
+.wiz-btn{padding:7px 16px;border-radius:6px;font-family:var(--font-body);font-size:0.78rem;cursor:pointer;border:1px solid var(--bg3);background:transparent;color:var(--text);transition:background 0.15s;}
+.wiz-btn:hover{background:var(--bg2);}
+.wiz-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.wiz-btn:disabled{opacity:0.35;cursor:default;}
+/* Result panel inside wizard */
+.wiz-result{display:none;}
+.wiz-result.show{display:block;}
+.pal-prev{display:flex;gap:6px;margin:10px 0 8px;}
+.pal-sw{flex:1;height:32px;border-radius:6px;border:1px solid rgba(0,0,0,0.08);}
+.pal-desc{font-size:0.78rem;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+.trait-list{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;}
+.trait{font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:500;}
+.wiz-result-btns{display:flex;gap:6px;flex-wrap:wrap;}
+/* Profile grid */
+.prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.prof-card{border:1.5px solid var(--bg3);border-radius:8px;padding:8px 10px;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.prof-card:hover{border-color:var(--accent);}
+.prof-card.active{border-color:var(--accent);background:var(--bg2);}
+.prof-swatches{display:flex;gap:3px;margin-bottom:4px;}
+.prof-sw{width:11px;height:11px;border-radius:2px;border:0.5px solid rgba(0,0,0,0.1);}
+.prof-name{font-size:0.73rem;font-weight:500;color:var(--text);}
+.panel-close{width:100%;padding:7px;border-radius:6px;font-family:var(--font-body);font-size:0.78rem;cursor:pointer;border:1px solid var(--bg3);background:transparent;color:var(--text);transition:background 0.15s;margin-top:4px;}
+.panel-close:hover{background:var(--bg2);}
 
-    .examples {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
+/* ── TOAST ── */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:var(--bg);border:none;padding:16px 28px;border-radius:8px;font-size:1rem;font-weight:500;z-index:200;opacity:0;pointer-events:none;transition:opacity 0.4s,transform 0.4s,background 0.4s,color 0.3s;font-family:var(--font-body);box-shadow:0 6px 24px rgba(0,0,0,0.25);max-width:340px;text-align:center;line-height:1.6;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-    .example-btn {
-      padding: 0.3rem 0.8rem;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 400;
-    }
-
-    .example-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(0, 0, 0, 0.02);
-    }
-
-    .analyze-btn {
-      padding: 0.8rem 2.25rem;
-      background: var(--text);
-      color: #F7F4F0;
-      border: none;
-      border-radius: 2px;
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .analyze-btn:hover {
-      background: #2A2520;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .analyze-btn:active {
-      transform: translateY(0);
-      box-shadow: none;
-    }
-
-    .analyze-btn:disabled {
-      background: var(--border);
-      color: var(--muted);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .loading {
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 0;
-      color: var(--muted);
-      font-size: 0.85rem;
-      font-family: var(--font-mono);
-      letter-spacing: 0.06em;
-    }
-
-    .loading.visible { display: flex; }
-
-    .loading-dots {
-      display: flex;
-      gap: 4px;
-    }
-
-    .loading-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--muted);
-      animation: dotBounce 1.2s infinite;
-    }
-
-    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes dotBounce {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-5px); opacity: 1; }
-    }
-
-    .result-card {
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
-    }
-
-    .result-card.visible {
-      display: block;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    .result-header {
-      padding: 1.25rem 1.5rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .risk-badge {
-      font-family: var(--font-display);
-      font-size: 1.35rem;
-      letter-spacing: 0.08em;
-      padding: 0.3rem 1rem;
-      border-radius: 2px;
-      flex-shrink: 0;
-      margin-top: 0.1rem;
-    }
-
-    .risk-safe {
-      background: var(--safe-bg);
-      color: var(--safe);
-      border: 1px solid var(--safe-border);
-    }
-
-    .risk-caution {
-      background: var(--caution-bg);
-      color: var(--caution);
-      border: 1px solid var(--caution-border);
-    }
-
-    .risk-danger {
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: 1px solid var(--danger-border);
-    }
-
-    .result-meaning {
-      font-size: 1rem;
-      line-height: 1.55;
-      color: var(--text);
-      font-weight: 500;
-      padding-top: 0.2rem;
-    }
-
-    .result-body {
-      padding: 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    @media (max-width: 500px) {
-      .result-body { grid-template-columns: 1fr; }
-    }
-
-    .result-section-label {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .signals-list, .steps-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.55rem;
-      list-style: none;
-    }
-
-    .signals-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.55rem;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--text);
-    }
-
-    .signal-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--caution);
-      flex-shrink: 0;
-      margin-top: 0.42em;
-    }
-
-    .signal-dot.safe { background: var(--safe); }
-    .signal-dot.danger { background: var(--danger); }
-    .signal-dot.caution { background: var(--caution); }
-
-    .steps-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--text);
-    }
-
-    .step-num {
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 0.1rem 0.45rem;
-      flex-shrink: 0;
-      margin-top: 0.18em;
-    }
-
-    .error-msg {
-      display: none;
-      padding: 1rem 1.5rem;
-      background: var(--danger-bg);
-      border: 1px solid var(--danger-border);
-      border-radius: 3px;
-      font-size: 0.88rem;
-      color: var(--danger);
-      line-height: 1.5;
-    }
-
-    .error-msg.visible {
-      display: block;
-      animation: fadeUp 0.3s ease both;
-    }
-
-    .reset-btn {
-      display: none;
-      margin-top: 1rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 0.45rem 1rem;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .reset-btn:hover {
-      border-color: var(--text);
-      color: var(--text);
-    }
-
-    .reset-btn.visible { display: inline-block; }
-
-    footer {
-      margin-top: 4rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      animation: fadeUp 0.6s 0.3s ease both;
-    }
-
-    .footer-left {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .footer-right {
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-weight: 400;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <p class="brand">ClearStep</p>
-      <h1>IS THIS SAFE<span class="qmark">?</span></h1>
-      <p class="header-sub">Paste a message. Get the risk and what to do next.</p>
-    </header>
 
-    <div class="input-card">
-      <label class="input-label" for="msgInput">Paste your message here</label>
-      <textarea id="msgInput" placeholder="Example: Your account has been locked. Click here immediately to verify your identity or your account will be closed within 24 hours."></textarea>
-
-      <div class="input-footer">
-        <div>
-          <p class="chips-label">Try an example</p>
-          <div class="examples">
-            <button class="example-btn" onclick="loadExample(0)">Bank scam</button>
-            <button class="example-btn" onclick="loadExample(1)">Suspicious link</button>
-            <button class="example-btn" onclick="loadExample(2)">Family emergency scam</button>
-            <button class="example-btn" onclick="loadExample(3)">Safe reminder</button>
-          </div>
-        </div>
-        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">CHECK MESSAGE</button>
-      </div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="topbar-brand"><span class="brand-clear">Clear</span><span class="brand-step">Step</span></span>
+  <div class="topbar-right">
+    <div class="rl-levels">
+      <button class="rl-btn" data-rl="simple" onclick="setRL(this)">Big</button>
+      <button class="rl-btn active" data-rl="standard" onclick="setRL(this)">Normal</button>
+      <button class="rl-btn" data-rl="detailed" onclick="setRL(this)">Small</button>
     </div>
-
-    <div class="loading" id="loading">
-      <div class="loading-dots">
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
+    <button class="tb-btn" onclick="openWizard()">
+      <div class="pal-dots" id="topDots">
+        <div class="pd" style="background:var(--bg2)"></div>
+        <div class="pd" style="background:var(--accent)"></div>
+        <div class="pd" style="background:var(--text)"></div>
       </div>
-      <span>Analyzing your message...</span>
-    </div>
+      Comfort
+    </button>
+    <button class="tb-btn" onclick="openProfiles()">Profiles</button>
+  </div>
+</div>
 
-    <div class="error-msg" id="errorMsg"></div>
 
-    <div class="result-card" id="resultCard">
-      <div class="result-header">
-        <div class="risk-badge" id="riskBadge"></div>
-        <div class="result-meaning" id="meaningText"></div>
-      </div>
 
-      <div class="result-body">
-        <div>
-          <p class="result-section-label">Key Signals</p>
-          <ul class="signals-list" id="signalsList"></ul>
-        </div>
-        <div>
-          <p class="result-section-label">Next Steps</p>
-          <ol class="steps-list" id="stepsList"></ol>
+<!-- MAIN -->
+<div class="wrap">
+  <header>
+    <h1>IS THIS SAFE?</h1>
+    <p class="header-sub">Paste a message. Get the risk and what to do next.</p>
+  </header>
+
+  <div class="input-card">
+    <label class="input-label" for="msgInput">Paste your message here</label>
+    <textarea id="msgInput" placeholder="Example: Your account has been locked. Click here immediately to verify your identity or your account will be closed within 24 hours."></textarea>
+    <div class="input-footer">
+      <div>
+        <p class="chips-label">Try an example</p>
+        <div class="examples">
+          <button class="example-btn" onclick="loadExample(0)">Bank scam</button>
+          <button class="example-btn" onclick="loadExample(1)">Suspicious link</button>
+          <button class="example-btn" onclick="loadExample(2)">Family emergency scam</button>
+          <button class="example-btn" onclick="loadExample(3)">Safe reminder</button>
         </div>
       </div>
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">CHECK MESSAGE</button>
     </div>
-
-    <button class="reset-btn" id="resetBtn" onclick="reset()">← Check another message</button>
-
-    <footer>
-      <span class="footer-left">ClearStep — Hackathon MVP</span>
-      <span class="footer-right">Risk decisions in seconds</span>
-    </footer>
   </div>
 
-  <script>
-    const API_URL = '/api/analyze';
-    // If Joanne gives you a full Azure URL later, replace with:
-    // const API_URL = 'https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net/api/analyze';
+  <div class="loading" id="loading">
+    <div class="loading-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+    <span>Checking your message...</span>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
 
-    const examples = [
-      "Your bank account has been locked due to suspicious activity. Click here immediately to verify your identity or your account will be permanently closed within 24 hours.",
-      "Hey, I found something you need to see. Click this link before it expires: bit.ly/xr9vcheck — let me know what you think.",
-      "Grandma it's me, I'm in jail and I need you to go to Walmart and buy $2000 in gift cards right now. Please don't tell Mom or Dad.",
-      "Hi! Just a reminder that your dentist appointment is tomorrow at 2:30 PM. Reply CONFIRM to confirm or CANCEL to cancel."
-    ];
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="risk-badge" id="riskBadge"></div>
+      <div class="result-meaning" id="meaningText"></div>
+    </div>
+    <div class="result-body">
+      <div>
+        <p class="rs-label">Key Signals</p>
+        <ul class="signals-list" id="signalsList"></ul>
+      </div>
+      <div>
+        <p class="rs-label">Next Steps</p>
+        <ol class="steps-list" id="stepsList"></ol>
+      </div>
+    </div>
 
-    const demoResults = [
-      {
-        risk_level: "High Risk",
-        meaning: "This is likely a scam using urgency to pressure you into action.",
-        signals: ["Urgent language", "Threat of account closure", "Suspicious link"],
-        next_steps: ["Do not click the link", "Contact your bank directly using the number on your card"]
-      },
-      {
-        risk_level: "Caution",
-        meaning: "This message includes a link that could be unsafe.",
-        signals: ["Unknown link", "Vague sender", "Pressure to act"],
-        next_steps: ["Do not click the link", "Go directly to the official website to check your account"]
-      },
-      {
-        risk_level: "High Risk",
-        meaning: "This is likely impersonation to pressure you into sending money.",
-        signals: ["Impersonation", "Urgent pressure", "Requests gift cards"],
-        next_steps: ["Do not send money", "Call the person directly to verify"]
-      },
-      {
-        risk_level: "Safe",
-        meaning: "This appears to be a normal reminder with no urgent risk signals.",
-        signals: ["Known context", "No urgency", "No sensitive request"],
-        next_steps: ["No urgent action needed. Respond normally if expected."]
-      }
-    ];
+    <!-- EXPLAINABILITY — collapsible, 1 line per signal -->
+    <div class="explain-panel">
+      <button class="explain-toggle" id="explainToggle" onclick="toggleExplain()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Why this result?
+        <svg class="chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="explain-body" id="explainBody"></div>
+    </div>
 
-    function loadExample(i) {
-      document.getElementById('msgInput').value = examples[i];
-      document.getElementById('errorMsg').classList.remove('visible');
-      renderResult(demoResults[i]);
-    }
+    <!-- FOCUS SUPPORT -->
+    <div class="focus-bar">
+      <span class="focus-label">Reminder</span><span id="reminderCount" style="font-size:0.65rem;color:var(--accent);margin-left:2px;font-family:var(--font-mono);"></span>
+      <button class="focus-btn" id="rem-1" onclick="toggleReminder(1)">1 min</button>
+      <button class="focus-btn" id="rem-2" onclick="toggleReminder(2)">2 min</button>
+      <button class="focus-btn" id="rem-5" onclick="toggleReminder(5)">5 min</button>
+      <button class="focus-btn" id="rem-10" onclick="toggleReminder(10)">10 min</button>
+      <span class="timer-disp" id="timerDisp"></span>
+      <button class="focus-btn" id="activeListBtn" onclick="toggleActiveList()" style="display:none">Active ▾</button>
+    </div>
+    <div class="active-list" id="activeList" style="display:none"></div>
 
-    async function analyze() {
-      const msg = document.getElementById('msgInput').value.trim();
+    <!-- FEEDBACK -->
+    <div class="feedback-row">
+      <span class="fb-label">Was this helpful?</span>
+      <button class="fb-btn" id="fbY" onclick="feedback(true)">Yes</button>
+      <button class="fb-btn" id="fbN" onclick="feedback(false)">No</button>
+      <span class="fb-thanks" id="fbThanks">Thanks — helps us improve.</span>
+    </div>
+  </div>
 
-      if (!msg) {
-        showError('Please paste a message to check.');
-        return;
-      }
+  <button class="reset-btn" id="resetBtn" onclick="resetAll()">← Check another message</button>
 
-      document.getElementById('resultCard').classList.remove('visible');
-      document.getElementById('errorMsg').classList.remove('visible');
-      document.getElementById('resetBtn').classList.remove('visible');
-      document.getElementById('loading').classList.add('visible');
-      document.getElementById('analyzeBtn').disabled = true;
+  <footer>
+    <span class="foot-l">ClearStep — Hackathon MVP</span>
+    <span class="foot-r">Calm guidance for high-stress decisions</span>
+  </footer>
+</div>
 
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ message: msg })
-        });
+<!-- WIZARD OVERLAY -->
+<div class="overlay" id="wizOverlay" onclick="closeOnBg(event,'wizOverlay')">
+  <div class="panel">
+    <div id="wizQ-section">
+      <div class="panel-title" id="wizStepLbl">Step 1 of 3</div>
+      <div class="wiz-q" id="wizQText"></div>
+      <div class="wiz-opts" id="wizOpts"></div>
+      <div class="wiz-nav">
+        <div class="wiz-dots" id="wizDots"></div>
+        <div class="wiz-btns">
+          <button class="wiz-btn" id="wizBack" onclick="wizPrev()" disabled>Back</button>
+          <button class="wiz-btn primary" id="wizNext" onclick="wizNext()" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+    <div class="wiz-result" id="wizResult">
+      <div class="panel-title">Your palette</div>
+      <div class="wiz-q" id="resName"></div>
+      <div class="pal-prev" id="resSwatches"></div>
+      <div class="pal-desc" id="resDesc"></div>
+      <div class="trait-list" id="resTraits"></div>
+      <div class="wiz-result-btns">
+        <button class="wiz-btn primary" onclick="applyPending()">Apply</button>
+        <button class="wiz-btn" onclick="wizRestart()">Retake</button>
+        <button class="wiz-btn" onclick="closeWizard()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}`);
-        }
+<!-- PROFILES OVERLAY -->
+<div class="overlay" id="profOverlay" onclick="closeOnBg(event,'profOverlay')">
+  <div class="panel">
+    <div class="panel-title">Colour profiles</div>
+    <div class="prof-grid" id="profGrid"></div>
+    <button class="panel-close" onclick="closeProfiles()">Done</button>
+  </div>
+</div>
 
-        const data = await response.json();
-        renderResult(data);
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-      } catch (e) {
-        showError('Unable to analyze right now. Please try again.');
-        console.error(e);
+<script>
+// ═══ PALETTE ENGINE ═══════════════════════════════════════
+const PROFILES = {
+  calm:{name:'Calm default',desc:'Off-white, charcoal text, muted teal. Works for everyone.',
+    vars:{'--bg':'#F7F7F2','--bg2':'#EEEEE8','--bg3':'#D8D8D0','--text':'#222222','--muted':'#4A4A4A','--accent':'#2F6E91'},
+    traits:['Default','Low stimulation','High contrast'],tc:'#1A4A6A',tb:'#D8EAF5'},
+  sensory:{name:'Low sensory',desc:'Muted neutral background, soft teal. Minimal visual noise.',
+    vars:{'--bg':'#EDECEA','--bg2':'#E2E0DD','--bg3':'#D0CEC9','--text':'#1E1E1E','--muted':'#555550','--accent':'#3D7A6B'},
+    traits:['Autism-friendly','Low noise','Muted tones'],tc:'#1A4A40',tb:'#D0E8E4'},
+  dyslexia:{name:'Dyslexia-friendly',desc:'Cream background, dark gray text. Reduces glare on long reads.',
+    vars:{'--bg':'#F5F0E0','--bg2':'#EDE8D5','--bg3':'#D8D0BE','--text':'#222222','--muted':'#5A5248','--accent':'#2F6E91'},
+    traits:['Dyslexia-friendly','Cream tones','Reduced glare'],tc:'#5A4020',tb:'#EEE0C0'},
+  focus:{name:'High focus',desc:'Pure minimal palette, one accent. Strips all distraction.',
+    vars:{'--bg':'#F8F8F8','--bg2':'#EEEEEE','--bg3':'#DCDCDC','--text':'#111111','--muted':'#555555','--accent':'#2F6E91'},
+    traits:['ADHD-friendly','High contrast','One accent'],tc:'#222288',tb:'#E0E0F0'},
+  dark:{name:'Dark mode',desc:'Dark background, light text. Easy on the eyes at night.',
+    vars:{'--bg':'#1C1F26','--bg2':'#252830','--bg3':'#2E3240','--text':'#E0E4EC','--muted':'#8A90A0','--accent':'#5A9ABF'},
+    traits:['Night use','Photosensitivity','Low glare'],tc:'#8ABCD0',tb:'#283040'}
+};
 
-      } finally {
-        document.getElementById('loading').classList.remove('visible');
-        document.getElementById('analyzeBtn').disabled = false;
-      }
-    }
+const QUESTIONS=[
+  {q:'How does your screen feel after a while?',opts:[
+    {t:'Words blur or crowd',d:'Hard to track, I lose my place',v:'glare'},
+    {t:'Brightness feels harsh',d:'Even moderate screens overwhelm',v:'bright'},
+    {t:'I get distracted easily',d:'Eyes jump around, focus is hard',v:'distract'},
+    {t:'Generally comfortable',d:'Just want something easy on the eyes',v:'fine'}]},
+  {q:'When do you mostly use this?',opts:[
+    {t:'Morning or daytime',d:'Brighter helps me stay alert',v:'morning'},
+    {t:'Evening or at night',d:'Bright screens feel jarring',v:'evening'},
+    {t:'All day — it varies',d:'Need something for any light',v:'all'}]},
+  {q:'How do you want to feel here?',opts:[
+    {t:'Calm',d:'Safe, unhurried, low stimulation',v:'calm'},
+    {t:'Focused',d:'Clear, sharp, nothing in the way',v:'focus'},
+    {t:'Warm',d:'Comfortable, easy on the eyes',v:'warm'},
+    {t:'Energised',d:'Alive, motivating, ready to go',v:'energised'}]}
+];
 
-    function renderResult(r) {
-      const badge = document.getElementById('riskBadge');
-      badge.textContent = r.risk_level;
-      badge.className = 'risk-badge ' +
-        (r.risk_level === 'Safe' ? 'risk-safe' : r.risk_level === 'Caution' ? 'risk-caution' : 'risk-danger');
+function scoreAnswers(ans){
+  const s={dyslexia:0,sensory:0,focus:0,dark:0,warm:0};
+  const m={glare:{dyslexia:4,warm:1},bright:{sensory:3,dark:4},distract:{focus:4},fine:{warm:3,focus:1},
+    morning:{focus:2,warm:2},evening:{dark:4,sensory:2},all:{dyslexia:1,warm:3,focus:1},
+    calm:{sensory:4,dyslexia:2},focus:{focus:4},warm:{warm:4,dyslexia:1},energised:{focus:3,warm:1}};
+  ans.forEach(v=>{if(m[v])Object.keys(m[v]).forEach(k=>s[k]+=m[v][k]);});
+  return Object.keys(s).reduce((a,b)=>s[a]>s[b]?a:b);
+}
 
-      document.getElementById('meaningText').textContent = r.meaning;
+function applyVars(vars){
+  const r=document.documentElement;
+  Object.keys(vars).forEach(k=>r.style.setProperty(k,vars[k]));
+  refreshTopDots(vars);
+}
+function refreshTopDots(vars){
+  const d=document.getElementById('topDots');
+  if(!d)return;
+  d.innerHTML=
+    `<div class="pd" style="background:${vars['--bg2']}"></div>`+
+    `<div class="pd" style="background:${vars['--accent']}"></div>`+
+    `<div class="pd" style="background:${vars['--text']||'#111'}"></div>`;
+}
 
-      const sigList = document.getElementById('signalsList');
-      sigList.innerHTML = '';
+let curProfile='calm',pendingKey=null,wizStep=0,wizAns=[];
 
-      const dotClass = r.risk_level === 'Safe'
-        ? 'safe'
-        : r.risk_level === 'High Risk'
-        ? 'danger'
-        : 'caution';
+function saveProfile(k){try{localStorage.setItem('cs_profile',k);}catch(e){}}
+function loadProfile(){
+  try{const k=localStorage.getItem('cs_profile');if(k&&PROFILES[k]){applyVars(PROFILES[k].vars);curProfile=k;}}catch(e){}
+}
 
-      const signals = (r.signals && r.signals.length)
-        ? r.signals
-        : ['No suspicious signals'];
+// Wizard
+function openWizard(){
+  wizStep=0;wizAns=[];pendingKey=null;
+  document.getElementById('wizResult').classList.remove('show');
+  document.getElementById('wizQ-section').style.display='block';
+  renderWizStep();
+  document.getElementById('wizOverlay').classList.add('open');
+}
+function closeWizard(){document.getElementById('wizOverlay').classList.remove('open');}
+function closeOnBg(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
 
-      signals.forEach(s => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="signal-dot ${dotClass}"></span><span>${s}</span>`;
-        sigList.appendChild(li);
-      });
+function renderWizStep(){
+  const q=QUESTIONS[wizStep];
+  if(!q)return;
+  const lbl=document.getElementById('wizStepLbl');
+  if(lbl)lbl.textContent=`Step ${wizStep+1} of ${QUESTIONS.length}`;
+  document.getElementById('wizQText').textContent=q.q;
+  const el=document.getElementById('wizOpts');if(!el)return;el.innerHTML='';
+  q.opts.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='wiz-opt'+(wizAns[wizStep]===o.v?' sel':'');
+    d.innerHTML=`<div class="wiz-opt-t">${o.t}</div><div class="wiz-opt-d">${o.d}</div>`;
+    d.onclick=()=>{
+      el.querySelectorAll('.wiz-opt').forEach(x=>x.classList.remove('sel'));
+      d.classList.add('sel');wizAns[wizStep]=o.v;
+      document.getElementById('wizNext').disabled=false;
+    };
+    el.appendChild(d);
+  });
+  const dots=document.getElementById('wizDots');if(dots)dots.innerHTML='';
+  QUESTIONS.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    dot.className='wdot'+(i===wizStep?' a':i<wizStep?' d':'');
+    dots.appendChild(dot);
+  });
+  document.getElementById('wizBack').disabled=wizStep===0;
+  document.getElementById('wizNext').disabled=!wizAns[wizStep];
+  document.getElementById('wizNext').textContent=wizStep<QUESTIONS.length-1?'Next':'See my palette';
+}
+function wizNext(){if(!wizAns[wizStep])return;if(wizStep<QUESTIONS.length-1){wizStep++;renderWizStep();}else showWizResult();}
+function wizPrev(){if(wizStep>0){wizStep--;renderWizStep();}}
+function wizRestart(){wizStep=0;wizAns=[];document.getElementById('wizResult').classList.remove('show');document.getElementById('wizQ-section').style.display='block';renderWizStep();}
 
-      const stepList = document.getElementById('stepsList');
-      stepList.innerHTML = '';
+function showWizResult(){
+  const key=scoreAnswers(wizAns);pendingKey=key;const p=PROFILES[key];
+  document.getElementById('wizQ-section').style.display='none';
+  document.getElementById('resName').textContent=p.name;
+  document.getElementById('resDesc').textContent=p.desc;
+  const sw=document.getElementById('resSwatches');sw.innerHTML='';
+  ['--bg','--bg2','--accent','--text'].forEach(v=>{
+    const d=document.createElement('div');d.className='pal-sw';d.style.background=p.vars[v]||'#ccc';sw.appendChild(d);
+  });
+  const tl=document.getElementById('resTraits');tl.innerHTML='';
+  p.traits.forEach(t=>{const s=document.createElement('span');s.className='trait';s.style.background=p.tb;s.style.color=p.tc;s.textContent=t;tl.appendChild(s);});
+  applyVars(p.vars);
+  document.getElementById('wizResult').classList.add('show');
+}
+function applyPending(){
+  if(!pendingKey)return;
+  curProfile=pendingKey;saveProfile(pendingKey);applyVars(PROFILES[pendingKey].vars);
+  closeWizard();toast('Palette applied: '+PROFILES[pendingKey].name);buildProfGrid();
+}
 
-      (r.next_steps || []).forEach((s, i) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="step-num">${i + 1}</span><span>${s}</span>`;
-        stepList.appendChild(li);
-      });
+// Profiles panel
+function openProfiles(){buildProfGrid();document.getElementById('profOverlay').classList.add('open');}
+function closeProfiles(){document.getElementById('profOverlay').classList.remove('open');}
+function buildProfGrid(){
+  const g=document.getElementById('profGrid');
+  if(!g)return;
+  g.innerHTML='';
+  Object.keys(PROFILES).forEach(key=>{
+    const p=PROFILES[key];
+    if(!p)return;
+    const card=document.createElement('div');
+    card.className='prof-card'+(key===curProfile?' active':'');
+    const sw=['--bg','--bg2','--accent','--text'].map(v=>`<div class="prof-sw" style="background:${p.vars[v]||'#ccc'}"></div>`).join('');
+    card.innerHTML=`<div class="prof-swatches">${sw}</div><div class="prof-name">${p.name}</div>`;
+    card.onclick=()=>{curProfile=key;saveProfile(key);applyVars(p.vars);buildProfGrid();toast('Switched: '+p.name);};
+    g.appendChild(card);
+  });
+}
 
-      document.getElementById('resultCard').classList.add('visible');
-      document.getElementById('resetBtn').classList.add('visible');
-      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+// ═══ READING LEVEL ═══════════════════════════════════════
+// Affects ONLY font size + line height — never output content
+let curRL='standard';
+const RL_HINT={simple:'Bigger text',standard:'Normal text',detailed:'Smaller text'};
+const RL_FS={simple:'1.12rem',standard:'1rem',detailed:'0.97rem'};
+const RL_LH={simple:'1.9',standard:'1.65',detailed:'1.6'};
 
-    function showError(msg) {
-      const el = document.getElementById('errorMsg');
-      el.textContent = msg;
-      el.classList.add('visible');
-      document.getElementById('loading').classList.remove('visible');
-    }
+function setRL(btn){
+  document.querySelectorAll('.rl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');curRL=btn.dataset.rl;
+  
+  document.documentElement.style.setProperty('--fs',RL_FS[curRL]);
+  document.documentElement.style.setProperty('--lh',RL_LH[curRL]);
+  try{localStorage.setItem('cs_rl',curRL);}catch(e){}
+}
+function loadRL(){
+  try{const s=localStorage.getItem('cs_rl');if(s){const b=document.querySelector(`[data-rl="${s}"]`);if(b)setRL(b);}}catch(e){}
+}
 
-    function reset() {
-      document.getElementById('msgInput').value = '';
-      document.getElementById('resultCard').classList.remove('visible');
-      document.getElementById('errorMsg').classList.remove('visible');
-      document.getElementById('resetBtn').classList.remove('visible');
-      document.getElementById('msgInput').focus();
-    }
+// ═══ EXPLAINABILITY — 1 line per signal, no essays ════════
+// Maps signal labels to plain 1-line explanations
+const EXPLAIN_MAP={
+  'Urgent language':'Uses words like "immediately" to stop you thinking.',
+  'Threat language':'Threatens consequences to create fear.',
+  'Suspicious link':'Contains a link that may not go where it says.',
+  'Impersonation':'Pretends to be someone you know or trust.',
+  'Urgent pressure':'Combines urgency with personal pressure.',
+  'Requests gift cards':'Gift card requests are always a scam.',
+  'Requests payment':'Asks for money in an unexpected way.',
+  'Requests personal info':'Asks for information you should never share by text.',
+  'Emotional pressure':'Uses emotions to cloud your judgment.',
+  'System manipulation':'Tries to change how this tool works.',
+  'Indirect manipulation':'Uses a story or creative request to extract information.',
+  'Instruction override':'Tries to override safety instructions.',
+  'No suspicious signals':'No warning patterns were found in this message.',
+  'Crisis language':'Contains language that may indicate a mental health crisis.',
+  'Self-harm concern':'Mentions self-harm or ending one\'s life.'
+};
 
-    document.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') analyze();
+function buildExplain(risk,signals){
+  const items=[];
+  if(risk==='Safe'){
+    items.push({type:'safe',text:'No pressure tactics, suspicious links, or unusual requests found.'});
+    items.push({type:'info',text:'ClearStep is an AI tool — always trust your instincts too.'});
+  } else {
+    (signals||[]).forEach(s=>{
+      const txt=EXPLAIN_MAP[s]||`"${s}" was detected in this message.`;
+      items.push({type:'flag',text:txt});
     });
+    items.push({type:'info',text:'ClearStep is an AI tool — verify directly if unsure.'});
+  }
+  return items;
+}
 
-    document.getElementById('msgInput').focus();
-  </script>
+function renderExplain(risk,signals){
+  const body=document.getElementById('explainBody');body.innerHTML='';
+  buildExplain(risk,signals).forEach(item=>{
+    const div=document.createElement('div');div.className='explain-item';
+    const iconClass=item.type==='flag'?'flag':item.type==='safe'?'safe':'info';
+    const iconChar=item.type==='flag'?'!':item.type==='safe'?'✓':'i';
+    div.innerHTML=`<div class="ei ${iconClass}">${iconChar}</div><span>${item.text}</span>`;
+    body.appendChild(div);
+  });
+}
+function toggleExplain(){
+  const btn=document.getElementById('explainToggle');
+  const body=document.getElementById('explainBody');
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);btn.classList.toggle('open',!open);
+}
+
+// ═══ FOCUS SUPPORT ════════════════════════════════════════
+let timerInt=null,timerSec=0,timerOn=false;
+
+// Reminders — click to set, click again to cancel
+const activeReminders=[];
+function toggleReminder(mins){
+  const label=mins+' min';
+  const btnId='rem-'+mins;
+  const btn=document.getElementById(btnId);
+  const existing=activeReminders.find(r=>r.mins===mins);
+  if(existing){
+    // Cancel reminder
+    clearTimeout(existing.id);
+    activeReminders.splice(activeReminders.indexOf(existing),1);
+    if(btn){btn.classList.remove('active');btn.textContent=label;}
+    updateReminderCount();
+    // Also stop timer if it was running for this slot
+    if(timerOn && existing.timerOwner){
+      clearInterval(timerInt);timerOn=false;
+      const disp=document.getElementById('timerDisp');
+      if(disp)disp.style.display='none';
+    }
+    toast('Cancelled: '+label+'.');
+    return;
+  }
+  // Stop any running timer first
+  if(timerOn){
+    clearInterval(timerInt);timerOn=false;
+    const disp=document.getElementById('timerDisp');
+    if(disp)disp.style.display='none';
+    // Reset previously active reminder button
+    activeReminders.forEach(r=>{
+      if(r.timerOwner){
+        r.timerOwner=false;
+        const b=document.getElementById('rem-'+r.mins);
+        if(b)b.textContent=r.label;
+      }
+    });
+  }
+  // Set background reminder
+  const id=setTimeout(()=>{
+    playBeep();
+    calmToast();
+    const idx=activeReminders.findIndex(r=>r.mins===mins);
+    if(idx>-1)activeReminders.splice(idx,1);
+    if(btn){btn.classList.remove('active');btn.textContent=label;}
+    const disp=document.getElementById('timerDisp');
+    if(disp)disp.style.display='none';
+    timerOn=false;
+    updateReminderCount();
+  },mins*60*1000);
+  // Start visible countdown
+  timerSec=mins*60;timerOn=true;timerCooldown=false;
+  const disp=document.getElementById('timerDisp');
+  if(disp)disp.style.display='block';
+  updateTimerDisp();
+  timerInt=setInterval(()=>{
+    timerSec--;updateTimerDisp();
+    if(timerSec<=0){clearInterval(timerInt);timerOn=false;if(disp)disp.style.display='none';}
+  },1000);
+  activeReminders.push({id,mins,label,timerOwner:true});
+  if(btn){btn.classList.add('active');btn.textContent='✕ '+label;}
+  updateReminderCount();
+  toast(label+' timer started. Tap again to cancel.');
+}
+function updateReminderCount(){
+  const countEl=document.getElementById('reminderCount');
+  if(countEl)countEl.textContent=activeReminders.length>0?activeReminders.length+' active':'';
+  const listBtn=document.getElementById('activeListBtn');
+  if(listBtn)listBtn.style.display=activeReminders.length>0?'flex':'none';
+  renderActiveList();
+}
+function toggleActiveList(){
+  const list=document.getElementById('activeList');
+  if(!list)return;
+  list.style.display=list.style.display==='none'?'flex':'none';
+}
+function renderActiveList(){
+  const list=document.getElementById('activeList');
+  if(!list)return;
+  list.innerHTML='';
+  if(activeReminders.length===0){list.style.display='none';return;}
+  activeReminders.forEach(r=>{
+    const item=document.createElement('div');
+    item.className='active-list-item';
+    const running=r.timerOwner&&timerOn;
+    const timeLeft=running?Math.ceil(timerSec/60)+' min left':r.label+' reminder';
+    item.innerHTML=`<span>${r.label}</span><span>${timeLeft}</span><button class="active-cancel" onclick="toggleReminder(${r.mins})">✕ Cancel</button>`;
+    list.appendChild(item);
+  });
+}
+const calmPhrases=[
+  'Take a moment. You are in control.',
+  'No rush. You have time.',
+  'Breathe. Then decide.',
+  'Whenever you are ready.',
+  'You have got this. Take your time.'
+];
+let calmIdx=0;
+function showToastLong(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),9000);
+}
+function calmToast(){
+  const t=document.getElementById('toast');
+  t.textContent=calmPhrases[calmIdx%calmPhrases.length];
+  calmIdx++;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),9000);
+}
+
+function playBeep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.value=520;
+    gain.gain.setValueAtTime(0.4,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.2);
+  }catch(e){}
+  if(navigator.vibrate)navigator.vibrate([300,100,300]);
+}
+let timerCooldown=false;
+function updateTimerDisp(){
+  const m=Math.floor(timerSec/60),s=timerSec%60;
+  document.getElementById('timerDisp').textContent=m+':'+(s<10?'0':'')+s;
+}
+
+// ═══ FEEDBACK ═════════════════════════════════════════════
+function feedback(helpful){
+  document.getElementById('fbY').className='fb-btn'+(helpful?' yes':'');
+  document.getElementById('fbN').className='fb-btn'+(!helpful?' no':'');
+  const thanks=document.getElementById('fbThanks');
+  thanks.textContent=helpful?'Glad it helped.':'Thanks — we will use this to improve.';
+  thanks.classList.add('show');
+  try{
+    const d=JSON.parse(localStorage.getItem('cs_fb')||'{"y":0,"n":0}');
+    if(helpful)d.y++;else d.n++;
+    localStorage.setItem('cs_fb',JSON.stringify(d));
+  }catch(e){}
+}
+
+// ═══ ANALYZE ENGINE ═══════════════════════════════════════
+const API_URL='/api/analyze';
+
+const examples=[
+  "Your bank account has been locked due to suspicious activity. Click here immediately to verify your identity or your account will be permanently closed within 24 hours.",
+  "Hey, I found something you need to see. Click this link before it expires: bit.ly/xr9vcheck — let me know what you think.",
+  "Grandma it's me, I'm in jail and I need you to go to Walmart and buy $2000 in gift cards right now. Please don't tell Mom or Dad.",
+  "Hi! Just a reminder that your dentist appointment is tomorrow at 2:30 PM. Reply CONFIRM to confirm or CANCEL to cancel.",
+  "Hi, per our earlier discussion please action the deliverables from the sync and loop in the relevant stakeholders before EOD to ensure alignment with the Q2 roadmap priorities.",
+  "Complete the onboarding form, submit your I-9 with two forms of ID, enroll in benefits within 30 days, set up direct deposit, and schedule your orientation with HR before your first day."
+];
+
+// Hardcoded demo results — exact format, max 2 steps
+const demoResults=[
+  {risk_level:"High Risk",meaning:"This message is trying to scare you into acting quickly.",
+    signals:["Urgent language","Threat language","Suspicious link"],
+    next_steps:["Do not click the link","Contact your bank directly"]},
+  {risk_level:"Caution",meaning:"This message may be a suspicious link asking for your attention.",
+    signals:["Unknown link","Vague sender","Pressure to act"],
+    next_steps:["Do not click the link","Go directly to the official website"]},
+  {risk_level:"High Risk",meaning:"This message may be pretending to be someone you know.",
+    signals:["Impersonation","Urgent pressure","Requests gift cards"],
+    next_steps:["Do not send money","Call the person directly"]},
+  {risk_level:"Safe",meaning:"This looks like a normal reminder with no risk signs.",
+    signals:["No suspicious signals"],
+    next_steps:["Confirm if correct"]},
+  {risk_level:"Caution",meaning:"This email is asking you to do several things at once.",
+    signals:["Vague instructions","Multiple tasks","Unclear deadline"],
+    next_steps:["Ask which task is most urgent","Write down each task separately"]},
+  {risk_level:"Safe",meaning:"This is a list of tasks you need to complete before starting.",
+    signals:["No suspicious signals"],
+    next_steps:["Start with the I-9 form","Complete one task per day"]}
+];
+
+function loadExample(i){
+  document.getElementById('msgInput').value=examples[i];
+  document.getElementById('errorMsg').classList.remove('visible');
+  renderResult(demoResults[i]);
+}
+
+// Fallback rule-based engine — if API fails
+function fallback(msg){
+  const m=msg.toLowerCase();
+  let score=0;
+  if(m.match(/urgent|immediately|right now|24 hour/))score+=3;
+  if(m.match(/click|http|bit\.ly|verify/))score+=2;
+  if(m.match(/suspend|lock|clos|terminat/))score+=2;
+  if(m.match(/gift card|bitcoin|wire transfer/))score+=4;
+  if(m.match(/password|social security|account number/))score+=3;
+  if(score>=5)return{risk_level:"High Risk",meaning:"This message shows several warning signs.",
+    signals:["Urgent language","Suspicious request"],next_steps:["Do not click any links","Contact the organisation directly"]};
+  if(score>=2)return{risk_level:"Caution",meaning:"Parts of this message are worth checking before acting.",
+    signals:["Unusual phrasing","Action request"],next_steps:["Pause before clicking anything","Verify through an official channel"]};
+  return{risk_level:"Safe",meaning:"This message looks routine with no obvious warning signs.",
+    signals:["No suspicious signals"],next_steps:["No urgent action needed"]};
+}
+
+async function analyze(){
+  const msg=document.getElementById('msgInput').value.trim();
+  if(!msg){showError('Please paste a message to check.');return;}
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('errorMsg').classList.remove('visible');
+  document.getElementById('resetBtn').classList.remove('visible');
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('analyzeBtn').disabled=true;
+  document.getElementById('explainBody').classList.remove('open');
+  document.getElementById('explainToggle').classList.remove('open');
+  try{
+    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+    if(!res.ok)throw new Error('API error '+res.status);
+    const data=await res.json();
+    // Enforce max 2 next_steps regardless of what API returns
+    if(data.next_steps&&data.next_steps.length>2)data.next_steps=data.next_steps.slice(0,2);
+    renderResult(data);
+  }catch(e){
+    renderResult(fallback(msg));
+  }finally{
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('analyzeBtn').disabled=false;
+  }
+}
+
+function renderResult(r){
+  const badge=document.getElementById('riskBadge');
+  badge.textContent=r.risk_level;
+  badge.className='risk-badge '+(r.risk_level==='Safe'?'risk-safe':r.risk_level==='Caution'?'risk-caution':'risk-danger');
+  document.getElementById('meaningText').textContent=r.meaning;
+
+  const dotClass=r.risk_level==='Safe'?'safe':r.risk_level==='High Risk'?'danger':'caution';
+  const sl=document.getElementById('signalsList');sl.innerHTML='';
+  (r.signals&&r.signals.length?r.signals:['No suspicious signals']).forEach(s=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="sdot ${dotClass}"></span><span>${s}</span>`;
+    sl.appendChild(li);
+  });
+
+  const stl=document.getElementById('stepsList');stl.innerHTML='';
+  // Hard cap: max 2 steps
+  (r.next_steps||[]).slice(0,2).forEach((s,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="step-num">${i+1}</span><span>${s}</span>`;
+    stl.appendChild(li);
+  });
+
+  renderExplain(r.risk_level,r.signals||[]);
+
+  document.getElementById('fbY').className='fb-btn';
+  document.getElementById('fbN').className='fb-btn';
+  document.getElementById('fbThanks').classList.remove('show');
+  document.getElementById('explainBody').classList.remove('open');
+  document.getElementById('explainToggle').classList.remove('open');
+
+  document.getElementById('resultCard').classList.add('visible');
+  document.getElementById('resetBtn').classList.add('visible');
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function showError(msg){
+  const el=document.getElementById('errorMsg');el.textContent=msg;el.classList.add('visible');
+  document.getElementById('loading').classList.remove('visible');
+}
+
+function resetAll(){
+  document.getElementById('msgInput').value='';
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('errorMsg').classList.remove('visible');
+  document.getElementById('resetBtn').classList.remove('visible');
+  document.getElementById('msgInput').focus();
+  if(timerOn){clearInterval(timerInt);timerOn=false;const d=document.getElementById("timerDisp");if(d)d.style.display="none";}
+}
+
+// ═══ TOAST ════════════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),9000);
+}
+
+// ═══ KEYBOARD ═════════════════════════════════════════════
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')analyze();});
+
+// ═══ INIT ═════════════════════════════════════════════════
+loadProfile();
+loadRL();
+buildProfGrid();
+renderWizStep();
+document.getElementById('msgInput').focus();
+</script>
 </body>
 </html>
