@@ -13,8 +13,8 @@
   --text:#222222;--muted:#4A4A4A;--accent:#2F6E91;
   --safe:#00875A;--safe-bg:#E6F6F0;--safe-border:#9ADFC3;
   --caution:#A04A00;--caution-bg:#FEF0DC;--caution-border:#F0C070;
-  --danger:#B91C1C;--danger-bg:#FEE8E8;--danger-border:#F0AAAA;
-  --warn:#7A1C1C;--warn-bg:#FEF0E8;--warn-border:#F0B090;
+  --danger:#A33030;--danger-bg:#FAEAEA;--danger-border:#DDA0A0;
+  --warn:#8A3A1A;--warn-bg:#FDF5EF;--warn-border:#E8C4A8;
   --font-display:'Bebas Neue',sans-serif;
   --font-body:'DM Sans',sans-serif;
   --font-mono:'DM Mono',monospace;
@@ -22,7 +22,7 @@
   --tr:background 0.4s,color 0.3s,border-color 0.3s;
 }
 
-html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:var(--fs);line-height:var(--lh);transition:var(--tr);}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:var(--fs);line-height:var(--lh);transition:var(--tr);-webkit-font-smoothing:antialiased;}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 
 /* ── TOPBAR ── */
@@ -57,7 +57,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .mode-icon{font-size:2rem;margin-bottom:0.9rem;display:block;}
 .mode-title{font-family:var(--font-display);font-size:1.8rem;letter-spacing:0.05em;color:var(--text);margin-bottom:0.5rem;}
 .mode-num{display:inline;font-size:1.8rem;font-family:var(--font-display);letter-spacing:0.05em;opacity:0.45;margin-right:4px;}
-.mode-desc{font-size:0.82rem;color:var(--muted);line-height:1.5;}
+.mode-desc{font-size:0.86rem;color:var(--text);opacity:0.7;line-height:1.6;}
 #card-safe{border-color:#2F6E91;background:#EDF4F8;}
 #card-safe .mode-title{color:#2F6E91;}
 #card-safe .mode-num{color:#2F6E91;opacity:0.6;}
@@ -74,12 +74,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .screen-header{text-align:center;margin-bottom:2rem;}
 .screen-header h1{font-family:var(--font-display);font-size:clamp(2.8rem,8vw,4.5rem);line-height:0.92;letter-spacing:0.02em;color:var(--text);}
 .screen-header p{margin-top:0.75rem;font-size:0.95rem;color:var(--muted);}
-.back-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:0;margin-bottom:1.5rem;transition:color 0.2s;}
-.back-btn:hover{color:var(--accent);}
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1.5px solid var(--bg3);border-radius:6px;font-family:var(--font-mono);font-size:0.74rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);cursor:pointer;padding:10px 20px;margin-bottom:1.4rem;transition:all 0.2s;font-weight:500;}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--bg2);}
 
 /* ── INPUT CARD ── */
 .input-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:3px;padding:1.4rem;margin-bottom:1.1rem;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:var(--tr);}
-.input-label{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:0.65rem;display:block;}
+.input-label{font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text);opacity:0.65;margin-bottom:0.65rem;display:block;font-weight:500;}
 textarea{width:100%;min-height:120px;border:1px solid var(--bg3);border-radius:2px;padding:0.9rem 1rem;font-family:var(--font-body);font-size:0.95rem;line-height:var(--lh);color:var(--text);background:var(--bg);resize:vertical;outline:none;transition:border-color 0.2s,background 0.4s;}
 textarea:focus{border-color:var(--accent);}
 textarea::placeholder{color:#A8A39C;}
@@ -108,23 +108,73 @@ textarea::placeholder{color:#A8A39C;}
 .risk-safe{background:var(--safe-bg);color:var(--safe);border:1px solid var(--safe-border);}
 .risk-caution{background:var(--caution-bg);color:var(--caution);border:1px solid var(--caution-border);}
 .risk-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
-.result-meaning{font-size:0.98rem;line-height:1.5;color:var(--text);font-weight:500;padding-top:0.15rem;}
+.result-meaning{font-size:1.05rem;line-height:1.6;color:var(--text);font-weight:600;padding-top:0.15rem;}
 .result-body{padding:1.2rem 1.4rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
 @media(max-width:480px){.result-body{grid-template-columns:1fr;}}
-.rs-label{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;}
+.rs-label{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text);opacity:0.6;margin-bottom:0.7rem;font-weight:600;}
 .signals-list,.steps-list{display:flex;flex-direction:column;gap:0.48rem;list-style:none;}
-.signals-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.88rem;line-height:1.5;color:var(--text);}
+.signals-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.92rem;line-height:1.7;color:var(--text);margin-bottom:4px;}
 .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:0.42em;}
 .sdot.safe{background:var(--safe);}.sdot.caution{background:var(--caution);}.sdot.danger{background:var(--danger);}
-.steps-list li{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;line-height:1.5;color:var(--text);}
+.steps-list li{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.92rem;line-height:1.7;color:var(--text);margin-bottom:6px;}
 .step-num{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);background:var(--bg);border:1px solid var(--bg3);border-radius:2px;padding:0.1rem 0.4rem;flex-shrink:0;margin-top:0.18em;transition:var(--tr);}
 
+/* ── SIMPLE MODE PROGRESSIVE FLOW ── */
+.simple-phase{}
+.simple-start{padding:1.2rem 1.4rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
+.start-btn{padding:0.75rem 1.8rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--font-display);font-size:1.1rem;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;}
+.start-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.see-all-btn{padding:0.25rem 0;background:transparent;border:none;font-size:0.72rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;text-decoration:underline;text-underline-offset:2px;}
+.see-all-btn:hover{color:var(--accent);}
+.step-view{padding:1.4rem;animation:fadeUp 0.35s ease both;}
+.step-progress-wrap{margin-bottom:1rem;}
+.step-progress-nums{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;}
+.step-num-current{font-family:var(--font-display);font-size:3.5rem;line-height:1;color:var(--accent);transition:all 0.3s ease;}
+.step-num-sep{font-family:var(--font-mono);font-size:0.8rem;color:var(--muted);}
+.step-num-total{font-family:var(--font-mono);font-size:1.1rem;color:var(--muted);}
+.step-progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.step-progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;}
+.step-task{font-size:1.15rem;font-weight:600;color:var(--text);line-height:1.75;margin-bottom:1.1rem;padding:1.1rem 1.2rem;background:var(--bg);border:2px solid var(--accent);border-radius:6px;}
+.step-reminder-area{margin-bottom:1rem;padding:0.65rem 0.85rem;background:var(--bg);border:1px solid var(--bg3);border-radius:6px;}
+.reminder-state{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.reminder-none-label{font-size:0.88rem;color:var(--text);font-family:var(--font-body);}
+.add-reminder-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:3px 10px;font-size:0.74rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.add-reminder-btn:hover{border-color:var(--accent);color:var(--accent);}
+.reminder-state-picker{flex-direction:column;align-items:flex-start;gap:6px;}
+.reminder-for-label{font-size:0.7rem;font-family:var(--font-mono);letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+.reminder-step-preview{font-size:0.84rem;font-weight:500;color:var(--text);padding:5px 8px;background:var(--bg2);border-radius:4px;border-left:2px solid var(--accent);max-width:100%;}
+.reminder-when-label{font-size:0.7rem;font-family:var(--font-mono);letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.reminder-picker-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.reminder-picker-btns button{padding:5px 12px;border:1px solid var(--bg3);border-radius:4px;background:transparent;font-size:0.78rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.reminder-picker-btns button:hover{border-color:var(--accent);background:var(--accent);color:#fff;}
+.reminder-active-block{display:flex;flex-direction:column;gap:3px;flex:1;}
+.reminder-active-step{font-size:0.78rem;color:var(--muted);font-style:italic;}
+.reminder-cancel-link{background:none;border:none;font-size:0.72rem;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline;}
+.reminder-active-label{font-size:0.78rem;color:var(--accent);font-weight:500;}
+.reminder-cancel-btn{background:transparent;border:1px solid var(--danger-border);border-radius:4px;padding:2px 9px;font-size:0.72rem;color:var(--danger);cursor:pointer;transition:all 0.2s;font-family:var(--font-body);}
+.reminder-cancel-btn:hover{background:var(--danger-bg);}
+.undo-row{display:flex;align-items:center;gap:10px;padding:0.6rem 0;animation:fadeUp 0.2s ease both;}
+.undo-label{font-size:0.85rem;color:var(--safe);font-weight:500;}
+.undo-btn{padding:3px 12px;border:1px solid var(--safe-border);border-radius:4px;background:var(--safe-bg);color:var(--safe);font-size:0.74rem;font-family:var(--font-body);cursor:pointer;transition:all 0.2s;}
+.undo-btn:hover{background:var(--safe);color:#fff;}
+.undo-timer{font-size:0.7rem;color:var(--muted);font-family:var(--font-mono);}
+.mark-done-btn{width:100%;padding:0.85rem;background:var(--safe);color:#fff;border:none;border-radius:6px;font-family:var(--font-display);font-size:1.2rem;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;}
+.mark-done-btn:hover{filter:brightness(1.08);}
+.complete-view{padding:2rem 1.4rem;text-align:center;}
+.complete-icon{font-size:2.5rem;color:var(--safe);margin-bottom:0.75rem;}
+.complete-text{font-family:var(--font-display);font-size:2rem;color:var(--safe);letter-spacing:0.05em;margin-bottom:0.4rem;}
+.complete-sub{font-size:0.9rem;color:var(--muted);}
+
 /* ── WARNINGS BLOCK (Make It Simple mode) ── */
-.warnings-block{margin:0 1.4rem 0;padding:0.9rem 1rem;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;border-left:3px solid var(--warn);}
-.warn-label{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--warn);margin-bottom:0.5rem;}
+.warnings-block{margin:0 1.4rem 0;padding:0.7rem 1rem;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;border-left:2px solid var(--warn);}
+.warn-label{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--warn);margin-bottom:0.65rem;font-weight:600;}
 .warn-list{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
-.warn-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.86rem;color:var(--warn);font-weight:500;}
+.warn-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.95rem;color:var(--warn);font-weight:600;line-height:1.7;margin-bottom:4px;}
 .warn-list li::before{content:"✕";flex-shrink:0;font-size:0.75rem;margin-top:0.1rem;}
+.warnings-block-soft{background:var(--bg2);border-color:var(--bg3);border-left-color:var(--accent);}
+.warnings-block-soft .warn-label{color:var(--accent);}
+.warnings-block-soft .warn-list li{color:var(--text);font-weight:500;}
+.warnings-block-soft .warn-list li::before{content:"→";color:var(--accent);}
 
 /* ── TASK LIST (Make It Simple mode) ── */
 .tasks-section{padding:1.2rem 1.4rem;border-top:1px solid var(--bg3);}
@@ -145,12 +195,23 @@ textarea::placeholder{color:#A8A39C;}
 .task-step-num{font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);flex-shrink:0;margin-top:0.18em;min-width:20px;}
 
 /* Done section */
-.done-section{margin-top:0.75rem;border-top:1px solid var(--bg3);padding-top:0.75rem;display:none;}
-.done-section.visible{display:block;}
-.done-label{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--safe);margin-bottom:0.5rem;}
-.done-list{display:flex;flex-direction:column;gap:0.35rem;list-style:none;}
-.done-item{display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--muted);text-decoration:line-through;padding:0.3rem 0;}
-.done-check{color:var(--safe);font-size:0.75rem;flex-shrink:0;}
+.unified-steps{margin-top:0.5rem;border-top:1px solid var(--bg3);padding-top:0.75rem;}
+.unified-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+.unified-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0;border-bottom:1px solid var(--bg3);font-size:0.9rem;}
+.unified-item:last-child{border-bottom:none;}
+.unified-done{opacity:0.55;}
+.unified-done .u-text{text-decoration:line-through;color:var(--muted);}
+.unified-current{background:transparent;}
+.unified-current .u-text{font-weight:600;color:var(--text);}
+.unified-future .u-text{color:var(--muted);}
+.u-check{color:var(--safe);font-size:0.8rem;flex-shrink:0;width:18px;text-align:center;}
+.u-num{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);flex-shrink:0;width:18px;text-align:center;}
+.u-text{flex:1;line-height:1.5;}
+.u-tag{font-size:0.65rem;font-family:var(--font-mono);background:var(--accent);color:#fff;padding:2px 7px;border-radius:20px;flex-shrink:0;letter-spacing:0.05em;}
+.done-undo-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:1px 8px;font-size:0.7rem;color:var(--muted);cursor:pointer;flex-shrink:0;font-family:var(--font-body);transition:all 0.2s;}
+.done-undo-btn:hover{border-color:var(--accent);color:var(--accent);}
+.undo-all-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:4px 10px;font-size:0.72rem;color:var(--muted);cursor:pointer;width:100%;margin-bottom:8px;font-family:var(--font-body);transition:all 0.2s;text-align:center;}
+.undo-all-btn:hover{border-color:var(--danger);color:var(--danger);}
 
 /* Show more button */
 .show-more-btn{width:100%;margin-top:0.65rem;padding:0.5rem;background:transparent;border:1px solid var(--bg3);border-radius:4px;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.2s;}
@@ -158,8 +219,8 @@ textarea::placeholder{color:#A8A39C;}
 
 /* ── EXPLAIN PANEL ── */
 .explain-panel{border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;}
-.explain-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.78rem;color:var(--muted);background:none;border:none;font-family:var(--font-body);padding:0;transition:color 0.2s;}
-.explain-toggle:hover{color:var(--accent);}
+.explain-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.82rem;color:var(--text);background:none;border:none;font-family:var(--font-body);padding:0;transition:color 0.2s;opacity:0.75;}
+.explain-toggle:hover{color:var(--accent);opacity:1;}
 .explain-toggle .chevron{transition:transform 0.25s;}
 .explain-toggle.open .chevron{transform:rotate(180deg);}
 .explain-body{display:none;margin-top:0.75rem;}
@@ -188,13 +249,14 @@ textarea::placeholder{color:#A8A39C;}
 .fb-btn.yes{background:var(--safe-bg);border-color:var(--safe);color:var(--safe);}
 .fb-btn.no{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);}
 .fb-thanks{font-size:0.74rem;color:var(--muted);display:none;}
+.feedback-after{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .fb-thanks.show{display:block;}
 
 /* ── ERROR / RESET / FOOTER ── */
 .error-msg{display:none;padding:0.9rem 1.2rem;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:3px;font-size:0.85rem;color:var(--danger);line-height:1.5;}
 .error-msg.visible{display:block;animation:fadeUp 0.3s ease both;}
-.reset-btn{display:none;margin-top:0.9rem;background:transparent;border:1px solid var(--bg3);color:var(--muted);font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.42rem 1rem;border-radius:2px;cursor:pointer;transition:all 0.2s;}
-.reset-btn:hover{border-color:var(--text);color:var(--text);}
+.reset-btn{display:none;margin-top:1rem;background:var(--bg2);border:1.5px solid var(--bg3);color:var(--text);font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1.4rem;border-radius:6px;cursor:pointer;transition:all 0.2s;font-weight:500;}
+.reset-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--bg);}
 .reset-btn.visible{display:inline-block;}
 footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.4rem;transition:var(--tr);}
 .foot-l{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
@@ -245,6 +307,8 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.reminder-change-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:2px 9px;font-size:0.72rem;color:var(--muted);cursor:pointer;transition:all 0.2s;font-family:var(--font-body);}
+.reminder-change-btn:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
@@ -303,7 +367,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
     </div>
 
     <div class="input-card">
-      <label class="input-label" for="msgInput">Paste your message here</label>
+      <label class="input-label" id="inputLabel" for="msgInput">Paste the message you want to check</label>
       <textarea id="msgInput" placeholder="Paste anything here..."></textarea>
       <div class="input-footer">
         <div>
@@ -339,38 +403,115 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
         </div>
       </div>
 
-      <!-- MAKE IT SIMPLE — warnings + key items + tasks -->
+      <!-- MAKE IT SIMPLE — progressive one-step flow -->
       <div id="simpleResultBody" style="display:none;">
-        <!-- Warnings block (DO NOTs) -->
-        <div class="warnings-block" id="warningsBlock" style="display:none;margin-top:1rem;">
-          <div class="warn-label">⚠ Do not</div>
-          <ul class="warn-list" id="warnList"></ul>
-        </div>
-        <!-- Key items -->
-        <div class="result-body" style="grid-template-columns:1fr;">
-          <div>
-            <p class="rs-label">Key things in this message</p>
-            <ul class="signals-list" id="keyItemsList"></ul>
+
+        <!-- PHASE 1: Result + Start CTA -->
+        <div id="simplePhase1" class="simple-phase">
+          <!-- Warnings block (DO NOTs) — shown if present -->
+          <div class="warnings-block" id="warningsBlock" style="display:none;margin:1rem 1.4rem 0;">
+            <div class="warn-label">⚠ Before you start — do not</div>
+            <ul class="warn-list" id="warnList"></ul>
+          </div>
+          <!-- Start CTA -->
+          <div class="simple-start">
+            <button class="start-btn" onclick="startSteps()">Start with Step 1 →</button>
+            <button class="see-all-btn" onclick="toggleAllSteps()">See all steps</button>
+          </div>
+</div>
+
+        <!-- PHASE 2: One step at a time -->
+        <div id="simplePhase2" class="simple-phase" style="display:none;">
+          <div class="step-view">
+            <div class="step-progress-wrap">
+              <div class="step-nums-row">
+                <span class="step-num-current" id="stepNumCurrent">1</span>
+                <span class="step-num-sep">of</span>
+                <span class="step-num-total" id="stepNumTotal">5</span>
+              </div>
+              <div class="step-progress-bar">
+                <div class="step-progress-fill" id="stepProgressFill" style="width:20%"></div>
+              </div>
+            </div>
+            <div class="step-task" id="stepTask"></div>
+
+            <!-- Reminder — attached to step, reversible -->
+            <div class="step-reminder-area">
+              <!-- State A: no reminder set -->
+              <div id="reminderStateNone" class="reminder-state">
+                <span class="reminder-none-label">Reminder</span>
+                <button class="add-reminder-btn" onclick="openReminderPicker()">+ Add reminder</button>
+              </div>
+              <!-- State B: picker open — shows step + contextual times -->
+              <div id="reminderStatePicker" class="reminder-state reminder-state-picker" style="display:none;">
+                <div class="reminder-for-label">Remind me to:</div>
+                <div class="reminder-step-preview" id="reminderStepPreview"></div>
+                <div class="reminder-when-label">When?</div>
+                <div class="reminder-picker-btns">
+                  <button onclick="setStepReminder('5min',5*60)">In 5 min</button>
+                  <button onclick="setStepReminder('10min',10*60)">In 10 min</button>
+                  <button onclick="setStepReminder('tonight',null)">Tonight</button>
+                  <button onclick="setStepReminder('tomorrow',null)">Tomorrow morning</button>
+                </div>
+                <button class="reminder-cancel-link" onclick="closeReminderPicker()">Cancel</button>
+              </div>
+              <!-- State C: reminder active — always cancellable -->
+              <div id="reminderStateActive" class="reminder-state" style="display:none;">
+                <div class="reminder-active-block">
+                  <span class="reminder-active-label" id="reminderActiveLabel">I'll remind you in 5 min</span>
+                  <div class="reminder-active-step" id="reminderActiveStep"></div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <button class="reminder-change-btn" onclick="changeReminder()">Change</button>
+                  <button class="reminder-cancel-btn" onclick="cancelStepReminder()">✕ Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mark done + undo -->
+            <div id="markDoneArea">
+              <button class="mark-done-btn" onclick="markStepDone()">✓ Mark as done</button>
+            </div>
+            <div id="undoArea" style="display:none;" class="undo-row">
+              <span class="undo-label" id="undoStepLabel">✓ Step done</span>
+              <button class="undo-btn" id="undoBtn" onclick="undoStep()">Undo</button>
+            </div>
+
+          </div>
+          <!-- Unified step list: done + remaining in one place -->
+          <div class="unified-steps" id="unifiedSteps" style="display:none;margin:0 1.4rem;">
+            <ul class="unified-list" id="unifiedList"></ul>
+          </div>
+</div>
+
+        <!-- PHASE 3: Complete -->
+        <div id="simplePhase3" class="simple-phase" style="display:none;">
+          <div class="complete-view">
+            <div class="complete-icon">✓</div>
+            <div class="complete-text">All steps complete.</div>
+            <div class="complete-sub">Well done. Take a breath.</div>
           </div>
         </div>
-        <!-- Checkable tasks -->
-        <div class="tasks-section">
-          <div class="tasks-header">
-            <p class="rs-label">Your steps</p>
-            <span class="tasks-progress" id="tasksProgress"></span>
-          </div>
-          <ul class="task-list" id="taskList"></ul>
-          <button class="show-more-btn" id="showMoreBtn" onclick="showNextBatch()" style="display:none;">Show next steps ↓</button>
-          <!-- Done section -->
-          <div class="done-section" id="doneSection">
-            <div class="done-label">✓ Done</div>
-            <ul class="done-list" id="doneList"></ul>
+
+        <!-- Why this result — contains what makes this hard -->
+        <div class="explain-panel" id="explainPanelSimple" style="border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;">
+          <button class="explain-toggle" id="explainToggleSimple" onclick="toggleExplainSimple()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            Why this result?
+            <svg class="chevron" id="explainChevronSimple" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="explain-body" id="explainBodySimple" style="display:none;">
+            <div style="margin-bottom:0.5rem;">
+              <p class="rs-label" style="margin-bottom:0.4rem;">What makes this hard</p>
+              <ul class="signals-list" id="keyItemsList"></ul>
+            </div>
+            <div id="explainItemsSimple"></div>
           </div>
         </div>
       </div>
 
-      <!-- Explainability -->
-      <div class="explain-panel">
+      <!-- Explainability for safe mode — stays here -->
+      <div class="explain-panel" id="explainPanelSafe">
         <button class="explain-toggle" id="explainToggle" onclick="toggleExplain()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
           Why this result?
@@ -379,29 +520,16 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
         <div class="explain-body" id="explainBody"></div>
       </div>
 
-      <!-- Focus bar -->
-      <div class="focus-bar">
-        <span class="focus-label">Reminder</span>
-        <span id="reminderCount" style="font-size:0.65rem;color:var(--accent);margin-left:2px;font-family:var(--font-mono);"></span>
-        <button class="focus-btn" id="rem-1" onclick="toggleReminder(1)">1 min</button>
-        <button class="focus-btn" id="rem-2" onclick="toggleReminder(2)">2 min</button>
-        <button class="focus-btn" id="rem-5" onclick="toggleReminder(5)">5 min</button>
-        <button class="focus-btn" id="rem-10" onclick="toggleReminder(10)">10 min</button>
-        <span class="timer-disp" id="timerDisp"></span>
-        <button class="focus-btn" id="activeListBtn" onclick="toggleActiveList()" style="display:none">Active ▾</button>
-      </div>
-      <div class="active-list" id="activeList" style="display:none"></div>
-
-      <!-- Feedback -->
-      <div class="feedback-row">
-        <span class="fb-label">Was this helpful?</span>
-        <button class="fb-btn" id="fbY" onclick="feedback(true)">Yes</button>
-        <button class="fb-btn" id="fbN" onclick="feedback(false)">No</button>
-        <span class="fb-thanks" id="fbThanks"></span>
-      </div>
     </div>
 
     <button class="reset-btn" id="resetBtn" onclick="resetAll()">← Check another</button>
+    <!-- Feedback — shown after reset button, not inside result -->
+    <div class="feedback-after" id="feedbackAfter" style="display:none;margin-top:0.75rem;">
+      <span class="fb-label">Was this helpful?</span>
+      <button class="fb-btn" id="fbY" onclick="feedback(true)">Yes</button>
+      <button class="fb-btn" id="fbN" onclick="feedback(false)">No</button>
+      <span class="fb-thanks" id="fbThanks"></span>
+    </div>
 
     <footer>
       <span class="foot-l">ClearStep — Hackathon MVP</span>
@@ -471,15 +599,17 @@ function selectMode(mode){
   if(mode === 'safe'){
     document.getElementById('screenTitle').textContent = 'IS THIS SAFE?';
     document.getElementById('screenDesc').textContent = 'Paste a message or email. Get the risk and what to do next.';
-    document.getElementById('msgInput').placeholder = 'Paste a message, email, or link you are not sure about...';
+    document.getElementById('msgInput').placeholder = 'Paste a message, email, or link — nothing is stored or shared.';
+    document.getElementById('inputLabel').textContent = 'Paste the message you want to check';
     document.getElementById('analyzeBtn').textContent = 'CHECK MESSAGE';
     document.getElementById('loadingText').textContent = 'Checking your message...';
     renderSafeChips();
   } else {
     document.getElementById('screenTitle').textContent = 'MAKE IT SIMPLE';
     document.getElementById('screenDesc').textContent = 'Paste anything overwhelming. Get calm, clear steps — one at a time.';
-    document.getElementById('msgInput').placeholder = 'Paste instructions, a form, a document, or anything confusing...';
-    document.getElementById('analyzeBtn').textContent = 'SIMPLIFY';
+    document.getElementById('msgInput').placeholder = 'Paste what feels overwhelming...';
+    document.getElementById('inputLabel').textContent = 'Paste what feels overwhelming';
+    document.getElementById('analyzeBtn').textContent = 'BREAK THIS DOWN';
     document.getElementById('loadingText').textContent = 'Breaking this down for you...';
     renderSimpleChips();
   }
@@ -512,32 +642,32 @@ const simpleExamples = [
 ];
 
 const safeDemo = [
-  { risk_level:'High Risk', meaning:'This message is trying to scare you into acting fast.', signals:['Urgent language','Threat language','Suspicious link'], next_steps:['Do not click the link','Call your bank directly using the number on your card'] },
-  { risk_level:'High Risk', meaning:'This is likely someone pretending to be a family member.', signals:['Impersonation','Urgent pressure','Gift card request'], next_steps:['Do not send money or gift cards','Call the person directly to verify'] },
+  { risk_level:'High Risk', meaning:'This message uses pressure to make you act quickly.', signals:['Urgent wording','Threatening tone','Unfamiliar link'], next_steps:['Do not click the link','Call your bank directly using the number on your card'] },
+  { risk_level:'High Risk', meaning:'This message may be someone pretending to be family.', signals:['Impersonation','Urgent pressure','Gift card request'], next_steps:['Do not send money or gift cards','Call the person directly to verify'] },
   { risk_level:'Caution', meaning:'This message contains a link that has not been verified.', signals:['Unknown link','Vague sender','Pressure to act'], next_steps:['Do not click the link','Go directly to the official website'] },
   { risk_level:'Safe', meaning:'This looks like a normal reminder with nothing suspicious.', signals:['No suspicious signals'], next_steps:['No urgent action needed'] }
 ];
 
 const simpleDemo = [
-  { risk_level:'Caution',
+  { risk_level:'Caution', badge_label:'COMPLEX',
     meaning:'These are medication instructions with important rules to follow.',
     warnings:['Do not crush or chew the tablet','Do not take with grapefruit juice','Do not take with alcohol','Do not double up on missed doses'],
     key_items:['Twice daily with food','Specific timing for missed doses','Multiple things to avoid'],
     tasks:['Take 1 tablet with food in the morning','Take 1 tablet with food in the evening','Set a phone reminder for both times','Write down the grapefruit and alcohol warning somewhere visible','Ask your pharmacist if you are unsure about any interaction']
   },
-  { risk_level:'Caution',
+  { risk_level:'High Risk', badge_label:'DEADLINE',
     meaning:'This is a government appeal with a deadline and several requirements.',
     warnings:['You have only 60 days from the notice date to submit','Do not submit without your Social Security number on every page'],
     key_items:['Form SSA-561-U2 required','Medical docs must be dated within 90 days','Submit in person or certified mail only'],
     tasks:['Find and note your 60-day deadline from the notice','Download form SSA-561-U2 from ssa.gov','Gather medical documentation dated within the last 90 days','Write your Social Security number on every page','Submit in person or by certified mail and keep a copy']
   },
-  { risk_level:'Caution',
+  { risk_level:'Caution', badge_label:'UNCLEAR',
     meaning:'This work email is asking you to do something but it is unclear what.',
     warnings:[],
     key_items:['Vague action requested','No specific task named','EOD deadline implied'],
     tasks:['Reply asking: what is the one most urgent thing I need to do today?','Wait for clarification before doing anything else']
   },
-  { risk_level:'Caution',
+  { risk_level:'Caution', badge_label:'MULTIPLE STEPS',
     meaning:'This is a list of tasks you need to complete before starting your job.',
     warnings:[],
     key_items:['Multiple tasks with deadlines','Benefits must be enrolled within 30 days','I-9 requires two forms of ID'],
@@ -598,84 +728,241 @@ function buildProfGrid(){const g=document.getElementById('profGrid');if(!g)retur
 
 // ═══ READING LEVEL ════════════════════════════════════════
 let curRL='standard';
-const RL_FS={simple:'1.12rem',standard:'1rem',detailed:'0.97rem'};
-const RL_LH={simple:'1.9',standard:'1.65',detailed:'1.6'};
+const RL_FS={simple:'1.2rem',standard:'1.06rem',detailed:'1rem'};
+const RL_LH={simple:'2.0',standard:'1.75',detailed:'1.65'};
 function setRL(btn){document.querySelectorAll('.rl-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRL=btn.dataset.rl;document.documentElement.style.setProperty('--fs',RL_FS[curRL]);document.documentElement.style.setProperty('--lh',RL_LH[curRL]);try{localStorage.setItem('cs_rl',curRL);}catch(e){}}
 function loadRL(){try{const s=localStorage.getItem('cs_rl');if(s){const b=document.querySelector(`[data-rl="${s}"]`);if(b)setRL(b);}}catch(e){}}
 
-// ═══ TASK ENGINE (Make It Simple) ═════════════════════════
+// ═══ TASK ENGINE ══════════════════════════════════════════
+// Clean state — UI always derives from this
+let state = {
+  tasks: [],
+  currentIndex: 0,
+  completed: [],       // indices of completed steps
+  showAll: false,
+  done: false,
+  reminderMins: null,
+  reminderTimeout: null
+};
+
+function showPhase(n){
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById('simplePhase'+i);
+    if(el) el.style.display = i===n ? 'block' : 'none';
+  });
+}
+
 function initTasks(tasks){
+  state = {tasks, currentIndex:0, completed:[], showAll:false, done:false, reminderMins:null, reminderTimeout:null};
   allTasks = tasks;
-  shownTaskCount = Math.min(BATCH_SIZE, tasks.length);
-  doneTaskIndices = [];
-  renderTasks();
+  showPhase(1);
+  renderAllStepsLists();
 }
 
-function renderTasks(){
-  const list = document.getElementById('taskList');
-  const doneList = document.getElementById('doneList');
-  const doneSection = document.getElementById('doneSection');
-  const showMore = document.getElementById('showMoreBtn');
-  const progress = document.getElementById('tasksProgress');
+function startSteps(){
+  if(!state.tasks.length) return;
+  showPhase(2);
+  renderStep();
+}
+
+// ── Core render — always derives from state ──────────────
+function renderStep(){
+  if(state.done){ showPhase(3); return; }
+
+  const i = state.currentIndex;
+  const total = state.tasks.length;
+
+  // Progress — large number + bar
+  const numCur = document.getElementById('stepNumCurrent');
+  const numTot = document.getElementById('stepNumTotal');
+  const fill = document.getElementById('stepProgressFill');
+  if(numCur){ numCur.style.opacity='0'; setTimeout(()=>{numCur.textContent=(i+1);numCur.style.opacity='1';},150); }
+  if(numTot) numTot.textContent = total;
+  if(fill) fill.style.width = ((i+1)/total*100)+'%';
+
+  // Task text
+  const task = document.getElementById('stepTask');
+  if(task) task.textContent = state.tasks[i] || '';
+
+  // Mark done vs undo
+  const markArea = document.getElementById('markDoneArea');
+  const undoArea = document.getElementById('undoArea');
+  if(markArea) markArea.style.display = 'block';
+  if(undoArea) undoArea.style.display = 'none';
+
+  // Reminder state reset
+  resetReminderUI();
+
+  // Done list
+  renderDoneList();
+
+  // All steps
+  renderAllStepsLists();
+}
+
+function renderDoneList(){
+  const wrap = document.getElementById('unifiedSteps');
+  const list = document.getElementById('unifiedList');
   if(!list) return;
+  // Always show once tasks exist
+  if(state.tasks.length === 0){ if(wrap) wrap.style.display='none'; return; }
+  if(wrap) wrap.style.display = 'block';
   list.innerHTML = '';
-
-  // Active tasks — show current batch minus done ones
-  let activeShown = 0;
-  for(let i = 0; i < shownTaskCount; i++){
-    if(doneTaskIndices.includes(i)) continue;
+  // Undo all if multiple done
+  if(state.completed.length > 1){
+    const undoAll = document.createElement('button');
+    undoAll.className = 'undo-all-btn';
+    undoAll.textContent = 'Undo all completed';
+    undoAll.onclick = () => undoAllSteps();
+    list.appendChild(undoAll);
+  }
+  // Single unified list — all steps
+  state.tasks.forEach((task, idx) => {
+    const done = state.completed.includes(idx);
+    const isCurrent = idx === state.currentIndex && !done;
     const li = document.createElement('li');
-    li.className = 'task-item';
-    li.dataset.index = i;
-    li.innerHTML = `<div class="task-check"><span class="task-check-icon">✓</span></div><span class="task-step-num">${i+1}</span><span class="task-text">${allTasks[i]}</span>`;
-    li.onclick = () => completeTask(i);
+    li.className = 'unified-item' + (done ? ' unified-done' : isCurrent ? ' unified-current' : ' unified-future');
+    if(done){
+      li.innerHTML = `<span class="u-check">✓</span><span class="u-text">${task}</span><button class="done-undo-btn" onclick="undoSpecificStep(${idx})">Undo</button>`;
+    } else if(isCurrent){
+      li.innerHTML = `<span class="u-num">${idx+1}</span><span class="u-text">${task}</span><span class="u-tag">Now</span>`;
+    } else {
+      li.innerHTML = `<span class="u-num">${idx+1}</span><span class="u-text">${task}</span>`;
+    }
     list.appendChild(li);
-    activeShown++;
-  }
-
-  // Show more button
-  showMore.style.display = shownTaskCount < allTasks.length ? 'block' : 'none';
-  if(shownTaskCount < allTasks.length){
-    const remaining = allTasks.length - shownTaskCount;
-    showMore.textContent = `Show next ${Math.min(BATCH_SIZE, remaining)} steps ↓`;
-  }
-
-  // Done section
-  if(doneTaskIndices.length > 0){
-    doneSection.classList.add('visible');
-    doneList.innerHTML = '';
-    doneTaskIndices.forEach(i => {
-      const li = document.createElement('li');
-      li.className = 'done-item';
-      li.innerHTML = `<span class="done-check">✓</span><span>${allTasks[i]}</span>`;
-      doneList.appendChild(li);
-    });
-  } else {
-    doneSection.classList.remove('visible');
-  }
-
-  // Progress
-  progress.textContent = doneTaskIndices.length > 0 ? `${doneTaskIndices.length} of ${allTasks.length} done` : `${allTasks.length} steps`;
+  });
 }
 
-function completeTask(index){
-  if(doneTaskIndices.includes(index)) return;
-  doneTaskIndices.push(index);
-  // Auto-reveal next task if we've shown all current batch
-  const activeRemaining = Array.from({length: shownTaskCount}, (_,i) => i).filter(i => !doneTaskIndices.includes(i));
-  if(activeRemaining.length === 0 && shownTaskCount < allTasks.length){
-    shownTaskCount = Math.min(shownTaskCount + BATCH_SIZE, allTasks.length);
+// ── Mark as done — advances immediately ──────────────────
+function markStepDone(){
+  const i = state.currentIndex;
+  state.completed.push(i);
+
+  // Cancel any reminder
+  if(state.reminderTimeout){ clearTimeout(state.reminderTimeout); state.reminderTimeout = null; }
+
+  // Find next incomplete
+  let next = -1;
+  for(let j = 0; j < state.tasks.length; j++){
+    if(!state.completed.includes(j)){ next = j; break; }
   }
-  renderTasks();
-  if(doneTaskIndices.length === allTasks.length){
+
+  if(next === -1){
+    // All done
+    state.done = true;
+    showPhase(3);
     setTimeout(() => toast('All steps complete. Well done.'), 300);
+  } else {
+    state.currentIndex = next;
+    // Show undo briefly alongside new step
+    renderStep();
+    // Show undo as small inline note
+    const undoArea = document.getElementById('undoArea');
+    if(undoArea){
+      undoArea.style.display = 'flex';
+      document.getElementById('undoStepLabel').textContent = '✓ Step '+(i+1)+' done';
+    }
   }
 }
 
-function showNextBatch(){
-  shownTaskCount = Math.min(shownTaskCount + BATCH_SIZE, allTasks.length);
-  renderTasks();
+function undoStep(){
+  if(state.completed.length === 0) return;
+  const last = state.completed.pop();
+  state.currentIndex = last;
+  state.done = false;
+  renderStep();
 }
+
+function undoSpecificStep(idx){
+  const pos = state.completed.indexOf(idx);
+  if(pos === -1) return;
+  // Remove this step and all steps completed after it
+  state.completed = state.completed.slice(0, pos);
+  state.currentIndex = idx;
+  state.done = false;
+  const undoArea = document.getElementById('undoArea');
+  if(undoArea) undoArea.style.display = 'none';
+  renderStep();
+}
+
+function undoAllSteps(){
+  state.completed = [];
+  state.currentIndex = 0;
+  state.done = false;
+  const undoArea = document.getElementById('undoArea');
+  if(undoArea) undoArea.style.display = 'none';
+  renderStep();
+}
+
+// ── All steps toggle ──────────────────────────────────────
+function toggleAllSteps(){ /* unified list replaces this */ }
+
+function renderAllStepsLists(){ /* unified list replaces this */ }
+
+// ── Reminder — step-level, reversible ────────────────────
+function openReminderPicker(){
+  const preview = document.getElementById('reminderStepPreview');
+  if(preview) preview.textContent = state.tasks[state.currentIndex] || 'this step';
+  setReminderUI('picker');
+}
+function closeReminderPicker(){ setReminderUI('none'); }
+
+function setStepReminder(label, secs){
+  if(state.reminderTimeout){ clearTimeout(state.reminderTimeout); state.reminderTimeout = null; }
+  const timeLabel = label==='tonight' ? 'tonight' : label==='tomorrow' ? 'tomorrow morning' : 'in '+label;
+  const lbl = document.getElementById('reminderActiveLabel');
+  const stepLbl = document.getElementById('reminderActiveStep');
+  if(lbl) lbl.textContent = "I'll remind you "+timeLabel;
+  if(stepLbl) stepLbl.textContent = state.tasks[state.currentIndex] || '';
+  setReminderUI('active');
+  state.reminderMins = label;
+  if(secs){
+    state.reminderTimeout = setTimeout(() => { playBeep(); calmToast(); resetReminderUI(); }, secs * 1000);
+  } else if(label === 'tonight'){
+    const now = new Date(); const t = new Date(); t.setHours(21,0,0,0);
+    if(t <= now) t.setDate(t.getDate()+1);
+    state.reminderTimeout = setTimeout(() => { playBeep(); calmToast(); resetReminderUI(); }, t - now);
+  } else {
+    const now = new Date(); const t = new Date();
+    t.setDate(t.getDate()+1); t.setHours(8,0,0,0);
+    state.reminderTimeout = setTimeout(() => { playBeep(); calmToast(); resetReminderUI(); }, t - now);
+  }
+}
+
+function cancelStepReminder(){
+  if(state.reminderTimeout){ clearTimeout(state.reminderTimeout); state.reminderTimeout = null; }
+  state.reminderMins = null;
+  resetReminderUI();
+  toast('Reminder cancelled.');
+}
+
+function changeReminder(){
+  if(state.reminderTimeout){ clearTimeout(state.reminderTimeout); state.reminderTimeout = null; }
+  state.reminderMins = null;
+  const preview = document.getElementById('reminderStepPreview');
+  if(preview) preview.textContent = state.tasks[state.currentIndex] || 'this step';
+  setReminderUI('picker');
+}
+
+function setReminderUI(mode){
+  const none = document.getElementById('reminderStateNone');
+  const picker = document.getElementById('reminderStatePicker');
+  const active = document.getElementById('reminderStateActive');
+  if(none) none.style.display = mode==='none' ? 'flex' : 'none';
+  if(picker) picker.style.display = mode==='picker' ? 'flex' : 'none';
+  if(active) active.style.display = mode==='active' ? 'flex' : 'none';
+}
+
+function resetReminderUI(){ setReminderUI('none'); }
+
+// Reset on full reset
+function resetTaskState(){
+  if(state.reminderTimeout) clearTimeout(state.reminderTimeout);
+  state = {tasks:[], currentIndex:0, completed:[], showAll:false, done:false, reminderMins:null, reminderTimeout:null};
+  allTasks = []; shownTaskCount = 0; doneTaskIndices = [];
+}
+
+function showNextBatch(){} // compat stub
 
 // ═══ EXPLAINABILITY ═══════════════════════════════════════
 function renderExplain(risk, signals){
@@ -698,12 +985,30 @@ function renderExplain(risk, signals){
   });
 }
 function toggleExplain(){const btn=document.getElementById('explainToggle');const body=document.getElementById('explainBody');const open=body.classList.contains('open');body.classList.toggle('open',!open);btn.classList.toggle('open',!open);}
+function toggleExplainSimple(){
+  const body=document.getElementById('explainBodySimple');
+  const chev=document.getElementById('explainChevronSimple');
+  const btn=document.getElementById('explainToggleSimple');
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  if(chev)chev.style.transform=open?'':'rotate(180deg)';
+}
 
 // ═══ RENDER RESULT ════════════════════════════════════════
 function renderResult(r){
   const badge = document.getElementById('riskBadge');
-  badge.textContent = r.risk_level;
-  badge.className = 'risk-badge '+(r.risk_level==='Safe'?'risk-safe':r.risk_level==='Caution'?'risk-caution':'risk-danger');
+  // Simple mode uses different labels — not risk, but complexity
+  if(currentMode === 'simple'){
+    const simpleLabel = r.badge_label || (r.risk_level === 'High Risk' ? 'IMPORTANT' : r.risk_level === 'Safe' ? 'CLEAR' : 'COMPLEX');
+    badge.textContent = simpleLabel;
+    badge.className = 'risk-badge '+(
+      simpleLabel==='DEADLINE'||simpleLabel==='IMPORTANT' ? 'risk-danger' :
+      simpleLabel==='CLEAR' ? 'risk-safe' : 'risk-caution'
+    );
+  } else {
+    badge.textContent = r.risk_level;
+    badge.className = 'risk-badge '+(r.risk_level==='Safe'?'risk-safe':r.risk_level==='Caution'?'risk-caution':'risk-danger');
+  }
   document.getElementById('meaningText').textContent = r.meaning;
 
   const safeBody = document.getElementById('safeResultBody');
@@ -724,7 +1029,8 @@ function renderResult(r){
     const stl = document.getElementById('stepsList'); stl.innerHTML = '';
     (r.next_steps||[]).slice(0,2).forEach((s,i)=>{
       const li = document.createElement('li');
-      li.innerHTML = `<span class="step-num">${i+1}</span><span>${s}</span>`;
+      const textStyle = i===0 ? 'font-weight:600;color:var(--text);' : '';
+      li.innerHTML = `<span class="step-num">${i+1}</span><span style="${textStyle}">${s}</span>`;
       stl.appendChild(li);
     });
     renderExplain(r.risk_level, r.signals||[]);
@@ -737,26 +1043,48 @@ function renderResult(r){
     const warnList = document.getElementById('warnList');
     if(r.warnings && r.warnings.length > 0){
       warningsBlock.style.display = 'block';
+      warningsBlock.className = 'warnings-block';
+      document.querySelector('#warningsBlock .warn-label').textContent = '⚠ Before you start — do not';
       warnList.innerHTML = '';
       r.warnings.forEach(w => {
+        const li = document.createElement('li'); li.textContent = w;
+        warnList.appendChild(li);
+      });
+    } else if(r.key_items && r.key_items.length > 0){
+      // No hard warnings but there are key things — show softer notice block
+      warningsBlock.style.display = 'block';
+      warningsBlock.className = 'warnings-block warnings-block-soft';
+      document.querySelector('#warningsBlock .warn-label').textContent = '↓ Key things in this message';
+      warnList.innerHTML = '';
+      r.key_items.forEach(w => {
         const li = document.createElement('li'); li.textContent = w;
         warnList.appendChild(li);
       });
     } else {
       warningsBlock.style.display = 'none';
     }
-    // Key items
-    const kl = document.getElementById('keyItemsList'); kl.innerHTML = '';
+    // Key items (in explainability, not main view)
+    const kl = document.getElementById('keyItemsList'); if(kl){kl.innerHTML = '';
     (r.key_items||r.signals||[]).forEach(s=>{
       const li = document.createElement('li');
       li.innerHTML = `<span class="sdot caution"></span><span>${s}</span>`;
       kl.appendChild(li);
-    });
-    // Tasks
+    });}
+    // Explain items for simple mode
+    const eis=document.getElementById('explainItemsSimple');
+    if(eis){eis.innerHTML='';
+      const note=document.createElement('div');note.className='explain-item';
+      note.innerHTML=`<div class="ei">i</div><span>ClearStep is an AI tool. Always verify with a professional if unsure.</span>`;
+      eis.appendChild(note);
+    }
+    // Tasks — progressive flow
     initTasks(r.tasks || r.next_steps || []);
-    renderExplain(r.risk_level, r.key_items||r.signals||[]);
   }
 
+  const safePnl=document.getElementById('explainPanelSafe');
+  const simplePnl=document.getElementById('explainPanelSimple');
+  if(safePnl)safePnl.style.display=currentMode==='safe'?'block':'none';
+  if(simplePnl)simplePnl.style.display=currentMode==='simple'?'block':'none';
   document.getElementById('fbY').className = 'fb-btn';
   document.getElementById('fbN').className = 'fb-btn';
   document.getElementById('fbThanks').classList.remove('show');
@@ -764,6 +1092,7 @@ function renderResult(r){
   document.getElementById('explainToggle').classList.remove('open');
   document.getElementById('resultCard').classList.add('visible');
   document.getElementById('resetBtn').classList.add('visible');
+  const fa=document.getElementById('feedbackAfter');if(fa)fa.style.display='flex';
   document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
@@ -800,7 +1129,7 @@ function fallback(msg){
   if(m.match(/click|http|bit\.ly|verify/))score+=2;
   if(m.match(/gift card|bitcoin|wire transfer/))score+=4;
   if(currentMode==='simple'){
-    return{risk_level:'Caution',meaning:'This message has several things that need attention.',warnings:[],key_items:['Multiple items detected','Review carefully'],tasks:['Read through the full message once','Write down each separate requirement','Deal with the most urgent item first']};
+    return{risk_level:'Caution',meaning:'This message has several things that need attention.',warnings:[],key_items:['Multiple items detected','Review carefully'],tasks:['Start with the first action only','Separate each instruction into its own step','Start with the most important step first']};
   }
   if(score>=5)return{risk_level:'High Risk',meaning:'This message shows several warning signs.',signals:['Urgent language','Suspicious request'],next_steps:['Do not click any links','Contact the organisation directly']};
   if(score>=2)return{risk_level:'Caution',meaning:'Parts of this message are worth checking.',signals:['Unusual phrasing','Action request'],next_steps:['Pause before clicking anything','Verify through an official channel']};
@@ -814,9 +1143,10 @@ function resetAll(){
   document.getElementById('resultCard').classList.remove('visible');
   document.getElementById('errorMsg').classList.remove('visible');
   document.getElementById('resetBtn').classList.remove('visible');
+  const fa=document.getElementById('feedbackAfter');if(fa){fa.style.display='none';}document.getElementById('fbY').className='fb-btn';document.getElementById('fbN').className='fb-btn';document.getElementById('fbThanks').classList.remove('show');
   document.getElementById('msgInput').focus();
-  allTasks=[];shownTaskCount=0;doneTaskIndices=[];
-  if(timerOn){clearInterval(timerInt);timerOn=false;const d=document.getElementById('timerDisp');if(d)d.style.display='none';}
+  resetTaskState();
+  
 }
 
 // ═══ FOCUS SUPPORT ════════════════════════════════════════
@@ -825,22 +1155,6 @@ let calmIdx=0;
 function calmToast(){const t=document.getElementById('toast');t.textContent=calmPhrases[calmIdx%calmPhrases.length];calmIdx++;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),9000);}
 function playBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=520;gain.gain.setValueAtTime(0.4,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.2);}catch(e){}if(navigator.vibrate)navigator.vibrate([300,100,300]);}
 
-const activeReminders=[];
-function toggleReminder(mins){
-  const label=mins+' min';const btnId='rem-'+mins;const btn=document.getElementById(btnId);
-  const existing=activeReminders.find(r=>r.mins===mins);
-  if(existing){clearTimeout(existing.id);activeReminders.splice(activeReminders.indexOf(existing),1);if(btn){btn.classList.remove('active');btn.textContent=label;}updateReminderCount();toast('Cancelled: '+label+'.');return;}
-  const id=setTimeout(()=>{playBeep();calmToast();const idx=activeReminders.findIndex(r=>r.mins===mins);if(idx>-1)activeReminders.splice(idx,1);if(btn){btn.classList.remove('active');btn.textContent=label;}const disp=document.getElementById('timerDisp');if(disp)disp.style.display='none';timerOn=false;updateReminderCount();},mins*60*1000);
-  timerSec=mins*60;timerOn=true;const disp=document.getElementById('timerDisp');if(disp)disp.style.display='block';updateTimerDisp();
-  timerInt=setInterval(()=>{timerSec--;updateTimerDisp();if(timerSec<=0){clearInterval(timerInt);timerOn=false;if(disp)disp.style.display='none';}},1000);
-  activeReminders.push({id,mins,label,timerOwner:true});if(btn){btn.classList.add('active');btn.textContent='✕ '+label;}updateReminderCount();toast(label+' timer started. Tap again to cancel.');
-}
-function updateReminderCount(){const countEl=document.getElementById('reminderCount');if(countEl)countEl.textContent=activeReminders.length>0?activeReminders.length+' active':'';const listBtn=document.getElementById('activeListBtn');if(listBtn)listBtn.style.display=activeReminders.length>0?'flex':'none';renderActiveList();}
-function toggleActiveList(){const list=document.getElementById('activeList');if(!list)return;list.style.display=list.style.display==='none'?'flex':'none';}
-function renderActiveList(){const list=document.getElementById('activeList');if(!list)return;list.innerHTML='';if(activeReminders.length===0){list.style.display='none';return;}activeReminders.forEach(r=>{const item=document.createElement('div');item.className='active-list-item';const running=r.timerOwner&&timerOn;const timeLeft=running?Math.ceil(timerSec/60)+' min left':r.label+' reminder';item.innerHTML=`<span>${r.label}</span><span>${timeLeft}</span><button class="active-cancel" onclick="toggleReminder(${r.mins})">✕ Cancel</button>`;list.appendChild(item);});}
-
-let timerInt=null,timerSec=0,timerOn=false,timerCooldown=false;
-function updateTimerDisp(){const m=Math.floor(timerSec/60),s=timerSec%60;const d=document.getElementById('timerDisp');if(d)d.textContent=m+':'+(s<10?'0':'')+s;}
 
 // ═══ FEEDBACK ═════════════════════════════════════════════
 function feedback(helpful){document.getElementById('fbY').className='fb-btn'+(helpful?' yes':'');document.getElementById('fbN').className='fb-btn'+(!helpful?' no':'');const thanks=document.getElementById('fbThanks');thanks.textContent=helpful?'Glad it helped.':'Thanks — we will use this to improve.';thanks.classList.add('show');try{const d=JSON.parse(localStorage.getItem('cs_fb')||'{"y":0,"n":0}');if(helpful)d.y++;else d.n++;localStorage.setItem('cs_fb',JSON.stringify(d));}catch(e){}}
