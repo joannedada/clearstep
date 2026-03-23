@@ -15,6 +15,8 @@
   --caution:#A04A00;--caution-bg:#FEF0DC;--caution-border:#F0C070;
   --danger:#A33030;--danger-bg:#FAEAEA;--danger-border:#DDA0A0;
   --warn:#8A3A1A;--warn-bg:#FDF5EF;--warn-border:#E8C4A8;
+  /* Medical bar — calm default: muted amber, not harsh */
+  --med-bg:#FBF6EE;--med-border:#C8972A;--med-border-soft:#E0C97A;--med-text:#6B4400;
   --font-display:'Bebas Neue',sans-serif;
   --font-body:'DM Sans',sans-serif;
   --font-mono:'DM Mono',monospace;
@@ -61,12 +63,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 #card-safe{border-color:#2F6E91;background:#EDF4F8;}
 #card-safe .mode-title{color:#2F6E91;}
 #card-safe .mode-num{color:#2F6E91;opacity:0.6;}
-#card-safe .mode-icon{filter:hue-rotate(0deg);}
 #card-simple{border-color:#7A6A50;background:#F5F0E8;}
 #card-simple .mode-title{color:#7A6A50;}
 #card-simple .mode-num{color:#7A6A50;opacity:0.6;}
-/* Fade topbar on mode screen — progressive reveal */
-.topbar{transition:opacity 0.4s;}
 
 /* ── APP SCREEN (shared) ── */
 #appScreen{display:none;}
@@ -118,6 +117,26 @@ textarea::placeholder{color:#A8A39C;}
 .sdot.safe{background:var(--safe);}.sdot.caution{background:var(--caution);}.sdot.danger{background:var(--danger);}
 .steps-list li{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.92rem;line-height:1.7;color:var(--text);margin-bottom:6px;}
 .step-num{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);background:var(--bg);border:1px solid var(--bg3);border-radius:2px;padding:0.1rem 0.4rem;flex-shrink:0;margin-top:0.18em;transition:var(--tr);}
+
+/* ── MEDICAL DISCLAIMER BAR ── */
+/* Persistent — shown for all medical content, never hidden */
+.medical-disclaimer-bar{
+  display:none;
+  align-items:flex-start;
+  gap:0.6rem;
+  padding:0.65rem 1.4rem;
+  background:var(--med-bg);
+  border-top:2px solid var(--med-border);
+  border-bottom:1px solid var(--med-border-soft);
+  font-size:0.78rem;
+  color:var(--med-text);
+  font-family:var(--font-body);
+  line-height:1.55;
+}
+.medical-disclaimer-bar.visible{display:flex;}
+.medical-disclaimer-icon{font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;}
+.medical-disclaimer-text{flex:1;}
+.medical-disclaimer-text strong{font-weight:600;display:block;margin-bottom:1px;}
 
 /* ── SIMPLE MODE PROGRESSIVE FLOW ── */
 .simple-phase{}
@@ -171,30 +190,15 @@ textarea::placeholder{color:#A8A39C;}
 .warn-list{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
 .warn-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.95rem;color:var(--warn);font-weight:600;line-height:1.7;margin-bottom:4px;}
 .warn-list li::before{content:"✕";flex-shrink:0;font-size:0.75rem;margin-top:0.1rem;}
+/* Disclaimer item — different style, sits at bottom of warnings */
+.warn-list li.warn-disclaimer{color:var(--muted);font-weight:400;font-size:0.78rem;border-top:1px solid var(--warn-border);margin-top:0.3rem;padding-top:0.5rem;}
+.warn-list li.warn-disclaimer::before{content:"ℹ";color:var(--muted);font-size:0.7rem;}
 .warnings-block-soft{background:var(--bg2);border-color:var(--bg3);border-left-color:var(--accent);}
 .warnings-block-soft .warn-label{color:var(--accent);}
 .warnings-block-soft .warn-list li{color:var(--text);font-weight:500;}
 .warnings-block-soft .warn-list li::before{content:"→";color:var(--accent);}
 
-/* ── TASK LIST (Make It Simple mode) ── */
-.tasks-section{padding:1.2rem 1.4rem;border-top:1px solid var(--bg3);}
-.tasks-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.9rem;}
-.tasks-progress{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;}
-.task-list{display:flex;flex-direction:column;gap:0.5rem;list-style:none;}
-.task-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.65rem 0.85rem;background:var(--bg);border:1px solid var(--bg3);border-radius:4px;cursor:pointer;transition:all 0.2s;}
-.task-item:hover{border-color:var(--accent);}
-.task-item.done{background:var(--safe-bg);border-color:var(--safe-border);opacity:0.7;cursor:default;}
-.task-item.locked{opacity:0.4;cursor:not-allowed;}
-.task-check{width:18px;height:18px;border-radius:3px;border:1.5px solid var(--bg3);flex-shrink:0;margin-top:0.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;background:transparent;}
-.task-item.done .task-check{background:var(--safe);border-color:var(--safe);}
-.task-item:not(.done):not(.locked):hover .task-check{border-color:var(--accent);}
-.task-check-icon{color:#fff;font-size:0.65rem;display:none;}
-.task-item.done .task-check-icon{display:block;}
-.task-text{font-size:0.88rem;line-height:1.5;color:var(--text);flex:1;}
-.task-item.done .task-text{text-decoration:line-through;color:var(--muted);}
-.task-step-num{font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);flex-shrink:0;margin-top:0.18em;min-width:20px;}
-
-/* Done section */
+/* ── UNIFIED STEP LIST ── */
 .unified-steps{margin-top:0.5rem;border-top:1px solid var(--bg3);padding-top:0.75rem;}
 .unified-list{list-style:none;display:flex;flex-direction:column;gap:0;}
 .unified-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0;border-bottom:1px solid var(--bg3);font-size:0.9rem;}
@@ -212,10 +216,6 @@ textarea::placeholder{color:#A8A39C;}
 .done-undo-btn:hover{border-color:var(--accent);color:var(--accent);}
 .undo-all-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:4px 10px;font-size:0.72rem;color:var(--muted);cursor:pointer;width:100%;margin-bottom:8px;font-family:var(--font-body);transition:all 0.2s;text-align:center;}
 .undo-all-btn:hover{border-color:var(--danger);color:var(--danger);}
-
-/* Show more button */
-.show-more-btn{width:100%;margin-top:0.65rem;padding:0.5rem;background:transparent;border:1px solid var(--bg3);border-radius:4px;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.2s;}
-.show-more-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 /* ── EXPLAIN PANEL ── */
 .explain-panel{border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;}
@@ -235,11 +235,6 @@ textarea::placeholder{color:#A8A39C;}
 .focus-btn:hover{border-color:var(--accent);color:var(--accent);}
 .focus-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 .timer-disp{font-family:var(--font-mono);font-size:0.9rem;font-weight:500;color:var(--accent);min-width:40px;display:none;}
-.active-list{background:var(--bg);border:1px solid var(--bg3);border-top:none;padding:0.6rem 1.4rem;display:flex;flex-direction:column;gap:0.4rem;transition:background 0.4s;}
-.active-list-item{display:flex;align-items:center;justify-content:space-between;font-size:0.78rem;color:var(--text);}
-.active-list-item span{color:var(--muted);font-family:var(--font-body);font-size:0.76rem;}
-.active-cancel{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:2px 8px;font-size:0.7rem;color:var(--muted);cursor:pointer;font-family:var(--font-body);transition:all 0.2s;}
-.active-cancel:hover{border-color:var(--danger);color:var(--danger);}
 
 /* ── FEEDBACK ── */
 .feedback-row{border-top:1px solid var(--bg3);padding:0.8rem 1.4rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -406,11 +401,20 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
       <!-- MAKE IT SIMPLE — progressive one-step flow -->
       <div id="simpleResultBody" style="display:none;">
 
+        <!-- PERSISTENT MEDICAL DISCLAIMER BAR — visible across all phases when is_medical=true -->
+        <div class="medical-disclaimer-bar" id="medicalDisclaimerBar">
+          <span class="medical-disclaimer-icon">⚕</span>
+          <div class="medical-disclaimer-text">
+            <strong>Medical information</strong>
+            This is a reminder tool only. Always follow your original prescription and consult your pharmacist or doctor with any questions.
+          </div>
+        </div>
+
         <!-- PHASE 1: Result + Start CTA -->
         <div id="simplePhase1" class="simple-phase">
           <!-- Warnings block (DO NOTs) — shown if present -->
           <div class="warnings-block" id="warningsBlock" style="display:none;margin:1rem 1.4rem 0;">
-            <div class="warn-label">⚠ Before you start — do not</div>
+            <div class="warn-label">⚠ Before you start</div>
             <ul class="warn-list" id="warnList"></ul>
           </div>
           <!-- Start CTA -->
@@ -418,7 +422,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
             <button class="start-btn" onclick="startSteps()">Start with Step 1 →</button>
             <button class="see-all-btn" onclick="toggleAllSteps()">See all steps</button>
           </div>
-</div>
+        </div>
 
         <!-- PHASE 2: One step at a time -->
         <div id="simplePhase2" class="simple-phase" style="display:none;">
@@ -442,7 +446,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
                 <span class="reminder-none-label">Reminder</span>
                 <button class="add-reminder-btn" onclick="openReminderPicker()">+ Add reminder</button>
               </div>
-              <!-- State B: picker open — shows step + contextual times -->
+              <!-- State B: picker open -->
               <div id="reminderStatePicker" class="reminder-state reminder-state-picker" style="display:none;">
                 <div class="reminder-for-label">Remind me to:</div>
                 <div class="reminder-step-preview" id="reminderStepPreview"></div>
@@ -455,7 +459,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
                 </div>
                 <button class="reminder-cancel-link" onclick="closeReminderPicker()">Cancel</button>
               </div>
-              <!-- State C: reminder active — always cancellable -->
+              <!-- State C: reminder active -->
               <div id="reminderStateActive" class="reminder-state" style="display:none;">
                 <div class="reminder-active-block">
                   <span class="reminder-active-label" id="reminderActiveLabel">I'll remind you in 5 min</span>
@@ -478,11 +482,11 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
             </div>
 
           </div>
-          <!-- Unified step list: done + remaining in one place -->
+          <!-- Unified step list -->
           <div class="unified-steps" id="unifiedSteps" style="display:none;margin:0 1.4rem;">
             <ul class="unified-list" id="unifiedList"></ul>
           </div>
-</div>
+        </div>
 
         <!-- PHASE 3: Complete -->
         <div id="simplePhase3" class="simple-phase" style="display:none;">
@@ -493,7 +497,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
           </div>
         </div>
 
-        <!-- Why this result — contains what makes this hard -->
+        <!-- Why this result -->
         <div class="explain-panel" id="explainPanelSimple" style="border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;">
           <button class="explain-toggle" id="explainToggleSimple" onclick="toggleExplainSimple()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -502,7 +506,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
           </button>
           <div class="explain-body" id="explainBodySimple" style="display:none;">
             <div style="margin-bottom:0.5rem;">
-              <p class="rs-label" style="margin-bottom:0.4rem;">What makes this hard</p>
+              <p class="rs-label" style="margin-bottom:0.4rem;">What makes this complex</p>
               <ul class="signals-list" id="keyItemsList"></ul>
             </div>
             <div id="explainItemsSimple"></div>
@@ -510,7 +514,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
         </div>
       </div>
 
-      <!-- Explainability for safe mode — stays here -->
+      <!-- Explainability for safe mode -->
       <div class="explain-panel" id="explainPanelSafe">
         <button class="explain-toggle" id="explainToggle" onclick="toggleExplain()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -523,7 +527,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
     </div>
 
     <button class="reset-btn" id="resetBtn" onclick="resetAll()">← Check another</button>
-    <!-- Feedback — shown after reset button, not inside result -->
     <div class="feedback-after" id="feedbackAfter" style="display:none;margin-top:0.75rem;">
       <span class="fb-label">Was this helpful?</span>
       <button class="fb-btn" id="fbY" onclick="feedback(true)">Yes</button>
@@ -582,17 +585,19 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
 
 <script>
 // ═══ STATE ════════════════════════════════════════════════
-let currentMode = null; // 'safe' or 'simple'
+let currentMode = null;
 let allTasks = [];
 let shownTaskCount = 0;
 const BATCH_SIZE = 5;
 let doneTaskIndices = [];
+let currentIsMedical = false; // tracks whether current result is medical
 
 // ═══ MODE SELECTION ═══════════════════════════════════════
 function selectMode(mode){
   currentMode = mode;
   document.getElementById('modeScreen').style.display = 'none';
-  document.querySelector('.topbar-right').style.opacity='1';document.querySelector('.topbar-right').style.pointerEvents='';
+  document.querySelector('.topbar-right').style.opacity='1';
+  document.querySelector('.topbar-right').style.pointerEvents='';
   const appScreen = document.getElementById('appScreen');
   appScreen.classList.add('visible');
 
@@ -617,7 +622,9 @@ function selectMode(mode){
 
 function goBack(){
   document.getElementById('modeScreen').style.display = 'block';
-  const tb=document.querySelector('.topbar-right');tb.style.opacity='0';tb.style.transition='opacity 0.8s';tb.style.pointerEvents='none';setTimeout(()=>{if(!currentMode){tb.style.opacity='0.2';}},2000);
+  const tb=document.querySelector('.topbar-right');
+  tb.style.opacity='0';tb.style.transition='opacity 0.8s';tb.style.pointerEvents='none';
+  setTimeout(()=>{ if(!currentMode){ tb.style.opacity='0.2'; } },2000);
   const appScreen = document.getElementById('appScreen');
   appScreen.classList.remove('visible');
   appScreen.style.display = 'none';
@@ -649,29 +656,29 @@ const safeDemo = [
 ];
 
 const simpleDemo = [
-  { risk_level:'Caution', badge_label:'COMPLEX',
-    meaning:'These are medication instructions with important rules to follow.',
-    warnings:['Do not crush or chew the tablet','Do not take with grapefruit juice','Do not take with alcohol','Do not double up on missed doses'],
-    key_items:['Twice daily with food','Specific timing for missed doses','Multiple things to avoid'],
-    tasks:['Take 1 tablet with food in the morning','Take 1 tablet with food in the evening','Set a phone reminder for both times','Write down the grapefruit and alcohol warning somewhere visible','Ask your pharmacist if you are unsure about any interaction']
+  { risk_level:'Caution', is_medical: true,
+    meaning:'Medication instructions with important rules to follow.',
+    warnings:['Swallow whole — never crush or chew','No grapefruit juice while taking this','No alcohol while taking this','Missed a dose? Skip it — never double up','Reminder tool only — always follow your original prescription'],
+    key_items:['Twice daily with food','Specific missed dose rule','Multiple interaction warnings'],
+    tasks:['Take 1 tablet with food in the morning','Take 1 tablet with food in the evening']
   },
-  { risk_level:'High Risk', badge_label:'DEADLINE',
-    meaning:'This is a government appeal with a deadline and several requirements.',
-    warnings:['You have only 60 days from the notice date to submit','Do not submit without your Social Security number on every page'],
-    key_items:['Form SSA-561-U2 required','Medical docs must be dated within 90 days','Submit in person or certified mail only'],
-    tasks:['Find and note your 60-day deadline from the notice','Download form SSA-561-U2 from ssa.gov','Gather medical documentation dated within the last 90 days','Write your Social Security number on every page','Submit in person or by certified mail and keep a copy']
+  { risk_level:'High Risk', is_medical: false,
+    meaning:'A government appeal with a strict deadline and several requirements.',
+    warnings:['Submit within 60 days of your notice date','Your Social Security number must be on every page'],
+    key_items:['Form SSA-561-U2 required','Medical docs within last 90 days','In person or certified mail only'],
+    tasks:['Note your 60-day deadline from the notice','Download form SSA-561-U2 from ssa.gov','Gather medical documentation dated within 90 days','Write your Social Security number on every page','Submit in person or by certified mail','Keep a copy for your records']
   },
-  { risk_level:'Caution', badge_label:'UNCLEAR',
-    meaning:'This work email is asking you to do something but it is unclear what.',
+  { risk_level:'Caution', is_medical: false,
+    meaning:'A work email asking you to do something — but it is unclear what.',
     warnings:[],
-    key_items:['Vague action requested','No specific task named','EOD deadline implied'],
-    tasks:['Reply asking: what is the one most urgent thing I need to do today?','Wait for clarification before doing anything else']
+    key_items:['Vague action requested','EOD deadline implied'],
+    tasks:['Reply and ask: what is the one most urgent thing I need to do today?']
   },
-  { risk_level:'Caution', badge_label:'MULTIPLE STEPS',
-    meaning:'This is a list of tasks you need to complete before starting your job.',
-    warnings:[],
-    key_items:['Multiple tasks with deadlines','Benefits must be enrolled within 30 days','I-9 requires two forms of ID'],
-    tasks:['Complete the onboarding form first','Gather two forms of ID for your I-9','Submit your I-9 with your two forms of ID','Set up direct deposit','Enroll in benefits (deadline: 30 days)','Complete mandatory compliance training','Schedule orientation with HR']
+  { risk_level:'Caution', is_medical: false,
+    meaning:'A list of tasks you need to complete before starting your job.',
+    warnings:['Benefits enrollment deadline is 30 days','I-9 requires two forms of ID'],
+    key_items:['Multiple tasks with deadlines','Benefits must be enrolled within 30 days'],
+    tasks:['Complete the onboarding form','Gather two forms of ID','Submit your I-9','Set up direct deposit','Enroll in benefits within 30 days','Complete compliance training','Schedule orientation with HR']
   }
 ];
 
@@ -696,11 +703,41 @@ function renderSimpleChips(){
 
 // ═══ PALETTE ENGINE ═══════════════════════════════════════
 const PROFILES = {
-  calm:{name:'Calm default',desc:'Off-white, charcoal text, muted teal. Works for everyone.',vars:{'--bg':'#F7F7F2','--bg2':'#EEEEE8','--bg3':'#D8D8D0','--text':'#222222','--muted':'#4A4A4A','--accent':'#2F6E91'},traits:['Default','Low stimulation','High contrast'],tc:'#1A4A6A',tb:'#D8EAF5'},
-  sensory:{name:'Low sensory',desc:'Muted neutral background, soft teal. Minimal visual noise.',vars:{'--bg':'#EDECEA','--bg2':'#E2E0DD','--bg3':'#D0CEC9','--text':'#1E1E1E','--muted':'#555550','--accent':'#3D7A6B'},traits:['Autism-friendly','Low noise','Muted tones'],tc:'#1A4A40',tb:'#D0E8E4'},
-  dyslexia:{name:'Dyslexia-friendly',desc:'Cream background, dark gray text. Reduces glare on long reads.',vars:{'--bg':'#F5F0E0','--bg2':'#EDE8D5','--bg3':'#D8D0BE','--text':'#222222','--muted':'#5A5248','--accent':'#2F6E91'},traits:['Dyslexia-friendly','Cream tones','Reduced glare'],tc:'#5A4020',tb:'#EEE0C0'},
-  focus:{name:'High focus',desc:'Pure minimal palette, one accent. Strips all distraction.',vars:{'--bg':'#F8F8F8','--bg2':'#EEEEEE','--bg3':'#DCDCDC','--text':'#111111','--muted':'#555555','--accent':'#2F6E91'},traits:['ADHD-friendly','High contrast','One accent'],tc:'#222288',tb:'#E0E0F0'},
-  dark:{name:'Dark mode',desc:'Dark background, light text. Easy on the eyes at night.',vars:{'--bg':'#1C1F26','--bg2':'#252830','--bg3':'#2E3240','--text':'#E0E4EC','--muted':'#8A90A0','--accent':'#5A9ABF'},traits:['Night use','Photosensitivity','Low glare'],tc:'#8ABCD0',tb:'#283040'}
+  calm:{name:'Calm default',desc:'Off-white, charcoal text, muted teal. Works for everyone.',vars:{'--bg':'#F7F7F2','--bg2':'#EEEEE8','--bg3':'#D8D8D0','--text':'#222222','--muted':'#4A4A4A','--accent':'#2F6E91',
+  // semantic colours — default values, not overridden
+  '--safe':'#00875A','--safe-bg':'#E6F6F0','--safe-border':'#9ADFC3',
+  '--caution':'#A04A00','--caution-bg':'#FEF0DC','--caution-border':'#F0C070',
+  '--danger':'#A33030','--danger-bg':'#FAEAEA','--danger-border':'#DDA0A0',
+  '--warn':'#8A3A1A','--warn-bg':'#FDF5EF','--warn-border':'#E8C4A8',
+  '--med-bg':'#FBF6EE','--med-border':'#C8972A','--med-border-soft':'#E0C97A','--med-text':'#6B4400'},traits:['Default','Low stimulation','High contrast'],tc:'#1A4A6A',tb:'#D8EAF5'},
+  sensory:{name:'Low sensory',desc:'Muted neutral background, soft teal. Minimal visual noise.',vars:{'--bg':'#EDECEA','--bg2':'#E2E0DD','--bg3':'#D0CEC9','--text':'#1E1E1E','--muted':'#555550','--accent':'#3D7A6B',
+  // No red, no orange — muted amber family only
+  '--safe':'#3A7A60','--safe-bg':'#E4EEEA','--safe-border':'#9ACAB8',
+  '--caution':'#7A5E00','--caution-bg':'#F5F0DE','--caution-border':'#C8B060',
+  '--danger':'#7A4A00','--danger-bg':'#EDE4CE','--danger-border':'#C09040',
+  '--warn':'#7A5E00','--warn-bg':'#F0EBD8','--warn-border':'#C8B060',
+  '--med-bg':'#E8EDE8','--med-border':'#5A8A70','--med-border-soft':'#9ABCAA','--med-text':'#2A4A38'},traits:['Autism-friendly','Low noise','Muted tones'],tc:'#1A4A40',tb:'#D0E8E4'},
+  dyslexia:{name:'Dyslexia-friendly',desc:'Cream background, dark gray text. Reduces glare on long reads.',vars:{'--bg':'#F5F0E0','--bg2':'#EDE8D5','--bg3':'#D8D0BE','--text':'#222222','--muted':'#5A5248','--accent':'#2F6E91',
+  // Cream/tan family — no harsh colour shifts
+  '--safe':'#2A6A48','--safe-bg':'#EAF0E4','--safe-border':'#9AC0A0',
+  '--caution':'#7A5A00','--caution-bg':'#F5EDD0','--caution-border':'#D0A848',
+  '--danger':'#8A4A18','--danger-bg':'#F0E0CC','--danger-border':'#C09060',
+  '--warn':'#7A5A1A','--warn-bg':'#F5EDD4','--warn-border':'#D8C090',
+  '--med-bg':'#EEE8D0','--med-border':'#9A8050','--med-border-soft':'#C8B888','--med-text':'#5A4010'},traits:['Dyslexia-friendly','Cream tones','Reduced glare'],tc:'#5A4020',tb:'#EEE0C0'},
+  focus:{name:'High focus',desc:'Pure minimal palette, one accent. Strips all distraction.',vars:{'--bg':'#F8F8F8','--bg2':'#EEEEEE','--bg3':'#DCDCDC','--text':'#111111','--muted':'#555555','--accent':'#2F6E91',
+  // Minimal competing colours — amber for caution/danger, blue accent for medical
+  '--safe':'#1A7A50','--safe-bg':'#E8F4EE','--safe-border':'#80C8A0',
+  '--caution':'#8A6000','--caution-bg':'#FAF4E8','--caution-border':'#D4B060',
+  '--danger':'#7A4400','--danger-bg':'#F5EAD8','--danger-border':'#C08040',
+  '--warn':'#8A6000','--warn-bg':'#FAF4E8','--warn-border':'#D4B060',
+  '--med-bg':'#F0F4F8','--med-border':'#2F6E91','--med-border-soft':'#A8C8E0','--med-text':'#1A3A50'},traits:['ADHD-friendly','High contrast','One accent'],tc:'#222288',tb:'#E0E0F0'},
+  dark:{name:'Dark mode',desc:'Dark background, light text. Easy on the eyes at night.',vars:{'--bg':'#1C1F26','--bg2':'#252830','--bg3':'#2E3240','--text':'#E0E4EC','--muted':'#8A90A0','--accent':'#5A9ABF',
+  // Dark-safe versions — muted, no blinding colours
+  '--safe':'#3AAA78','--safe-bg':'#182820','--safe-border':'#2A6040',
+  '--caution':'#D4A040','--caution-bg':'#282010','--caution-border':'#604818',
+  '--danger':'#C07040','--danger-bg':'#281810','--danger-border':'#583010',
+  '--warn':'#C8A060','--warn-bg':'#282418','--warn-border':'#604820',
+  '--med-bg':'#1E2430','--med-border':'#5A9ABF','--med-border-soft':'#2E4060','--med-text':'#A0C8E0'},traits:['Night use','Photosensitivity','Low glare'],tc:'#8ABCD0',tb:'#283040'}
 };
 const QUESTIONS=[
   {q:'How does your screen feel after a while?',opts:[{t:'Words blur or crowd',d:'Hard to track, I lose my place',v:'glare'},{t:'Brightness feels harsh',d:'Even moderate screens overwhelm',v:'bright'},{t:'I get distracted easily',d:'Eyes jump around, focus is hard',v:'distract'},{t:'Generally comfortable',d:'Just want something easy on the eyes',v:'fine'}]},
@@ -708,7 +745,7 @@ const QUESTIONS=[
   {q:'How do you want to feel here?',opts:[{t:'Calm',d:'Safe, unhurried, low stimulation',v:'calm'},{t:'Focused',d:'Clear, sharp, nothing in the way',v:'focus'},{t:'Warm',d:'Comfortable, easy on the eyes',v:'warm'},{t:'Energised',d:'Alive, motivating, ready to go',v:'energised'}]}
 ];
 function scoreAnswers(ans){const s={calm:0,sensory:0,focus:0,dark:0,dyslexia:0};const m={glare:{dyslexia:4,calm:1},bright:{sensory:3,dark:4},distract:{focus:4},fine:{calm:3,focus:1},morning:{focus:2,calm:2},evening:{dark:4,sensory:2},all:{dyslexia:1,calm:3,focus:1},calm:{sensory:4,dyslexia:2},focus:{focus:4},warm:{dyslexia:4,calm:1},energised:{focus:3,calm:1}};ans.forEach(v=>{if(m[v])Object.keys(m[v]).forEach(k=>s[k]+=m[v][k]);});return Object.keys(s).reduce((a,b)=>s[a]>s[b]?a:b);}
-function applyVars(vars){const r=document.documentElement;Object.keys(vars).forEach(k=>r.style.setProperty(k,vars[k]));refreshTopDots(vars);}
+function applyVars(vars){const r=document.documentElement;Object.keys(vars).forEach(k=>{if(k.startsWith('--'))r.style.setProperty(k,vars[k]);});refreshTopDots(vars);}
 function refreshTopDots(vars){const d=document.getElementById('topDots');if(!d)return;d.innerHTML=`<div class="pd" style="background:${vars['--bg2']}"></div><div class="pd" style="background:${vars['--accent']}"></div><div class="pd" style="background:${vars['--text']||'#111'}"></div>`;}
 let curProfile='calm',pendingKey=null,wizStep=0,wizAns=[];
 function saveProfile(k){try{localStorage.setItem('cs_profile',k);}catch(e){}}
@@ -734,11 +771,10 @@ function setRL(btn){document.querySelectorAll('.rl-btn').forEach(b=>b.classList.
 function loadRL(){try{const s=localStorage.getItem('cs_rl');if(s){const b=document.querySelector(`[data-rl="${s}"]`);if(b)setRL(b);}}catch(e){}}
 
 // ═══ TASK ENGINE ══════════════════════════════════════════
-// Clean state — UI always derives from this
 let state = {
   tasks: [],
   currentIndex: 0,
-  completed: [],       // indices of completed steps
+  completed: [],
   showAll: false,
   done: false,
   reminderMins: null,
@@ -750,6 +786,7 @@ function showPhase(n){
     const el=document.getElementById('simplePhase'+i);
     if(el) el.style.display = i===n ? 'block' : 'none';
   });
+  // Medical disclaimer bar stays visible across ALL phases — never hide it here
 }
 
 function initTasks(tasks){
@@ -765,14 +802,12 @@ function startSteps(){
   renderStep();
 }
 
-// ── Core render — always derives from state ──────────────
 function renderStep(){
   if(state.done){ showPhase(3); return; }
 
   const i = state.currentIndex;
   const total = state.tasks.length;
 
-  // Progress — large number + bar
   const numCur = document.getElementById('stepNumCurrent');
   const numTot = document.getElementById('stepNumTotal');
   const fill = document.getElementById('stepProgressFill');
@@ -780,23 +815,16 @@ function renderStep(){
   if(numTot) numTot.textContent = total;
   if(fill) fill.style.width = ((i+1)/total*100)+'%';
 
-  // Task text
   const task = document.getElementById('stepTask');
   if(task) task.textContent = state.tasks[i] || '';
 
-  // Mark done vs undo
   const markArea = document.getElementById('markDoneArea');
   const undoArea = document.getElementById('undoArea');
   if(markArea) markArea.style.display = 'block';
   if(undoArea) undoArea.style.display = 'none';
 
-  // Reminder state reset
   resetReminderUI();
-
-  // Done list
   renderDoneList();
-
-  // All steps
   renderAllStepsLists();
 }
 
@@ -804,11 +832,9 @@ function renderDoneList(){
   const wrap = document.getElementById('unifiedSteps');
   const list = document.getElementById('unifiedList');
   if(!list) return;
-  // Always show once tasks exist
   if(state.tasks.length === 0){ if(wrap) wrap.style.display='none'; return; }
   if(wrap) wrap.style.display = 'block';
   list.innerHTML = '';
-  // Undo all if multiple done
   if(state.completed.length > 1){
     const undoAll = document.createElement('button');
     undoAll.className = 'undo-all-btn';
@@ -816,7 +842,6 @@ function renderDoneList(){
     undoAll.onclick = () => undoAllSteps();
     list.appendChild(undoAll);
   }
-  // Single unified list — all steps
   state.tasks.forEach((task, idx) => {
     const done = state.completed.includes(idx);
     const isCurrent = idx === state.currentIndex && !done;
@@ -833,30 +858,21 @@ function renderDoneList(){
   });
 }
 
-// ── Mark as done — advances immediately ──────────────────
 function markStepDone(){
   const i = state.currentIndex;
   state.completed.push(i);
-
-  // Cancel any reminder
   if(state.reminderTimeout){ clearTimeout(state.reminderTimeout); state.reminderTimeout = null; }
-
-  // Find next incomplete
   let next = -1;
   for(let j = 0; j < state.tasks.length; j++){
     if(!state.completed.includes(j)){ next = j; break; }
   }
-
   if(next === -1){
-    // All done
     state.done = true;
     showPhase(3);
     setTimeout(() => toast('All steps complete. Well done.'), 300);
   } else {
     state.currentIndex = next;
-    // Show undo briefly alongside new step
     renderStep();
-    // Show undo as small inline note
     const undoArea = document.getElementById('undoArea');
     if(undoArea){
       undoArea.style.display = 'flex';
@@ -876,7 +892,6 @@ function undoStep(){
 function undoSpecificStep(idx){
   const pos = state.completed.indexOf(idx);
   if(pos === -1) return;
-  // Remove this step and all steps completed after it
   state.completed = state.completed.slice(0, pos);
   state.currentIndex = idx;
   state.done = false;
@@ -894,12 +909,10 @@ function undoAllSteps(){
   renderStep();
 }
 
-// ── All steps toggle ──────────────────────────────────────
-function toggleAllSteps(){ /* unified list replaces this */ }
+function toggleAllSteps(){ }
+function renderAllStepsLists(){ }
 
-function renderAllStepsLists(){ /* unified list replaces this */ }
-
-// ── Reminder — step-level, reversible ────────────────────
+// ── Reminder ──────────────────────────────────────────────
 function openReminderPicker(){
   const preview = document.getElementById('reminderStepPreview');
   if(preview) preview.textContent = state.tasks[state.currentIndex] || 'this step';
@@ -955,14 +968,14 @@ function setReminderUI(mode){
 
 function resetReminderUI(){ setReminderUI('none'); }
 
-// Reset on full reset
 function resetTaskState(){
   if(state.reminderTimeout) clearTimeout(state.reminderTimeout);
   state = {tasks:[], currentIndex:0, completed:[], showAll:false, done:false, reminderMins:null, reminderTimeout:null};
   allTasks = []; shownTaskCount = 0; doneTaskIndices = [];
+  currentIsMedical = false;
 }
 
-function showNextBatch(){} // compat stub
+function showNextBatch(){}
 
 // ═══ EXPLAINABILITY ═══════════════════════════════════════
 function renderExplain(risk, signals){
@@ -972,7 +985,7 @@ function renderExplain(risk, signals){
     items.push({type:'safe', text:'No pressure tactics, suspicious links, or unusual requests found.'});
   } else {
     (signals||[]).forEach(s => {
-      const lookup = {'Urgent language':'Uses words like "immediately" to stop you thinking.','Threat language':'Threatens consequences to create fear.','Suspicious link':'Contains a link that may not go where it says.','Impersonation':'Pretends to be someone you know or trust.','Gift card request':'Gift card requests are always a scam.','Multiple steps':'Several things need to be done — broken into order.','Hard deadline':'There is a time limit you must not miss.','Vague request':'The ask is unclear — clarify before acting.','Do not crush or chew the tablet':'Breaking the tablet changes how the medicine works.','Multiple conditions':'Several rules apply — listed in your steps.'};
+      const lookup = {'Urgent language':'Uses words like "immediately" to stop you thinking.','Threat language':'Threatens consequences to create fear.','Suspicious link':'Contains a link that may not go where it says.','Impersonation':'Pretends to be someone you know or trust.','Gift card request':'Gift card requests are always a scam.'};
       items.push({type: risk==='High Risk'?'flag':'info', text: lookup[s] || `"${s}" was identified in this message.`});
     });
   }
@@ -988,35 +1001,52 @@ function toggleExplain(){const btn=document.getElementById('explainToggle');cons
 function toggleExplainSimple(){
   const body=document.getElementById('explainBodySimple');
   const chev=document.getElementById('explainChevronSimple');
-  const btn=document.getElementById('explainToggleSimple');
   const open=body.style.display!=='none';
   body.style.display=open?'none':'block';
   if(chev)chev.style.transform=open?'':'rotate(180deg)';
 }
 
 // ═══ RENDER RESULT ════════════════════════════════════════
+// Disclaimer sentinel — the backend always appends this exact string
+const DISCLAIMER_SENTINEL = 'reminder tool only — always follow your original prescription';
+
 function renderResult(r){
+  currentIsMedical = r.is_medical === true;
+
+  // ── Badge logic ──────────────────────────────────────────
   const badge = document.getElementById('riskBadge');
-  // Simple mode uses different labels — not risk, but complexity
   if(currentMode === 'simple'){
-    const simpleLabel = r.badge_label || (r.risk_level === 'High Risk' ? 'IMPORTANT' : r.risk_level === 'Safe' ? 'CLEAR' : 'COMPLEX');
+    // Medical content: never show CLEAR — always COMPLEX minimum
+    let simpleLabel;
+    if(currentIsMedical){
+      simpleLabel = r.risk_level === 'High Risk' ? 'IMPORTANT' : 'MEDICAL';
+    } else {
+      simpleLabel = r.badge_label || (
+        r.risk_level === 'High Risk' ? 'IMPORTANT' :
+        r.risk_level === 'Safe' ? 'CLEAR' : 'COMPLEX'
+      );
+    }
     badge.textContent = simpleLabel;
     badge.className = 'risk-badge '+(
-      simpleLabel==='DEADLINE'||simpleLabel==='IMPORTANT' ? 'risk-danger' :
-      simpleLabel==='CLEAR' ? 'risk-safe' : 'risk-caution'
+      simpleLabel==='IMPORTANT' ? 'risk-danger' :
+      simpleLabel==='MEDICAL'   ? 'risk-caution' :
+      simpleLabel==='CLEAR'     ? 'risk-safe'    : 'risk-caution'
     );
   } else {
     badge.textContent = r.risk_level;
     badge.className = 'risk-badge '+(r.risk_level==='Safe'?'risk-safe':r.risk_level==='Caution'?'risk-caution':'risk-danger');
   }
+
   document.getElementById('meaningText').textContent = r.meaning;
 
   const safeBody = document.getElementById('safeResultBody');
   const simpleBody = document.getElementById('simpleResultBody');
+  const medBar = document.getElementById('medicalDisclaimerBar');
 
   if(currentMode === 'safe'){
     safeBody.style.display = 'grid';
     simpleBody.style.display = 'none';
+    if(medBar) medBar.classList.remove('visible');
     // Signals
     const dotClass = r.risk_level==='Safe'?'safe':r.risk_level==='High Risk'?'danger':'caution';
     const sl = document.getElementById('signalsList'); sl.innerHTML = '';
@@ -1038,20 +1068,44 @@ function renderResult(r){
   } else {
     safeBody.style.display = 'none';
     simpleBody.style.display = 'block';
-    // Warnings
+
+    // ── Medical disclaimer bar ─────────────────────────────
+    if(medBar){
+      if(currentIsMedical) medBar.classList.add('visible');
+      else medBar.classList.remove('visible');
+    }
+
+    // ── Warnings — separate disclaimer from safety rules ───
     const warningsBlock = document.getElementById('warningsBlock');
     const warnList = document.getElementById('warnList');
-    if(r.warnings && r.warnings.length > 0){
+
+    // Split: safety warnings vs disclaimer sentinel
+    const allWarnings = r.warnings || [];
+    const safetyWarnings = allWarnings.filter(w =>
+      w.toLowerCase().trim() !== DISCLAIMER_SENTINEL
+    );
+    const hasDisclaimer = allWarnings.some(w =>
+      w.toLowerCase().trim() === DISCLAIMER_SENTINEL
+    );
+
+    if(safetyWarnings.length > 0){
       warningsBlock.style.display = 'block';
       warningsBlock.className = 'warnings-block';
-      document.querySelector('#warningsBlock .warn-label').textContent = '⚠ Before you start — do not';
+      document.querySelector('#warningsBlock .warn-label').textContent = '⚠ Before you start';
       warnList.innerHTML = '';
-      r.warnings.forEach(w => {
-        const li = document.createElement('li'); li.textContent = w;
+      safetyWarnings.forEach(w => {
+        const li = document.createElement('li');
+        li.textContent = w;
         warnList.appendChild(li);
       });
-    } else if(r.key_items && r.key_items.length > 0){
-      // No hard warnings but there are key things — show softer notice block
+      // Disclaimer as separate styled note at bottom of warnings block — only if not medical bar
+      if(hasDisclaimer && !currentIsMedical){
+        const li = document.createElement('li');
+        li.className = 'warn-disclaimer';
+        li.textContent = 'This is a reminder tool only — always follow your original document';
+        warnList.appendChild(li);
+      }
+    } else if(r.key_items && r.key_items.length > 0 && !currentIsMedical){
       warningsBlock.style.display = 'block';
       warningsBlock.className = 'warnings-block warnings-block-soft';
       document.querySelector('#warningsBlock .warn-label').textContent = '↓ Key things in this message';
@@ -1063,28 +1117,34 @@ function renderResult(r){
     } else {
       warningsBlock.style.display = 'none';
     }
-    // Key items (in explainability, not main view)
-    const kl = document.getElementById('keyItemsList'); if(kl){kl.innerHTML = '';
-    (r.key_items||r.signals||[]).forEach(s=>{
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="sdot caution"></span><span>${s}</span>`;
-      kl.appendChild(li);
-    });}
-    // Explain items for simple mode
-    const eis=document.getElementById('explainItemsSimple');
-    if(eis){eis.innerHTML='';
-      const note=document.createElement('div');note.className='explain-item';
+
+    // Key items in explainability
+    const kl = document.getElementById('keyItemsList');
+    if(kl){ kl.innerHTML = '';
+      (r.key_items||r.signals||[]).forEach(s=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="sdot caution"></span><span>${s}</span>`;
+        kl.appendChild(li);
+      });
+    }
+
+    // Explain items
+    const eis = document.getElementById('explainItemsSimple');
+    if(eis){ eis.innerHTML='';
+      const note = document.createElement('div'); note.className='explain-item';
       note.innerHTML=`<div class="ei">i</div><span>ClearStep is an AI tool. Always verify with a professional if unsure.</span>`;
       eis.appendChild(note);
     }
-    // Tasks — progressive flow
+
+    // Tasks
     initTasks(r.tasks || r.next_steps || []);
   }
 
   const safePnl=document.getElementById('explainPanelSafe');
   const simplePnl=document.getElementById('explainPanelSimple');
-  if(safePnl)safePnl.style.display=currentMode==='safe'?'block':'none';
-  if(simplePnl)simplePnl.style.display=currentMode==='simple'?'block':'none';
+  if(safePnl) safePnl.style.display=currentMode==='safe'?'block':'none';
+  if(simplePnl) simplePnl.style.display=currentMode==='simple'?'block':'none';
+
   document.getElementById('fbY').className = 'fb-btn';
   document.getElementById('fbN').className = 'fb-btn';
   document.getElementById('fbThanks').classList.remove('show');
@@ -1092,7 +1152,7 @@ function renderResult(r){
   document.getElementById('explainToggle').classList.remove('open');
   document.getElementById('resultCard').classList.add('visible');
   document.getElementById('resetBtn').classList.add('visible');
-  const fa=document.getElementById('feedbackAfter');if(fa)fa.style.display='flex';
+  const fa=document.getElementById('feedbackAfter'); if(fa) fa.style.display='flex';
   document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
@@ -1128,8 +1188,9 @@ function fallback(msg){
   if(m.match(/urgent|immediately|right now|24 hour/))score+=3;
   if(m.match(/click|http|bit\.ly|verify/))score+=2;
   if(m.match(/gift card|bitcoin|wire transfer/))score+=4;
+  const isMed = !!(m.match(/tablet|dose|medication|mg|prescription|pharmacist|swallow|daily|twice/));
   if(currentMode==='simple'){
-    return{risk_level:'Caution',meaning:'This message has several things that need attention.',warnings:[],key_items:['Multiple items detected','Review carefully'],tasks:['Start with the first action only','Separate each instruction into its own step','Start with the most important step first']};
+    return{risk_level:'Caution', is_medical: isMed, meaning:'This message has several things that need attention.',warnings:isMed?['Reminder tool only — always follow your original prescription']:[], key_items:['Multiple items detected','Review carefully'],tasks:['Start with the first action only','Check the original document for full details']};
   }
   if(score>=5)return{risk_level:'High Risk',meaning:'This message shows several warning signs.',signals:['Urgent language','Suspicious request'],next_steps:['Do not click any links','Contact the organisation directly']};
   if(score>=2)return{risk_level:'Caution',meaning:'Parts of this message are worth checking.',signals:['Unusual phrasing','Action request'],next_steps:['Pause before clicking anything','Verify through an official channel']};
@@ -1143,10 +1204,15 @@ function resetAll(){
   document.getElementById('resultCard').classList.remove('visible');
   document.getElementById('errorMsg').classList.remove('visible');
   document.getElementById('resetBtn').classList.remove('visible');
-  const fa=document.getElementById('feedbackAfter');if(fa){fa.style.display='none';}document.getElementById('fbY').className='fb-btn';document.getElementById('fbN').className='fb-btn';document.getElementById('fbThanks').classList.remove('show');
+  const fa=document.getElementById('feedbackAfter');if(fa){fa.style.display='none';}
+  document.getElementById('fbY').className='fb-btn';
+  document.getElementById('fbN').className='fb-btn';
+  document.getElementById('fbThanks').classList.remove('show');
   document.getElementById('msgInput').focus();
+  // Hide medical bar on reset
+  const medBar=document.getElementById('medicalDisclaimerBar');
+  if(medBar) medBar.classList.remove('visible');
   resetTaskState();
-  
 }
 
 // ═══ FOCUS SUPPORT ════════════════════════════════════════
@@ -1154,7 +1220,6 @@ const calmPhrases=['Take a moment. You are in control.','No rush. You have time.
 let calmIdx=0;
 function calmToast(){const t=document.getElementById('toast');t.textContent=calmPhrases[calmIdx%calmPhrases.length];calmIdx++;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),9000);}
 function playBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=520;gain.gain.setValueAtTime(0.4,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.2);}catch(e){}if(navigator.vibrate)navigator.vibrate([300,100,300]);}
-
 
 // ═══ FEEDBACK ═════════════════════════════════════════════
 function feedback(helpful){document.getElementById('fbY').className='fb-btn'+(helpful?' yes':'');document.getElementById('fbN').className='fb-btn'+(!helpful?' no':'');const thanks=document.getElementById('fbThanks');thanks.textContent=helpful?'Glad it helped.':'Thanks — we will use this to improve.';thanks.classList.add('show');try{const d=JSON.parse(localStorage.getItem('cs_fb')||'{"y":0,"n":0}');if(helpful)d.y++;else d.n++;localStorage.setItem('cs_fb',JSON.stringify(d));}catch(e){}}
@@ -1165,7 +1230,6 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 // ═══ KEYBOARD ═════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){analyze();return;}
-  // Mode selection shortcuts — only on mode screen
   if(!currentMode && document.getElementById('modeScreen').style.display !== 'none'){
     if(e.key==='1'){selectMode('safe');return;}
     if(e.key==='2'){selectMode('simple');return;}
