@@ -379,8 +379,63 @@ def analyze():
     except Exception:
         return jsonify({"error": "Model returned invalid JSON", "raw": raw_text}), 500
 
-# ── Calendar proxy — avoids CORS, keeps external calls server-side ──
-CALENDAR_FUNCTION_URL = "https://clearstep-reminders-cyhserg6evdqa0dt.canadaeast-01.azurewebsites.net/api/generate-calendar-link"
+# ── Calendar link builder — no external dependencies ──────────────
+# Joanne's Azure Function is still deployed as a reference/backup:
+# https://clearstep-reminders-cyhserg6evdqa0dt.canadaeast-01.azurewebsites.net/api/generate-calendar-link
+# We build links directly here so the demo never depends on an external service.
+
+from datetime import datetime, timedelta
+from urllib.parse import quote
+
+def get_event_times(time_choice):
+    now = datetime.now()
+    if time_choice == "1hour":
+        start = now + timedelta(hours=1)
+        mins = 0 if start.minute < 30 else 30
+        start = start.replace(minute=mins, second=0, microsecond=0)
+    elif time_choice == "afternoon":
+        start = now.replace(hour=14, minute=0, second=0, microsecond=0)
+        if start <= now:
+            start += timedelta(days=1)
+    elif time_choice == "evening":
+        start = now.replace(hour=19, minute=0, second=0, microsecond=0)
+        if start <= now:
+            start += timedelta(days=1)
+    elif time_choice == "tomorrow":
+        start = (now + timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0)
+    else:
+        start = now + timedelta(hours=1)
+    end = start + timedelta(minutes=30)
+    return start, end
+
+def build_google_link(step_text, start, end):
+    # Google Calendar pre-filled URL — no API key needed
+    title = quote(f"ClearStep reminder: {step_text}")
+    details = quote(f"You asked ClearStep to remind you to: {step_text}")
+    dates = f"{start.strftime('%Y%m%dT%H%M%S')}/{end.strftime('%Y%m%dT%H%M%S')}"
+    return (
+        f"https://calendar.google.com/calendar/render"
+        f"?action=TEMPLATE"
+        f"&text={title}"
+        f"&dates={dates}"
+        f"&details={details}"
+        f"&sf=true&output=xml"
+    )
+
+def build_outlook_link(step_text, start, end):
+    # Outlook.live.com pre-filled URL — no API key needed
+    subject = quote(f"ClearStep reminder: {step_text}")
+    body = quote(f"You asked ClearStep to remind you to: {step_text}")
+    startdt = start.strftime("%Y-%m-%dT%H:%M:%S")
+    enddt = end.strftime("%Y-%m-%dT%H:%M:%S")
+    return (
+        f"https://outlook.live.com/calendar/0/action/compose"
+        f"?rru=addevent"
+        f"&startdt={startdt}"
+        f"&enddt={enddt}"
+        f"&subject={subject}"
+        f"&body={body}"
+    )
 
 @app.route("/api/calendar-link", methods=["POST"])
 def calendar_link():
@@ -395,30 +450,27 @@ def calendar_link():
     if time_choice not in valid_times:
         return jsonify({"error": f"Invalid time_choice. Must be one of: {valid_times}"}), 400
 
-    try:
-        response = requests.post(
-            CALENDAR_FUNCTION_URL,
-            headers={"Content-Type": "application/json"},
-            json={"step_text": step_text, "time_choice": time_choice},
-            timeout=10
-        )
-        if response.status_code != 200:
-            print("Calendar function error:", response.status_code, response.text)
-            return jsonify({"error": "Calendar service unavailable"}), 502
-        result = response.json()
-        # Log calendar usage to App Insights
-        logger.info("ClearStep calendar reminder created", extra={
-            "custom_dimensions": {
-                "time_choice": time_choice,
-                "step_text_length": str(len(step_text))
-            }
-        })
-        return jsonify(result)
-    except requests.exceptions.Timeout:
-        return jsonify({"error": "Calendar service timed out"}), 504
-    except Exception as e:
-        print("Calendar proxy error:", e)
-        return jsonify({"error": "Calendar service unavailable"}), 502
+    start, end = get_event_times(time_choice)
+    google_link = build_google_link(step_text, start, end)
+    outlook_link = build_outlook_link(step_text, start, end)
+
+    print(f"Calendar links built: time_choice={time_choice}, start={start}")
+
+    # Log to App Insights
+    logger.info("ClearStep calendar reminder created", extra={
+        "custom_dimensions": {
+            "time_choice": time_choice,
+            "event_start": str(start),
+            "step_text_length": str(len(step_text))
+        }
+    })
+
+    return jsonify({
+        "google_link": google_link,
+        "outlook_link": outlook_link,
+        "event_title": f"ClearStep reminder: {step_text}",
+        "event_start": start.strftime("%Y-%m-%dT%H:%M:%S")
+    })
 
 if __name__ == "__main__":
     app.run()
