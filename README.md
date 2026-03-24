@@ -360,7 +360,7 @@ clearstep/
 |---|---|
 | **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (app.py) · Frontend development (index.html) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design |
 | **Joanne Dada** | Azure infrastructure · Azure integrations · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup |
-| **Fatima** | UX design contributions · PowerPoint presentation · Video production |
+| **Fatima** | TBD |
 
 ---
 
