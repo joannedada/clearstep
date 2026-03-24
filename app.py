@@ -326,18 +326,29 @@ Return ONLY this JSON:
 
 WARNINGS format rule: Write warnings as short facts without "Do not" prefix.
 Keep warnings under 8 words each.
+
+STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
+- key_items: EXACTLY 2-4 words each. Label the fact only. Examples: "60-day deadline", "Two forms of ID", "Twice daily with food". NEVER a full sentence.
+- tasks: Max 8 words each. One physical action. Start with a verb. Examples: "Take 1 tablet with food", "Submit form by certified mail". NEVER a compound sentence.
+- warnings: Max 8 words each. Short facts only.
+- meaning: Max 12 words. One sentence.
 """
     else:
         mode_instruction = f"""
 Content type: A message, email, link, or text that may be a scam, threat, or manipulation.
 {lang_instruction}
 
+STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
+- signals: EXACTLY 2-3 words each. Label the pattern only. Examples: "Urgent language", "Suspicious link", "Impersonation attempt". NEVER write a full sentence. NEVER exceed 3 words.
+- next_steps: Max 8 words each. One clear action. Examples: "Do not click the link", "Call your bank directly". NEVER write a full sentence with clauses.
+- meaning: Max 12 words. One sentence.
+
 Return ONLY this JSON:
 {{
   "risk_level": "Safe | Caution | High Risk",
   "meaning": "one short sentence, max 12 words",
-  "signals": ["signal 1", "signal 2", "signal 3"],
-  "next_steps": ["step 1", "step 2"]
+  "signals": ["2-3 words", "2-3 words", "2-3 words"],
+  "next_steps": ["max 8 words", "max 8 words"]
 }}"""
 
     return f"""
