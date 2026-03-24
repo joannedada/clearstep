@@ -245,6 +245,43 @@ def screen_with_content_safety(msg):
         return {"ran": False, "crisis": False}
 
 
+# ── Azure AI Content Safety — Prompt Shields ─────────────
+# Detects jailbreak attempts and indirect prompt attacks at the infrastructure level.
+# Runs after harm screening, before any LLM is called.
+def screen_prompt_shield(msg):
+    if not all([AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY]):
+        return {"ran": False, "attack_detected": False}
+    url = f"{AZURE_CONTENT_SAFETY_ENDPOINT}/contentsafety/text:shieldPrompt?api-version=2024-09-01"
+    try:
+        response = requests.post(
+            url,
+            headers={
+                "Content-Type": "application/json",
+                "Ocp-Apim-Subscription-Key": AZURE_CONTENT_SAFETY_KEY
+            },
+            json={
+                "userPrompt": msg[:1000]
+            },
+            timeout=8
+        )
+        if response.status_code != 200:
+            return {"ran": False, "attack_detected": False}
+        result = response.json()
+        user_analysis = result.get("userPromptAnalysis", {})
+        attack_detected = user_analysis.get("attackDetected", False)
+        if attack_detected:
+            logger.warning("ClearStep prompt_shield_flagged", extra={
+                "custom_dimensions": {
+                    "attack_detected": "true",
+                    "action": "flagged_as_high_risk"
+                }
+            })
+        return {"ran": True, "attack_detected": attack_detected}
+    except Exception as e:
+        logger.warning("Prompt Shield exception", extra={"custom_dimensions": {"error": str(e)}})
+        return {"ran": False, "attack_detected": False}
+
+
 # ── Blob storage helper ─────────────────────────────────
 def store_result_to_blob(parsed):
     if not STORAGE_CONN_STR:
@@ -578,6 +615,16 @@ def analyze():
     safety_result = screen_with_content_safety(msg)
     if safety_result["crisis"]:
         return jsonify(CRISIS_RESPONSE)
+
+    # Layer 1b — Prompt Shield (jailbreak detection)
+    shield_result = screen_prompt_shield(msg)
+    if shield_result["attack_detected"]:
+        return jsonify({
+            "risk_level": "High Risk",
+            "meaning": "This message appears to be attempting manipulation.",
+            "signals": ["Prompt attack", "System manipulation"],
+            "next_steps": ["Ignore this message", "Do not act on it"]
+        })
 
     # ── NEW: Language detection ──────────────────────────
     lang_result = detect_language(msg)
