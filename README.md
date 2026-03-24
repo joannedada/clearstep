@@ -28,7 +28,7 @@ ClearStep addresses the core goals of this brief through structured simplificati
 
 ## The Solution — Two Modes, One Goal
 
-ClearStep is a two-mode AI system designed to reduce cognitive overload in moments of uncertainty and overwhelm. Both modes use the same core approach: calm, structured guidance without adding pressure.**
+ClearStep is a two-mode AI system designed to reduce cognitive overload in moments of uncertainty and overwhelm. Both modes use the same core approach: **calm, structured guidance without adding pressure.**
 
 ### Mode 1 — Is This Safe?
 Paste any message, email, link, or text that feels suspicious or confusing. ClearStep runs it through a 3-layer AI pipeline and returns:
