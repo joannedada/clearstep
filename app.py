@@ -6,8 +6,25 @@ import os
 import requests
 import json
 from flask import Flask, request, jsonify, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+
+# ── Rate limiting — prevent API abuse ────────────────────
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["30 per minute"],
+    storage_uri="memory://"
+)
+
+# ── CORS — restrict to own domain ────────────────────────
+CORS(app, origins=[
+    "https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net",
+    "http://localhost:5000"
+])
 
 # ── Application Insights telemetry ───────────────────────
 logger = logging.getLogger(__name__)
@@ -228,6 +245,43 @@ def screen_with_content_safety(msg):
         return {"ran": False, "crisis": False}
 
 
+# ── Azure AI Content Safety — Prompt Shields ─────────────
+# Detects jailbreak attempts and indirect prompt attacks at the infrastructure level.
+# Runs after harm screening, before any LLM is called.
+def screen_prompt_shield(msg):
+    if not all([AZURE_CONTENT_SAFETY_ENDPOINT, AZURE_CONTENT_SAFETY_KEY]):
+        return {"ran": False, "attack_detected": False}
+    url = f"{AZURE_CONTENT_SAFETY_ENDPOINT}/contentsafety/text:shieldPrompt?api-version=2024-09-01"
+    try:
+        response = requests.post(
+            url,
+            headers={
+                "Content-Type": "application/json",
+                "Ocp-Apim-Subscription-Key": AZURE_CONTENT_SAFETY_KEY
+            },
+            json={
+                "userPrompt": msg[:1000]
+            },
+            timeout=8
+        )
+        if response.status_code != 200:
+            return {"ran": False, "attack_detected": False}
+        result = response.json()
+        user_analysis = result.get("userPromptAnalysis", {})
+        attack_detected = user_analysis.get("attackDetected", False)
+        if attack_detected:
+            logger.warning("ClearStep prompt_shield_flagged", extra={
+                "custom_dimensions": {
+                    "attack_detected": "true",
+                    "action": "flagged_as_high_risk"
+                }
+            })
+        return {"ran": True, "attack_detected": attack_detected}
+    except Exception as e:
+        logger.warning("Prompt Shield exception", extra={"custom_dimensions": {"error": str(e)}})
+        return {"ran": False, "attack_detected": False}
+
+
 # ── Blob storage helper ─────────────────────────────────
 def store_result_to_blob(parsed):
     if not STORAGE_CONN_STR:
@@ -309,18 +363,29 @@ Return ONLY this JSON:
 
 WARNINGS format rule: Write warnings as short facts without "Do not" prefix.
 Keep warnings under 8 words each.
+
+STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
+- key_items: EXACTLY 2-4 words each. Label the fact only. Examples: "60-day deadline", "Two forms of ID", "Twice daily with food". NEVER a full sentence.
+- tasks: Max 8 words each. One physical action. Start with a verb. Examples: "Take 1 tablet with food", "Submit form by certified mail". NEVER a compound sentence.
+- warnings: Max 8 words each. Short facts only.
+- meaning: Max 12 words. One sentence.
 """
     else:
         mode_instruction = f"""
 Content type: A message, email, link, or text that may be a scam, threat, or manipulation.
 {lang_instruction}
 
+STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
+- signals: EXACTLY 2-3 words each. Label the pattern only. Examples: "Urgent language", "Suspicious link", "Impersonation attempt". NEVER write a full sentence. NEVER exceed 3 words.
+- next_steps: Max 8 words each. One clear action. Examples: "Do not click the link", "Call your bank directly". NEVER write a full sentence with clauses.
+- meaning: Max 12 words. One sentence.
+
 Return ONLY this JSON:
 {{
   "risk_level": "Safe | Caution | High Risk",
   "meaning": "one short sentence, max 12 words",
-  "signals": ["signal 1", "signal 2", "signal 3"],
-  "next_steps": ["step 1", "step 2"]
+  "signals": ["2-3 words", "2-3 words", "2-3 words"],
+  "next_steps": ["max 8 words", "max 8 words"]
 }}"""
 
     return f"""
@@ -523,6 +588,7 @@ def index():
     return send_from_directory(".", "index.html")
 
 @app.route("/api/analyze", methods=["POST"])
+@limiter.limit("10 per minute")
 def analyze():
     data = request.get_json(silent=True) or {}
     msg = data.get("message", "").strip()
@@ -549,6 +615,16 @@ def analyze():
     safety_result = screen_with_content_safety(msg)
     if safety_result["crisis"]:
         return jsonify(CRISIS_RESPONSE)
+
+    # Layer 1b — Prompt Shield (jailbreak detection)
+    shield_result = screen_prompt_shield(msg)
+    if shield_result["attack_detected"]:
+        return jsonify({
+            "risk_level": "High Risk",
+            "meaning": "This message appears to be attempting manipulation.",
+            "signals": ["Prompt attack", "System manipulation"],
+            "next_steps": ["Ignore this message", "Do not act on it"]
+        })
 
     # ── NEW: Language detection ──────────────────────────
     lang_result = detect_language(msg)
@@ -577,8 +653,8 @@ def analyze():
         timeout=30
     )
     if response.status_code != 200:
-        logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code)}})
-        return jsonify({"error": response.text}), response.status_code
+        logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code), "detail": response.text[:200]}})
+        return jsonify({"error": "Analysis service temporarily unavailable. Please try again."}), 503
 
     result = response.json()
     raw_text = result["content"][0]["text"].strip().replace("```json", "").replace("```", "").strip()
@@ -678,6 +754,7 @@ def build_outlook_link(step_text, start, end):
     )
 
 @app.route("/api/calendar-link", methods=["POST"])
+@limiter.limit("20 per minute")
 def calendar_link():
     data = request.get_json(silent=True) or {}
     step_text = data.get("step_text", "").strip()
