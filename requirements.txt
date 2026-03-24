@@ -1,4 +1,6 @@
 Flask
+flask-limiter
+flask-cors
 requests
 gunicorn
 azure-identity
