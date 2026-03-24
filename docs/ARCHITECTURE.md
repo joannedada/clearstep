@@ -95,3 +95,10 @@ Every Azure dependency is wrapped in try/except. The app never fails because a n
 - Input length limits: 2,000 chars (messages), 5,000 chars (documents)
 - No user PII stored anywhere
 - Content Safety runs before any user input reaches the LLM
+- **Rate limiting:** Flask-Limiter — 10 requests/minute on `/api/analyze`, 20/minute on `/api/calendar-link` (per IP, in-memory storage)
+- **CORS:** Flask-CORS restricts API access to ClearStep's own domain and localhost only
+- **XSS sanitisation:** All model output rendered via `innerHTML` is escaped through `esc()` before DOM insertion — signals, next_steps, tasks, key_items, and explainability items are all protected
+- **Generic error responses:** Upstream provider errors logged server-side only; user receives safe generic message with HTTP 503
+- **Fallback indicator:** When AI is unavailable and client-side fallback runs, a visible bar informs the user
+
+Full security documentation: [`docs/SECURITY.md`](./docs/SECURITY.md)
