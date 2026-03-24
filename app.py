@@ -30,6 +30,8 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-pre
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_CONTENT_SAFETY_ENDPOINT = os.getenv("AZURE_CONTENT_SAFETY_ENDPOINT")
 AZURE_CONTENT_SAFETY_KEY = os.getenv("AZURE_CONTENT_SAFETY_KEY")
+COSMOS_KEY = os.getenv("COSMOS_KEY")
+COSMOS_ENDPOINT = os.getenv("COSMOS_ENDPOINT")
 
 try:
     vault_url = "https://keyvault-clearstep.vault.azure.net/"
@@ -43,6 +45,8 @@ try:
     AZURE_OPENAI_ENDPOINT = secret_client.get_secret("AZURE-OPENAI-ENDPOINT").value
     AZURE_CONTENT_SAFETY_ENDPOINT = secret_client.get_secret("AZURE-CONTENT-SAFETY-ENDPOINT").value
     AZURE_CONTENT_SAFETY_KEY = secret_client.get_secret("AZURE-CONTENT-SAFETY-KEY").value
+    COSMOS_KEY = secret_client.get_secret("COSMOS-KEY").value
+    COSMOS_ENDPOINT = secret_client.get_secret("COSMOS-ENDPOINT").value
     print("Secrets loaded successfully from Key Vault.")
 except Exception as e:
     print(f"Key Vault unavailable, using environment variables: {e}")
