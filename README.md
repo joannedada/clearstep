@@ -195,8 +195,8 @@ clearstep/
 
 | Name | Role |
 |---|---|
-| **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (app.py) · Frontend development (index.html) · All Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS) |
-| **Joanne Dada** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment (signal-classifier — gpt-4o-mini, Layer 2 of AI pipeline) · Cloud integration |
+| **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (app.py) · Frontend development (index.html) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS) |
+| **Joanne Dada** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Cloud integration |
 | **Fatima** |  TBD |
 
 ---
