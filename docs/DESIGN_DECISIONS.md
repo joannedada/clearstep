@@ -131,7 +131,7 @@ If the Anthropic API fails, the frontend `fallback()` function runs a local keyw
 - **Generic error responses:** Upstream API errors (Anthropic, Azure OpenAI) are logged server-side with detail but never returned to the user. The frontend receives only `"Analysis service temporarily unavailable. Please try again."` — no internal URLs, auth details, or stack traces leak.
 - **Fallback transparency:** When the AI is unavailable and client-side keyword scoring runs instead, a visible caution bar informs the user: *"AI unavailable — showing basic analysis only."* The app never silently pretends a keyword match is an AI result.
 
-Full security documentation: [`docs/SECURITY.md`](./docs/SECURITY.md)
+Full security documentation: [`docs/SECURITY.md`]
 
 ---
 
