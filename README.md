@@ -1,7 +1,7 @@
 # ClearStep
 ### Microsoft Innovation Challenge Hackathon — March 2026
 
-> **Calm, clear AI guidance for everyone.** ClearStep reduces cognitive overload by turning confusing messages, medical instructions, and overwhelming tasks into calm, step-by-step guidance — built for people with ADHD, dyslexia, autism, and anyone who just needs things made simple.
+> **ClearStep is an AI decision-support system that reduces cognitive overload — helping users determine if something is safe to act on, and breaking overwhelming information into clear, calm, actionable steps. Built for neurodiverse users who need structure, not more noise
 
 **🔗 Live Demo:** [`https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net`](https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net)
 
