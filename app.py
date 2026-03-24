@@ -484,6 +484,32 @@ def _clean_list(lst):
         return []
     return [str(item).strip() for item in lst if str(item).strip()]
 
+# Per-item word limits — enforces what the prompt requests
+ITEM_WORD_LIMITS = {
+    "signals": 3,
+    "next_steps": 8,
+    "warnings": 8,
+    "key_items": 4,
+    "tasks": 10,
+}
+
+def _trim_items(items, field):
+    limit = ITEM_WORD_LIMITS.get(field)
+    if not limit:
+        return items
+    trimmed = []
+    for item in items:
+        # Never trim the medical disclaimer
+        if MEDICAL_DISCLAIMER.lower() in item.lower():
+            trimmed.append(item)
+            continue
+        words = item.split()
+        if len(words) > limit:
+            trimmed.append(" ".join(words[:limit]))
+        else:
+            trimmed.append(item)
+    return trimmed
+
 def validate_response(parsed, mode):
     errors = []
     for field in REQUIRED_FIELDS.get(mode, []):
@@ -522,6 +548,8 @@ def validate_response(parsed, mode):
             parsed[field] = []
         else:
             parsed[field] = _clean_list(val)
+        # Enforce per-item word limits
+        parsed[field] = _trim_items(parsed[field], field)
 
     if mode == "simple":
         parsed["is_medical"] = bool(parsed.get("is_medical", False))
@@ -545,7 +573,7 @@ def validate_response(parsed, mode):
                 clean_tasks.append(task)
         if leaked:
             logger.warning("ClearStep leaked_warnings_detected", extra={
-                "custom_dimensions": {"count": str(len(leaked)), "leaked": str(leaked)}
+                "custom_dimensions": {"leaked_count": str(len(leaked))}
             })
             parsed["tasks"] = clean_tasks
             existing = [w.lower() for w in parsed.get("warnings", [])]
@@ -606,8 +634,8 @@ def analyze():
     if not ANTHROPIC_API_KEY:
         return jsonify({"error": "Missing ANTHROPIC_API_KEY"}), 500
 
-    # ── NEW: App Insights — session_created ──────────────
-    logger.info("ClearStep session_created", extra={
+    # ── App Insights — analysis_started ────────────────────
+    logger.info("ClearStep analysis_started", extra={
         "custom_dimensions": {"mode": mode, "reading_level": reading_level}
     })
 
