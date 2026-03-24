@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-
 :root{
   --bg:#F7F7F2;--bg2:#EEEEE8;--bg3:#D8D8D0;
   --text:#222222;--muted:#4A4A4A;--accent:#2F6E91;
@@ -15,7 +14,6 @@
   --caution:#A04A00;--caution-bg:#FEF0DC;--caution-border:#F0C070;
   --danger:#A33030;--danger-bg:#FAEAEA;--danger-border:#DDA0A0;
   --warn:#8A3A1A;--warn-bg:#FDF5EF;--warn-border:#E8C4A8;
-  /* Medical bar — calm default: muted amber, not harsh */
   --med-bg:#FBF6EE;--med-border:#C8972A;--med-border-soft:#E0C97A;--med-text:#6B4400;
   --font-display:'Bebas Neue',sans-serif;
   --font-body:'DM Sans',sans-serif;
@@ -23,11 +21,8 @@
   --fs:1rem;--lh:1.65;
   --tr:background 0.4s,color 0.3s,border-color 0.3s;
 }
-
 html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:var(--fs);line-height:var(--lh);transition:var(--tr);-webkit-font-smoothing:antialiased;}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
-
-/* ── TOPBAR ── */
 .topbar{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;padding:10px 1.5rem;transition:var(--tr);}
 .topbar-brand{font-family:var(--font-display);font-size:1.35rem;letter-spacing:0.06em;line-height:1;cursor:pointer;text-decoration:none;background:none;border:none;padding:0;}
 .brand-clear{color:var(--text);}
@@ -41,11 +36,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .tb-btn:hover{border-color:var(--accent);color:var(--accent);}
 .pal-dots{display:flex;gap:3px;}
 .pd{width:7px;height:7px;border-radius:50%;}
-
-/* ── WRAP ── */
 .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
-
-/* ── MODE SELECT SCREEN ── */
 #modeScreen{animation:fadeUp 0.5s ease both;}
 .mode-header{text-align:center;margin-bottom:2.5rem;}
 .mode-header h1{font-family:var(--font-display);font-size:clamp(2.8rem,8vw,4.5rem);line-height:0.92;letter-spacing:0.02em;color:var(--text);margin-bottom:0.75rem;}
@@ -66,8 +57,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 #card-simple{border-color:#7A6A50;background:#F5F0E8;}
 #card-simple .mode-title{color:#7A6A50;}
 #card-simple .mode-num{color:#7A6A50;opacity:0.6;}
-
-/* ── APP SCREEN (shared) ── */
 #appScreen{display:none;}
 #appScreen.visible{display:block;animation:fadeUp 0.4s ease both;}
 .screen-header{text-align:center;margin-bottom:2rem;}
@@ -75,8 +64,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .screen-header p{margin-top:0.75rem;font-size:0.95rem;color:var(--muted);}
 .back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1.5px solid var(--bg3);border-radius:6px;font-family:var(--font-mono);font-size:0.74rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);cursor:pointer;padding:10px 20px;margin-bottom:1.4rem;transition:all 0.2s;font-weight:500;}
 .back-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--bg2);}
-
-/* ── INPUT CARD ── */
 .input-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:3px;padding:1.4rem;margin-bottom:1.1rem;box-shadow:0 2px 12px rgba(0,0,0,0.04);transition:var(--tr);}
 .input-label{font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text);opacity:0.65;margin-bottom:0.65rem;display:block;font-weight:500;}
 textarea{width:100%;min-height:120px;border:1px solid var(--bg3);border-radius:2px;padding:0.9rem 1rem;font-family:var(--font-body);font-size:0.95rem;line-height:var(--lh);color:var(--text);background:var(--bg);resize:vertical;outline:none;transition:border-color 0.2s,background 0.4s;}
@@ -90,16 +77,12 @@ textarea::placeholder{color:#A8A39C;}
 .analyze-btn{padding:0.75rem 2rem;background:var(--text);color:var(--bg);border:none;border-radius:2px;font-family:var(--font-display);font-size:1.1rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
 .analyze-btn:hover{background:var(--accent);transform:translateY(-1px);}
 .analyze-btn:disabled{background:var(--bg3);color:var(--muted);cursor:not-allowed;transform:none;}
-
-/* ── LOADING ── */
 .loading{display:none;align-items:center;gap:0.75rem;padding:1rem 0;color:var(--muted);font-size:0.82rem;font-family:var(--font-mono);letter-spacing:0.06em;}
 .loading.visible{display:flex;}
 .loading-dots{display:flex;gap:4px;}
 .ld{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:db 1.2s infinite;}
 .ld:nth-child(2){animation-delay:0.2s;}.ld:nth-child(3){animation-delay:0.4s;}
 @keyframes db{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-5px);opacity:1;}}
-
-/* ── RESULT CARD (shared) ── */
 .result-card{display:none;background:var(--bg2);border:1px solid var(--bg3);border-radius:3px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.07);transition:var(--tr);}
 .result-card.visible{display:block;animation:fadeUp 0.5s ease both;}
 .result-header{padding:1.1rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;border-bottom:1px solid var(--bg3);}
@@ -117,28 +100,11 @@ textarea::placeholder{color:#A8A39C;}
 .sdot.safe{background:var(--safe);}.sdot.caution{background:var(--caution);}.sdot.danger{background:var(--danger);}
 .steps-list li{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.92rem;line-height:1.7;color:var(--text);margin-bottom:6px;}
 .step-num{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);background:var(--bg);border:1px solid var(--bg3);border-radius:2px;padding:0.1rem 0.4rem;flex-shrink:0;margin-top:0.18em;transition:var(--tr);}
-
-/* ── MEDICAL DISCLAIMER BAR ── */
-/* Persistent — shown for all medical content, never hidden */
-.medical-disclaimer-bar{
-  display:none;
-  align-items:flex-start;
-  gap:0.6rem;
-  padding:0.65rem 1.4rem;
-  background:var(--med-bg);
-  border-top:2px solid var(--med-border);
-  border-bottom:1px solid var(--med-border-soft);
-  font-size:0.78rem;
-  color:var(--med-text);
-  font-family:var(--font-body);
-  line-height:1.55;
-}
+.medical-disclaimer-bar{display:none;align-items:flex-start;gap:0.6rem;padding:0.65rem 1.4rem;background:var(--med-bg);border-top:2px solid var(--med-border);border-bottom:1px solid var(--med-border-soft);font-size:0.78rem;color:var(--med-text);font-family:var(--font-body);line-height:1.55;}
 .medical-disclaimer-bar.visible{display:flex;}
 .medical-disclaimer-icon{font-size:0.9rem;flex-shrink:0;margin-top:0.05rem;}
 .medical-disclaimer-text{flex:1;}
 .medical-disclaimer-text strong{font-weight:600;display:block;margin-bottom:1px;}
-
-/* ── SIMPLE MODE PROGRESSIVE FLOW ── */
 .simple-phase{}
 .simple-start{padding:1.2rem 1.4rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
 .start-btn{padding:0.75rem 1.8rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--font-display);font-size:1.1rem;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;}
@@ -184,22 +150,17 @@ textarea::placeholder{color:#A8A39C;}
 .complete-icon{font-size:2.5rem;color:var(--safe);margin-bottom:0.75rem;}
 .complete-text{font-family:var(--font-display);font-size:2rem;color:var(--safe);letter-spacing:0.05em;margin-bottom:0.4rem;}
 .complete-sub{font-size:0.9rem;color:var(--muted);}
-
-/* ── WARNINGS BLOCK (Make It Simple mode) ── */
 .warnings-block{margin:0 1.4rem 0;padding:0.7rem 1rem;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:4px;border-left:2px solid var(--warn);}
 .warn-label{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--warn);margin-bottom:0.65rem;font-weight:600;}
 .warn-list{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
 .warn-list li{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.95rem;color:var(--warn);font-weight:600;line-height:1.7;margin-bottom:4px;}
 .warn-list li::before{content:"✕";flex-shrink:0;font-size:0.75rem;margin-top:0.1rem;}
-/* Disclaimer item — different style, sits at bottom of warnings */
 .warn-list li.warn-disclaimer{color:var(--muted);font-weight:400;font-size:0.78rem;border-top:1px solid var(--warn-border);margin-top:0.3rem;padding-top:0.5rem;}
 .warn-list li.warn-disclaimer::before{content:"ℹ";color:var(--muted);font-size:0.7rem;}
 .warnings-block-soft{background:var(--bg2);border-color:var(--bg3);border-left-color:var(--accent);}
 .warnings-block-soft .warn-label{color:var(--accent);}
 .warnings-block-soft .warn-list li{color:var(--text);font-weight:500;}
 .warnings-block-soft .warn-list li::before{content:"→";color:var(--accent);}
-
-/* ── UNIFIED STEP LIST ── */
 .unified-steps{margin-top:0.5rem;border-top:1px solid var(--bg3);padding-top:0.75rem;}
 .unified-list{list-style:none;display:flex;flex-direction:column;gap:0;}
 .unified-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0;border-bottom:1px solid var(--bg3);font-size:0.9rem;}
@@ -217,8 +178,6 @@ textarea::placeholder{color:#A8A39C;}
 .done-undo-btn:hover{border-color:var(--accent);color:var(--accent);}
 .undo-all-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:4px 10px;font-size:0.72rem;color:var(--muted);cursor:pointer;width:100%;margin-bottom:8px;font-family:var(--font-body);transition:all 0.2s;text-align:center;}
 .undo-all-btn:hover{border-color:var(--danger);color:var(--danger);}
-
-/* ── EXPLAIN PANEL ── */
 .explain-panel{border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;}
 .explain-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.82rem;color:var(--text);background:none;border:none;font-family:var(--font-body);padding:0;transition:color 0.2s;opacity:0.75;}
 .explain-toggle:hover{color:var(--accent);opacity:1;}
@@ -228,16 +187,12 @@ textarea::placeholder{color:#A8A39C;}
 .explain-body.open{display:block;animation:fadeUp 0.25s ease both;}
 .explain-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:0.5rem;font-size:0.82rem;line-height:1.45;color:var(--muted);}
 .ei{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.58rem;font-weight:600;margin-top:0.12em;background:var(--bg3);color:var(--muted);}
-
-/* ── FOCUS BAR ── */
 .focus-bar{border-top:1px solid var(--bg3);padding:0.85rem 1.4rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .focus-label{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
 .focus-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;border:1px solid var(--bg3);background:transparent;font-size:0.74rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
 .focus-btn:hover{border-color:var(--accent);color:var(--accent);}
 .focus-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 .timer-disp{font-family:var(--font-mono);font-size:0.9rem;font-weight:500;color:var(--accent);min-width:40px;display:none;}
-
-/* ── FEEDBACK ── */
 .feedback-row{border-top:1px solid var(--bg3);padding:0.8rem 1.4rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .fb-label{font-size:0.78rem;color:var(--muted);}
 .fb-btn{display:flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;border:1px solid var(--bg3);background:transparent;font-size:0.76rem;font-family:var(--font-body);color:var(--muted);cursor:pointer;transition:all 0.2s;}
@@ -247,8 +202,6 @@ textarea::placeholder{color:#A8A39C;}
 .fb-thanks{font-size:0.74rem;color:var(--muted);display:none;}
 .feedback-after{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .fb-thanks.show{display:block;}
-
-/* ── ERROR / RESET / FOOTER ── */
 .error-msg{display:none;padding:0.9rem 1.2rem;background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:3px;font-size:0.85rem;color:var(--danger);line-height:1.5;}
 .error-msg.visible{display:block;animation:fadeUp 0.3s ease both;}
 .reset-btn{display:none;margin-top:1rem;background:var(--bg2);border:1.5px solid var(--bg3);color:var(--text);font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 1.4rem;border-radius:6px;cursor:pointer;transition:all 0.2s;font-weight:500;}
@@ -257,8 +210,6 @@ textarea::placeholder{color:#A8A39C;}
 footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.4rem;transition:var(--tr);}
 .foot-l{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
 .foot-r{font-size:0.74rem;color:var(--muted);}
-
-/* ── OVERLAYS ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.3s;}
 .overlay.open{opacity:1;pointer-events:all;}
 .panel{background:var(--bg);border-radius:12px;width:100%;max-width:500px;padding:22px;transform:translateY(10px);transition:opacity 0.3s,transform 0.3s,background 0.4s;}
@@ -297,15 +248,11 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
 .prof-name{font-size:0.73rem;font-weight:500;color:var(--text);}
 .panel-close{width:100%;padding:7px;border-radius:6px;font-family:var(--font-body);font-size:0.78rem;cursor:pointer;border:1px solid var(--bg3);background:transparent;color:var(--text);transition:background 0.15s;margin-top:4px;}
 .panel-close:hover{background:var(--bg2);}
-
-/* ── TOAST ── */
 .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:var(--bg);padding:16px 28px;border-radius:8px;font-size:1rem;font-weight:500;z-index:200;opacity:0;pointer-events:none;transition:opacity 0.4s,transform 0.4s,background 0.4s,color 0.3s;font-family:var(--font-body);box-shadow:0 6px 24px rgba(0,0,0,0.25);max-width:340px;text-align:center;line-height:1.6;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 .reminder-change-btn{background:transparent;border:1px solid var(--bg3);border-radius:4px;padding:2px 9px;font-size:0.72rem;color:var(--muted);cursor:pointer;transition:all 0.2s;font-family:var(--font-body);}
 .reminder-change-btn:hover{border-color:var(--accent);color:var(--accent);}
-/* Date picker for deadline tasks */
 .reminder-date-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;}
 .reminder-date-input{padding:5px 8px;border:1px solid var(--bg3);border-radius:4px;font-size:0.78rem;font-family:var(--font-body);color:var(--text);background:var(--bg);cursor:pointer;transition:border-color 0.2s;}
 .reminder-date-input:focus{outline:none;border-color:var(--accent);}
@@ -313,7 +260,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
 .reminder-date-set-btn:hover{filter:brightness(1.08);}
 .reminder-mode-toggle{font-size:0.82rem;color:var(--accent);text-decoration:underline;background:none;border:none;cursor:pointer;font-family:var(--font-body);padding:4px 0;margin-top:2px;text-underline-offset:3px;}
 .reminder-mode-toggle:hover{opacity:0.8;}
-/* Calendar reminder buttons */
 .reminder-loading{font-size:0.78rem;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.06em;padding:4px 0;}
 .reminder-calendar-block{display:flex;flex-direction:column;gap:6px;flex:1;}
 .reminder-calendar-label{font-size:0.78rem;color:var(--accent);font-weight:500;}
@@ -329,8 +275,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
 </style>
 </head>
 <body>
-
-<!-- TOPBAR -->
 <div class="topbar">
   <button class="topbar-brand" onclick="goBack()" aria-label="Go to home screen"><span class="brand-clear">Clear</span><span class="brand-step">Step</span></button>
   <div class="topbar-right">
@@ -350,11 +294,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
     <button class="tb-btn" onclick="openProfiles()">Profiles</button>
   </div>
 </div>
-
-<!-- MAIN WRAP -->
 <div class="wrap">
-
-  <!-- ══ MODE SELECTION SCREEN ══ -->
   <div id="modeScreen">
     <div class="mode-header">
       <h1>START WITH ONE</h1>
@@ -373,16 +313,12 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
       </div>
     </div>
   </div>
-
-  <!-- ══ APP SCREEN (both modes use this) ══ -->
   <div id="appScreen">
     <button class="back-btn" onclick="goBack()">← Back</button>
-
     <div class="screen-header">
       <h1 id="screenTitle">IS THIS SAFE?</h1>
       <p id="screenDesc">Paste a message. Get the risk and what to do next.</p>
     </div>
-
     <div class="input-card">
       <label class="input-label" id="inputLabel" for="msgInput">Paste the message you want to check</label>
       <textarea id="msgInput" placeholder="Paste anything here..."></textarea>
@@ -394,21 +330,16 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
         <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">CHECK</button>
       </div>
     </div>
-
     <div class="loading" id="loading">
       <div class="loading-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
       <span id="loadingText">Checking your message...</span>
     </div>
     <div class="error-msg" id="errorMsg"></div>
-
-    <!-- RESULT CARD -->
     <div class="result-card" id="resultCard">
       <div class="result-header">
         <div class="risk-badge" id="riskBadge"></div>
         <div class="result-meaning" id="meaningText"></div>
       </div>
-
-      <!-- IS THIS SAFE — signals + steps -->
       <div class="result-body" id="safeResultBody">
         <div>
           <p class="rs-label">Key Signals</p>
@@ -419,11 +350,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
           <ol class="steps-list" id="stepsList"></ol>
         </div>
       </div>
-
-      <!-- MAKE IT SIMPLE — progressive one-step flow -->
       <div id="simpleResultBody" style="display:none;">
-
-        <!-- PERSISTENT MEDICAL DISCLAIMER BAR — visible across all phases when is_medical=true -->
         <div class="medical-disclaimer-bar" id="medicalDisclaimerBar">
           <span class="medical-disclaimer-icon">⚕</span>
           <div class="medical-disclaimer-text">
@@ -431,22 +358,16 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
             This is a reminder tool only. Always follow your original prescription and consult your pharmacist or doctor with any questions.
           </div>
         </div>
-
-        <!-- PHASE 1: Result + Start CTA -->
         <div id="simplePhase1" class="simple-phase">
-          <!-- Warnings block (DO NOTs) — shown if present -->
           <div class="warnings-block" id="warningsBlock" style="display:none;margin:1rem 1.4rem 0;">
             <div class="warn-label">⚠ Before you start</div>
             <ul class="warn-list" id="warnList"></ul>
           </div>
-          <!-- Start CTA -->
           <div class="simple-start">
             <button class="start-btn" onclick="startSteps()">Start with Step 1 →</button>
             <button class="see-all-btn" onclick="toggleAllSteps()">See all steps</button>
           </div>
         </div>
-
-        <!-- PHASE 2: One step at a time -->
         <div id="simplePhase2" class="simple-phase" style="display:none;">
           <div class="step-view">
             <div class="step-progress-wrap">
@@ -460,41 +381,32 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
               </div>
             </div>
             <div class="step-task" id="stepTask"></div>
-
-            <!-- Reminder — attached to step, reversible -->
             <div class="step-reminder-area">
-              <!-- State A: no reminder set -->
               <div id="reminderStateNone" class="reminder-state">
                 <span class="reminder-none-label">Reminder</span>
                 <button class="add-reminder-btn" onclick="openReminderPicker()">+ Add reminder</button>
               </div>
-              <!-- State B: picker open -->
               <div id="reminderStatePicker" class="reminder-state reminder-state-picker" style="display:none;">
                 <div class="reminder-for-label">Remind me to:</div>
                 <div class="reminder-step-preview" id="reminderStepPreview"></div>
                 <div class="reminder-when-label" id="reminderWhenLabel">When?</div>
-                <!-- Standard time options -->
                 <div class="reminder-picker-btns" id="reminderTimeBtns">
                   <button onclick="setStepReminder('1hour')">In 1 hour</button>
                   <button onclick="setStepReminder('afternoon')">This afternoon</button>
                   <button onclick="setStepReminder('evening')">This evening</button>
                   <button onclick="setStepReminder('tomorrow')">Tomorrow morning</button>
                 </div>
-                <!-- Date picker — shown for deadline tasks -->
                 <div class="reminder-date-row" id="reminderDateRow" style="display:none;">
                   <input type="date" class="reminder-date-input" id="reminderDateInput"/>
                   <input type="time" class="reminder-date-input" id="reminderTimeInput" value="09:00"/>
                   <button class="reminder-date-set-btn" onclick="setDateReminder()">Add to calendar</button>
                 </div>
-                <!-- Toggle between modes -->
                 <button class="reminder-mode-toggle" id="reminderModeToggle" onclick="toggleReminderMode()"></button>
                 <button class="reminder-cancel-link" onclick="closeReminderPicker()">Cancel</button>
               </div>
-              <!-- State C: loading — calling calendar function -->
               <div id="reminderStateLoading" class="reminder-state" style="display:none;">
                 <span class="reminder-loading">Adding to calendar...</span>
               </div>
-              <!-- State D: calendar links ready -->
               <div id="reminderStateActive" class="reminder-state" style="display:none;flex-direction:column;gap:8px;">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
                   <div class="reminder-calendar-block">
@@ -519,8 +431,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
                 <div class="reminder-error" id="reminderError" style="display:none;">Could not connect to calendar. Try again.</div>
               </div>
             </div>
-
-            <!-- Mark done + undo -->
             <div id="markDoneArea">
               <button class="mark-done-btn" onclick="markStepDone()">✓ Mark as done</button>
             </div>
@@ -528,15 +438,11 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
               <span class="undo-label" id="undoStepLabel">✓ Step done</span>
               <button class="undo-btn" id="undoBtn" onclick="undoStep()">Undo</button>
             </div>
-
           </div>
-          <!-- Unified step list -->
           <div class="unified-steps" id="unifiedSteps" style="display:none;margin:0 1.4rem;">
             <ul class="unified-list" id="unifiedList"></ul>
           </div>
         </div>
-
-        <!-- PHASE 3: Complete -->
         <div id="simplePhase3" class="simple-phase" style="display:none;">
           <div class="complete-view">
             <div class="complete-icon">✓</div>
@@ -544,8 +450,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
             <div class="complete-sub">Well done. Take a breath.</div>
           </div>
         </div>
-
-        <!-- Why this result -->
         <div class="explain-panel" id="explainPanelSimple" style="border-top:1px solid var(--bg3);padding:0.9rem 1.4rem;">
           <button class="explain-toggle" id="explainToggleSimple" onclick="toggleExplainSimple()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -561,8 +465,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
           </div>
         </div>
       </div>
-
-      <!-- Explainability for safe mode -->
       <div class="explain-panel" id="explainPanelSafe">
         <button class="explain-toggle" id="explainToggle" onclick="toggleExplain()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -571,9 +473,7 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
         </button>
         <div class="explain-body" id="explainBody"></div>
       </div>
-
     </div>
-
     <button class="reset-btn" id="resetBtn" onclick="resetAll()">← Check another</button>
     <div class="feedback-after" id="feedbackAfter" style="display:none;margin-top:0.75rem;">
       <span class="fb-label">Was this helpful?</span>
@@ -581,16 +481,12 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
       <button class="fb-btn" id="fbN" onclick="feedback(false)">No</button>
       <span class="fb-thanks" id="fbThanks"></span>
     </div>
-
     <footer>
       <span class="foot-l">ClearStep — Hackathon MVP</span>
       <span class="foot-r">Calm guidance for everyone</span>
     </footer>
   </div>
-
-</div><!-- end wrap -->
-
-<!-- WIZARD OVERLAY -->
+</div>
 <div class="overlay" id="wizOverlay" onclick="closeOnBg(event,'wizOverlay')">
   <div class="panel">
     <div id="wizQ-section">
@@ -619,8 +515,6 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
     </div>
   </div>
 </div>
-
-<!-- PROFILES OVERLAY -->
 <div class="overlay" id="profOverlay" onclick="closeOnBg(event,'profOverlay')">
   <div class="panel">
     <div class="panel-title">Colour profiles</div>
@@ -628,175 +522,25 @@ footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--bg3);disp
     <button class="panel-close" onclick="closeProfiles()">Done</button>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ═══ STATE ════════════════════════════════════════════════
-let currentMode = null;
-let allTasks = [];
-let shownTaskCount = 0;
-const BATCH_SIZE = 5;
-let doneTaskIndices = [];
-let currentIsMedical = false; // tracks whether current result is medical
-
-// ═══ MODE SELECTION ═══════════════════════════════════════
-function selectMode(mode){
-  currentMode = mode;
-  document.getElementById('modeScreen').style.display = 'none';
-  document.querySelector('.topbar-right').style.opacity='1';
-  document.querySelector('.topbar-right').style.pointerEvents='';
-  const appScreen = document.getElementById('appScreen');
-  appScreen.classList.add('visible');
-
-  if(mode === 'safe'){
-    document.getElementById('screenTitle').textContent = 'IS THIS SAFE?';
-    document.getElementById('screenDesc').textContent = 'Paste a message or email. Get the risk and what to do next.';
-    document.getElementById('msgInput').placeholder = 'Paste a message, email, or link — nothing is stored or shared.';
-    document.getElementById('inputLabel').textContent = 'Paste the message you want to check';
-    document.getElementById('analyzeBtn').textContent = 'CHECK MESSAGE';
-    document.getElementById('loadingText').textContent = 'Checking your message...';
-    renderSafeChips();
-  } else {
-    document.getElementById('screenTitle').textContent = 'MAKE IT SIMPLE';
-    document.getElementById('screenDesc').textContent = 'Paste anything overwhelming. Get calm, clear steps — one at a time.';
-    document.getElementById('msgInput').placeholder = 'Paste what feels overwhelming...';
-    document.getElementById('inputLabel').textContent = 'Paste what feels overwhelming';
-    document.getElementById('analyzeBtn').textContent = 'BREAK THIS DOWN';
-    document.getElementById('loadingText').textContent = 'Breaking this down for you...';
-    renderSimpleChips();
-  }
-}
-
-function goBack(){
-  document.getElementById('modeScreen').style.display = 'block';
-  const tb=document.querySelector('.topbar-right');
-  tb.style.opacity='0';tb.style.transition='opacity 0.8s';tb.style.pointerEvents='none';
-  setTimeout(()=>{ if(!currentMode){ tb.style.opacity='0.2'; } },2000);
-  const appScreen = document.getElementById('appScreen');
-  appScreen.classList.remove('visible');
-  appScreen.style.display = 'none';
-  setTimeout(()=>{ appScreen.style.display=''; }, 10);
-  resetAll();
-  currentMode = null;
-}
-
-// ═══ EXAMPLE CHIPS ════════════════════════════════════════
-const safeExamples = [
-  { label: 'Bank scam', text: 'Your bank account has been locked due to suspicious activity. Click here immediately to verify your identity or your account will be permanently closed within 24 hours.' },
-  { label: 'Family emergency scam', text: "Grandma it's me, I'm in jail and I need you to go to Walmart and buy $2000 in gift cards right now. Please don't tell Mom or Dad." },
-  { label: 'Suspicious link', text: "Hey, I found something you need to see. Click this link before it expires: bit.ly/xr9vcheck — let me know what you think." },
-  { label: 'Safe message', text: 'Hi! Just a reminder that your dentist appointment is tomorrow at 2:30 PM. Reply CONFIRM to confirm or CANCEL to cancel.' }
-];
-
-const simpleExamples = [
-  { label: 'Medical instructions', text: 'Take 1 tablet by mouth twice daily with food. Do not crush or chew. Avoid grapefruit juice. If you miss a dose, take it as soon as you remember unless it is almost time for your next dose, in which case skip the missed dose. Do not double up. Do not take with alcohol.' },
-  { label: 'Government form', text: 'To appeal your benefits decision you must complete form SSA-561-U2, attach supporting medical documentation dated within the last 90 days, submit in person or by certified mail within 60 days of the notice date, include your Social Security number on all pages, and retain a copy for your records.' },
-  { label: 'Confusing work email', text: 'Hi, per our earlier discussion please action the deliverables from the sync and loop in the relevant stakeholders before EOD to ensure alignment with the Q2 roadmap priorities.' },
-  { label: 'Complex instructions', text: 'Complete the onboarding form, submit your I-9 with two forms of ID, enroll in benefits within 30 days, set up direct deposit, complete mandatory compliance training, and schedule your orientation with HR before your first day.' }
-];
-
-const safeDemo = [
-  { risk_level:'High Risk', meaning:'This message uses pressure to make you act quickly.', signals:['Urgent wording','Threatening tone','Unfamiliar link'], next_steps:['Do not click the link','Call your bank directly using the number on your card'] },
-  { risk_level:'High Risk', meaning:'This message may be someone pretending to be family.', signals:['Impersonation','Urgent pressure','Gift card request'], next_steps:['Do not send money or gift cards','Call the person directly to verify'] },
-  { risk_level:'Caution', meaning:'This message contains a link that has not been verified.', signals:['Unknown link','Vague sender','Pressure to act'], next_steps:['Do not click the link','Go directly to the official website'] },
-  { risk_level:'Safe', meaning:'This looks like a normal reminder with nothing suspicious.', signals:['No suspicious signals'], next_steps:['No urgent action needed'] }
-];
-
-const simpleDemo = [
-  { risk_level:'Caution', is_medical: true,
-    meaning:'Medication instructions with important rules to follow.',
-    warnings:['Swallow whole — never crush or chew','No grapefruit juice while taking this','No alcohol while taking this','Missed a dose? Skip it — never double up','Reminder tool only — always follow your original prescription'],
-    key_items:['Twice daily with food','Specific missed dose rule','Multiple interaction warnings'],
-    tasks:['Take 1 tablet with food in the morning','Take 1 tablet with food in the evening']
-  },
-  { risk_level:'High Risk', is_medical: false,
-    meaning:'A government appeal with a strict deadline and several requirements.',
-    warnings:['Submit within 60 days of your notice date','Your Social Security number must be on every page'],
-    key_items:['Form SSA-561-U2 required','Medical docs within last 90 days','In person or certified mail only'],
-    tasks:['Note your 60-day deadline from the notice','Download form SSA-561-U2 from ssa.gov','Gather medical documentation dated within 90 days','Write your Social Security number on every page','Submit in person or by certified mail','Keep a copy for your records']
-  },
-  { risk_level:'Caution', is_medical: false,
-    meaning:'A work email asking you to do something — but it is unclear what.',
-    warnings:[],
-    key_items:['Vague action requested','EOD deadline implied'],
-    tasks:['Reply and ask: what is the one most urgent thing I need to do today?']
-  },
-  { risk_level:'Caution', is_medical: false,
-    meaning:'A list of tasks you need to complete before starting your job.',
-    warnings:['Benefits enrollment deadline is 30 days','I-9 requires two forms of ID'],
-    key_items:['Multiple tasks with deadlines','Benefits must be enrolled within 30 days'],
-    tasks:['Complete the onboarding form','Gather two forms of ID','Submit your I-9','Set up direct deposit','Enroll in benefits within 30 days','Complete compliance training','Schedule orientation with HR']
-  }
-];
-
-function renderSafeChips(){
-  const el = document.getElementById('exampleChips'); el.innerHTML = '';
-  safeExamples.forEach((ex,i) => {
-    const btn = document.createElement('button'); btn.className = 'example-btn';
-    btn.textContent = ex.label;
-    btn.onclick = () => { document.getElementById('msgInput').value = ex.text; renderResult(safeDemo[i]); };
-    el.appendChild(btn);
-  });
-}
-function renderSimpleChips(){
-  const el = document.getElementById('exampleChips'); el.innerHTML = '';
-  simpleExamples.forEach((ex,i) => {
-    const btn = document.createElement('button'); btn.className = 'example-btn';
-    btn.textContent = ex.label;
-    btn.onclick = () => { document.getElementById('msgInput').value = ex.text; renderResult(simpleDemo[i]); };
-    el.appendChild(btn);
-  });
-}
-
-// ═══ PALETTE ENGINE ═══════════════════════════════════════
-const PROFILES = {
-  calm:{name:'Calm default',desc:'Off-white, charcoal text, muted teal. Works for everyone.',vars:{'--bg':'#F7F7F2','--bg2':'#EEEEE8','--bg3':'#D8D8D0','--text':'#222222','--muted':'#4A4A4A','--accent':'#2F6E91',
-  // semantic colours — default values, not overridden
-  '--safe':'#00875A','--safe-bg':'#E6F6F0','--safe-border':'#9ADFC3',
-  '--caution':'#A04A00','--caution-bg':'#FEF0DC','--caution-border':'#F0C070',
-  '--danger':'#A33030','--danger-bg':'#FAEAEA','--danger-border':'#DDA0A0',
-  '--warn':'#8A3A1A','--warn-bg':'#FDF5EF','--warn-border':'#E8C4A8',
-  '--med-bg':'#FBF6EE','--med-border':'#C8972A','--med-border-soft':'#E0C97A','--med-text':'#6B4400'},traits:['Default','Low stimulation','High contrast'],tc:'#1A4A6A',tb:'#D8EAF5'},
-  sensory:{name:'Low sensory',desc:'Muted neutral background, soft teal. Minimal visual noise.',vars:{'--bg':'#EDECEA','--bg2':'#E2E0DD','--bg3':'#D0CEC9','--text':'#1E1E1E','--muted':'#555550','--accent':'#3D7A6B',
-  // No red, no orange — muted amber family only
-  '--safe':'#3A7A60','--safe-bg':'#E4EEEA','--safe-border':'#9ACAB8',
-  '--caution':'#7A5E00','--caution-bg':'#F5F0DE','--caution-border':'#C8B060',
-  '--danger':'#7A4A00','--danger-bg':'#EDE4CE','--danger-border':'#C09040',
-  '--warn':'#7A5E00','--warn-bg':'#F0EBD8','--warn-border':'#C8B060',
-  '--med-bg':'#E8EDE8','--med-border':'#5A8A70','--med-border-soft':'#9ABCAA','--med-text':'#2A4A38'},traits:['Autism-friendly','Low noise','Muted tones'],tc:'#1A4A40',tb:'#D0E8E4'},
-  dyslexia:{name:'Dyslexia-friendly',desc:'Cream background, dark gray text. Reduces glare on long reads.',vars:{'--bg':'#F5F0E0','--bg2':'#EDE8D5','--bg3':'#D8D0BE','--text':'#222222','--muted':'#5A5248','--accent':'#2F6E91',
-  // Cream/tan family — no harsh colour shifts
-  '--safe':'#2A6A48','--safe-bg':'#EAF0E4','--safe-border':'#9AC0A0',
-  '--caution':'#7A5A00','--caution-bg':'#F5EDD0','--caution-border':'#D0A848',
-  '--danger':'#8A4A18','--danger-bg':'#F0E0CC','--danger-border':'#C09060',
-  '--warn':'#7A5A1A','--warn-bg':'#F5EDD4','--warn-border':'#D8C090',
-  '--med-bg':'#EEE8D0','--med-border':'#9A8050','--med-border-soft':'#C8B888','--med-text':'#5A4010'},traits:['Dyslexia-friendly','Cream tones','Reduced glare'],tc:'#5A4020',tb:'#EEE0C0'},
-  focus:{name:'High focus',desc:'Pure minimal palette, one accent. Strips all distraction.',vars:{'--bg':'#F8F8F8','--bg2':'#EEEEEE','--bg3':'#DCDCDC','--text':'#111111','--muted':'#555555','--accent':'#2F6E91',
-  // Minimal competing colours — amber for caution/danger, blue accent for medical
-  '--safe':'#1A7A50','--safe-bg':'#E8F4EE','--safe-border':'#80C8A0',
-  '--caution':'#8A6000','--caution-bg':'#FAF4E8','--caution-border':'#D4B060',
-  '--danger':'#7A4400','--danger-bg':'#F5EAD8','--danger-border':'#C08040',
-  '--warn':'#8A6000','--warn-bg':'#FAF4E8','--warn-border':'#D4B060',
-  '--med-bg':'#F0F4F8','--med-border':'#2F6E91','--med-border-soft':'#A8C8E0','--med-text':'#1A3A50'},traits:['ADHD-friendly','High contrast','One accent'],tc:'#222288',tb:'#E0E0F0'},
-  dark:{name:'Dark mode',desc:'Dark background, light text. Easy on the eyes at night.',vars:{'--bg':'#1C1F26','--bg2':'#252830','--bg3':'#2E3240','--text':'#E0E4EC','--muted':'#8A90A0','--accent':'#5A9ABF',
-  // Dark-safe versions — muted, no blinding colours
-  '--safe':'#3AAA78','--safe-bg':'#182820','--safe-border':'#2A6040',
-  '--caution':'#D4A040','--caution-bg':'#282010','--caution-border':'#604818',
-  '--danger':'#C07040','--danger-bg':'#281810','--danger-border':'#583010',
-  '--warn':'#C8A060','--warn-bg':'#282418','--warn-border':'#604820',
-  '--med-bg':'#1E2430','--med-border':'#5A9ABF','--med-border-soft':'#2E4060','--med-text':'#A0C8E0'},traits:['Night use','Photosensitivity','Low glare'],tc:'#8ABCD0',tb:'#283040'}
-};
-const QUESTIONS=[
-  {q:'How does your screen feel after a while?',opts:[{t:'Words blur or crowd',d:'Hard to track, I lose my place',v:'glare'},{t:'Brightness feels harsh',d:'Even moderate screens overwhelm',v:'bright'},{t:'I get distracted easily',d:'Eyes jump around, focus is hard',v:'distract'},{t:'Generally comfortable',d:'Just want something easy on the eyes',v:'fine'}]},
-  {q:'When do you mostly use this?',opts:[{t:'Morning or daytime',d:'Brighter helps me stay alert',v:'morning'},{t:'Evening or at night',d:'Bright screens feel jarring',v:'evening'},{t:'All day — it varies',d:'Need something for any light',v:'all'}]},
-  {q:'How do you want to feel here?',opts:[{t:'Calm',d:'Safe, unhurried, low stimulation',v:'calm'},{t:'Focused',d:'Clear, sharp, nothing in the way',v:'focus'},{t:'Warm',d:'Comfortable, easy on the eyes',v:'warm'},{t:'Energised',d:'Alive, motivating, ready to go',v:'energised'}]}
-];
+let currentMode=null,allTasks=[],shownTaskCount=0;
+const BATCH_SIZE=5;
+let doneTaskIndices=[],currentIsMedical=false;
+function selectMode(mode){currentMode=mode;document.getElementById('modeScreen').style.display='none';document.querySelector('.topbar-right').style.opacity='1';document.querySelector('.topbar-right').style.pointerEvents='';const appScreen=document.getElementById('appScreen');appScreen.classList.add('visible');if(mode==='safe'){document.getElementById('screenTitle').textContent='IS THIS SAFE?';document.getElementById('screenDesc').textContent='Paste a message or email. Get the risk and what to do next.';document.getElementById('msgInput').placeholder='Paste a message, email, or link — nothing is stored or shared.';document.getElementById('inputLabel').textContent='Paste the message you want to check';document.getElementById('analyzeBtn').textContent='CHECK MESSAGE';document.getElementById('loadingText').textContent='Checking your message...';renderSafeChips();}else{document.getElementById('screenTitle').textContent='MAKE IT SIMPLE';document.getElementById('screenDesc').textContent='Paste anything overwhelming. Get calm, clear steps — one at a time.';document.getElementById('msgInput').placeholder='Paste what feels overwhelming...';document.getElementById('inputLabel').textContent='Paste what feels overwhelming';document.getElementById('analyzeBtn').textContent='BREAK THIS DOWN';document.getElementById('loadingText').textContent='Breaking this down for you...';renderSimpleChips();}}
+function goBack(){document.getElementById('modeScreen').style.display='block';const tb=document.querySelector('.topbar-right');tb.style.opacity='0';tb.style.transition='opacity 0.8s';tb.style.pointerEvents='none';setTimeout(()=>{if(!currentMode){tb.style.opacity='0.2';}},2000);const appScreen=document.getElementById('appScreen');appScreen.classList.remove('visible');appScreen.style.display='none';setTimeout(()=>{appScreen.style.display='';},10);resetAll();currentMode=null;}
+const safeExamples=[{label:'Bank scam',text:'Your bank account has been locked due to suspicious activity. Click here immediately to verify your identity or your account will be permanently closed within 24 hours.'},{label:'Family emergency scam',text:"Grandma it's me, I'm in jail and I need you to go to Walmart and buy $2000 in gift cards right now. Please don't tell Mom or Dad."},{label:'Suspicious link',text:"Hey, I found something you need to see. Click this link before it expires: bit.ly/xr9vcheck — let me know what you think."},{label:'Safe message',text:'Hi! Just a reminder that your dentist appointment is tomorrow at 2:30 PM. Reply CONFIRM to confirm or CANCEL to cancel.'}];
+const simpleExamples=[{label:'Medical instructions',text:'Take 1 tablet by mouth twice daily with food. Do not crush or chew. Avoid grapefruit juice. If you miss a dose, take it as soon as you remember unless it is almost time for your next dose, in which case skip the missed dose. Do not double up. Do not take with alcohol.'},{label:'Government form',text:'To appeal your benefits decision you must complete form SSA-561-U2, attach supporting medical documentation dated within the last 90 days, submit in person or by certified mail within 60 days of the notice date, include your Social Security number on all pages, and retain a copy for your records.'},{label:'Confusing work email',text:'Hi, per our earlier discussion please action the deliverables from the sync and loop in the relevant stakeholders before EOD to ensure alignment with the Q2 roadmap priorities.'},{label:'Complex instructions',text:'Complete the onboarding form, submit your I-9 with two forms of ID, enroll in benefits within 30 days, set up direct deposit, complete mandatory compliance training, and schedule your orientation with HR before your first day.'}];
+const safeDemo=[{risk_level:'High Risk',meaning:'This message uses pressure to make you act quickly.',signals:['Urgent wording','Threatening tone','Unfamiliar link'],next_steps:['Do not click the link','Call your bank directly using the number on your card']},{risk_level:'High Risk',meaning:'This message may be someone pretending to be family.',signals:['Impersonation','Urgent pressure','Gift card request'],next_steps:['Do not send money or gift cards','Call the person directly to verify']},{risk_level:'Caution',meaning:'This message contains a link that has not been verified.',signals:['Unknown link','Vague sender','Pressure to act'],next_steps:['Do not click the link','Go directly to the official website']},{risk_level:'Safe',meaning:'This looks like a normal reminder with nothing suspicious.',signals:['No suspicious signals'],next_steps:['No urgent action needed']}];
+const simpleDemo=[{risk_level:'Caution',is_medical:true,meaning:'Medication instructions with important rules to follow.',warnings:['Swallow whole — never crush or chew','No grapefruit juice while taking this','No alcohol while taking this','Missed a dose? Skip it — never double up','Reminder tool only — always follow your original prescription'],key_items:['Twice daily with food','Specific missed dose rule','Multiple interaction warnings'],tasks:['Take 1 tablet with food in the morning','Take 1 tablet with food in the evening']},{risk_level:'High Risk',is_medical:false,meaning:'A government appeal with a strict deadline and several requirements.',warnings:['Submit within 60 days of your notice date','Your Social Security number must be on every page'],key_items:['Form SSA-561-U2 required','Medical docs within last 90 days','In person or certified mail only'],tasks:['Note your 60-day deadline from the notice','Download form SSA-561-U2 from ssa.gov','Gather medical documentation dated within 90 days','Write your Social Security number on every page','Submit in person or by certified mail','Keep a copy for your records']},{risk_level:'Caution',is_medical:false,meaning:'A work email asking you to do something — but it is unclear what.',warnings:[],key_items:['Vague action requested','EOD deadline implied'],tasks:['Reply and ask: what is the one most urgent thing I need to do today?']},{risk_level:'Caution',is_medical:false,meaning:'A list of tasks you need to complete before starting your job.',warnings:['Benefits enrollment deadline is 30 days','I-9 requires two forms of ID'],key_items:['Multiple tasks with deadlines','Benefits must be enrolled within 30 days'],tasks:['Complete the onboarding form','Gather two forms of ID','Submit your I-9','Set up direct deposit','Enroll in benefits within 30 days','Complete compliance training','Schedule orientation with HR']}];
+function renderSafeChips(){const el=document.getElementById('exampleChips');el.innerHTML='';safeExamples.forEach((ex,i)=>{const btn=document.createElement('button');btn.className='example-btn';btn.textContent=ex.label;btn.onclick=()=>{document.getElementById('msgInput').value=ex.text;renderResult(safeDemo[i]);};el.appendChild(btn);});}
+function renderSimpleChips(){const el=document.getElementById('exampleChips');el.innerHTML='';simpleExamples.forEach((ex,i)=>{const btn=document.createElement('button');btn.className='example-btn';btn.textContent=ex.label;btn.onclick=()=>{document.getElementById('msgInput').value=ex.text;renderResult(simpleDemo[i]);};el.appendChild(btn);});}
+const PROFILES={calm:{name:'Calm default',desc:'Off-white, charcoal text, muted teal. Works for everyone.',vars:{'--bg':'#F7F7F2','--bg2':'#EEEEE8','--bg3':'#D8D8D0','--text':'#222222','--muted':'#4A4A4A','--accent':'#2F6E91','--safe':'#00875A','--safe-bg':'#E6F6F0','--safe-border':'#9ADFC3','--caution':'#A04A00','--caution-bg':'#FEF0DC','--caution-border':'#F0C070','--danger':'#A33030','--danger-bg':'#FAEAEA','--danger-border':'#DDA0A0','--warn':'#8A3A1A','--warn-bg':'#FDF5EF','--warn-border':'#E8C4A8','--med-bg':'#FBF6EE','--med-border':'#C8972A','--med-border-soft':'#E0C97A','--med-text':'#6B4400'},traits:['Default','Low stimulation','High contrast'],tc:'#1A4A6A',tb:'#D8EAF5'},sensory:{name:'Low sensory',desc:'Muted neutral background, soft teal. Minimal visual noise.',vars:{'--bg':'#EDECEA','--bg2':'#E2E0DD','--bg3':'#D0CEC9','--text':'#1E1E1E','--muted':'#555550','--accent':'#3D7A6B','--safe':'#3A7A60','--safe-bg':'#E4EEEA','--safe-border':'#9ACAB8','--caution':'#7A5E00','--caution-bg':'#F5F0DE','--caution-border':'#C8B060','--danger':'#7A4A00','--danger-bg':'#EDE4CE','--danger-border':'#C09040','--warn':'#7A5E00','--warn-bg':'#F0EBD8','--warn-border':'#C8B060','--med-bg':'#E8EDE8','--med-border':'#5A8A70','--med-border-soft':'#9ABCAA','--med-text':'#2A4A38'},traits:['Autism-friendly','Low noise','Muted tones'],tc:'#1A4A40',tb:'#D0E8E4'},dyslexia:{name:'Dyslexia-friendly',desc:'Cream background, dark gray text. Reduces glare on long reads.',vars:{'--bg':'#F5F0E0','--bg2':'#EDE8D5','--bg3':'#D8D0BE','--text':'#222222','--muted':'#5A5248','--accent':'#2F6E91','--safe':'#2A6A48','--safe-bg':'#EAF0E4','--safe-border':'#9AC0A0','--caution':'#7A5A00','--caution-bg':'#F5EDD0','--caution-border':'#D0A848','--danger':'#8A4A18','--danger-bg':'#F0E0CC','--danger-border':'#C09060','--warn':'#7A5A1A','--warn-bg':'#F5EDD4','--warn-border':'#D8C090','--med-bg':'#EEE8D0','--med-border':'#9A8050','--med-border-soft':'#C8B888','--med-text':'#5A4010'},traits:['Dyslexia-friendly','Cream tones','Reduced glare'],tc:'#5A4020',tb:'#EEE0C0'},focus:{name:'High focus',desc:'Pure minimal palette, one accent. Strips all distraction.',vars:{'--bg':'#F8F8F8','--bg2':'#EEEEEE','--bg3':'#DCDCDC','--text':'#111111','--muted':'#555555','--accent':'#2F6E91','--safe':'#1A7A50','--safe-bg':'#E8F4EE','--safe-border':'#80C8A0','--caution':'#8A6000','--caution-bg':'#FAF4E8','--caution-border':'#D4B060','--danger':'#7A4400','--danger-bg':'#F5EAD8','--danger-border':'#C08040','--warn':'#8A6000','--warn-bg':'#FAF4E8','--warn-border':'#D4B060','--med-bg':'#F0F4F8','--med-border':'#2F6E91','--med-border-soft':'#A8C8E0','--med-text':'#1A3A50'},traits:['ADHD-friendly','High contrast','One accent'],tc:'#222288',tb:'#E0E0F0'},dark:{name:'Dark mode',desc:'Dark background, light text. Easy on the eyes at night.',vars:{'--bg':'#1C1F26','--bg2':'#252830','--bg3':'#2E3240','--text':'#E0E4EC','--muted':'#8A90A0','--accent':'#5A9ABF','--safe':'#3AAA78','--safe-bg':'#182820','--safe-border':'#2A6040','--caution':'#D4A040','--caution-bg':'#282010','--caution-border':'#604818','--danger':'#C07040','--danger-bg':'#281810','--danger-border':'#583010','--warn':'#C8A060','--warn-bg':'#282418','--warn-border':'#604820','--med-bg':'#1E2430','--med-border':'#5A9ABF','--med-border-soft':'#2E4060','--med-text':'#A0C8E0'},traits:['Night use','Photosensitivity','Low glare'],tc:'#8ABCD0',tb:'#283040'}};
+const QUESTIONS=[{q:'How does your screen feel after a while?',opts:[{t:'Words blur or crowd',d:'Hard to track, I lose my place',v:'glare'},{t:'Brightness feels harsh',d:'Even moderate screens overwhelm',v:'bright'},{t:'I get distracted easily',d:'Eyes jump around, focus is hard',v:'distract'},{t:'Generally comfortable',d:'Just want something easy on the eyes',v:'fine'}]},{q:'When do you mostly use this?',opts:[{t:'Morning or daytime',d:'Brighter helps me stay alert',v:'morning'},{t:'Evening or at night',d:'Bright screens feel jarring',v:'evening'},{t:'All day — it varies',d:'Need something for any light',v:'all'}]},{q:'How do you want to feel here?',opts:[{t:'Calm',d:'Safe, unhurried, low stimulation',v:'calm'},{t:'Focused',d:'Clear, sharp, nothing in the way',v:'focus'},{t:'Warm',d:'Comfortable, easy on the eyes',v:'warm'},{t:'Energised',d:'Alive, motivating, ready to go',v:'energised'}]}];
 function scoreAnswers(ans){const s={calm:0,sensory:0,focus:0,dark:0,dyslexia:0};const m={glare:{dyslexia:4,calm:1},bright:{sensory:3,dark:4},distract:{focus:4},fine:{calm:3,focus:1},morning:{focus:2,calm:2},evening:{dark:4,sensory:2},all:{dyslexia:1,calm:3,focus:1},calm:{sensory:4,dyslexia:2},focus:{focus:4},warm:{dyslexia:4,calm:1},energised:{focus:3,calm:1}};ans.forEach(v=>{if(m[v])Object.keys(m[v]).forEach(k=>s[k]+=m[v][k]);});return Object.keys(s).reduce((a,b)=>s[a]>s[b]?a:b);}
 function applyVars(vars){const r=document.documentElement;Object.keys(vars).forEach(k=>{if(k.startsWith('--'))r.style.setProperty(k,vars[k]);});refreshTopDots(vars);}
 function refreshTopDots(vars){const d=document.getElementById('topDots');if(!d)return;d.innerHTML=`<div class="pd" style="background:${vars['--bg2']}"></div><div class="pd" style="background:${vars['--accent']}"></div><div class="pd" style="background:${vars['--text']||'#111'}"></div>`;}
 let curProfile='calm',pendingKey=null,wizStep=0,wizAns=[];
-function saveProfile(k){try{localStorage.setItem('cs_profile',k);}catch(e){}}
 function loadProfile(){try{const k=localStorage.getItem('cs_profile');if(k&&PROFILES[k]){applyVars(PROFILES[k].vars);curProfile=k;}}catch(e){}}
 function openWizard(){wizStep=0;wizAns=[];pendingKey=null;document.getElementById('wizResult').classList.remove('show');document.getElementById('wizQ-section').style.display='block';renderWizStep();document.getElementById('wizOverlay').classList.add('open');}
 function closeWizard(){document.getElementById('wizOverlay').classList.remove('open');}
@@ -810,674 +554,68 @@ function applyPending(){if(!pendingKey)return;curProfile=pendingKey;saveProfile(
 function openProfiles(){buildProfGrid();document.getElementById('profOverlay').classList.add('open');}
 function closeProfiles(){document.getElementById('profOverlay').classList.remove('open');}
 function buildProfGrid(){const g=document.getElementById('profGrid');if(!g)return;g.innerHTML='';Object.keys(PROFILES).forEach(key=>{const p=PROFILES[key];if(!p)return;const card=document.createElement('div');card.className='prof-card'+(key===curProfile?' active':'');const sw=['--bg','--bg2','--accent','--text'].map(v=>`<div class="prof-sw" style="background:${p.vars[v]||'#ccc'}"></div>`).join('');card.innerHTML=`<div class="prof-swatches">${sw}</div><div class="prof-name">${p.name}</div>`;card.onclick=()=>{curProfile=key;saveProfile(key);applyVars(p.vars);buildProfGrid();toast('Switched: '+p.name);};g.appendChild(card);});}
-
-// ═══ READING LEVEL ════════════════════════════════════════
 let curRL='standard';
 const RL_FS={simple:'1.2rem',standard:'1.06rem',detailed:'1rem'};
 const RL_LH={simple:'2.0',standard:'1.75',detailed:'1.65'};
-function setRL(btn){document.querySelectorAll('.rl-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRL=btn.dataset.rl;document.documentElement.style.setProperty('--fs',RL_FS[curRL]);document.documentElement.style.setProperty('--lh',RL_LH[curRL]);try{localStorage.setItem('cs_rl',curRL);}catch(e){}}
 function loadRL(){try{const s=localStorage.getItem('cs_rl');if(s){const b=document.querySelector(`[data-rl="${s}"]`);if(b)setRL(b);}}catch(e){}}
-
-// ═══ TASK ENGINE ══════════════════════════════════════════
-let state = {
-  tasks: [],
-  currentIndex: 0,
-  completed: [],
-  showAll: false,
-  done: false,
-  reminderMins: null,
-};
-
-function showPhase(n){
-  [1,2,3].forEach(i=>{
-    const el=document.getElementById('simplePhase'+i);
-    if(el) el.style.display = i===n ? 'block' : 'none';
-  });
-  // Medical disclaimer bar stays visible across ALL phases — never hide it here
-}
-
-function initTasks(tasks){
-  state = {tasks, currentIndex:0, completed:[], showAll:false, done:false, reminderMins:null};
-  allTasks = tasks;
-  showPhase(1);
-  renderAllStepsLists();
-}
-
-function startSteps(){
-  if(!state.tasks.length) return;
-  showPhase(2);
-  renderStep();
-}
-
-function renderStep(){
-  if(state.done){ showPhase(3); return; }
-
-  const i = state.currentIndex;
-  const total = state.tasks.length;
-
-  const numCur = document.getElementById('stepNumCurrent');
-  const numTot = document.getElementById('stepNumTotal');
-  const fill = document.getElementById('stepProgressFill');
-  if(numCur){ numCur.style.opacity='0'; setTimeout(()=>{numCur.textContent=(i+1);numCur.style.opacity='1';},150); }
-  if(numTot) numTot.textContent = total;
-  if(fill) fill.style.width = ((i+1)/total*100)+'%';
-
-  const task = document.getElementById('stepTask');
-  if(task) task.textContent = state.tasks[i] || '';
-
-  const markArea = document.getElementById('markDoneArea');
-  const undoArea = document.getElementById('undoArea');
-  if(markArea) markArea.style.display = 'block';
-  if(undoArea) undoArea.style.display = 'none';
-
-  resetReminderUI();
-  renderDoneList();
-  renderAllStepsLists();
-}
-
-function renderDoneList(){
-  const wrap = document.getElementById('unifiedSteps');
-  const list = document.getElementById('unifiedList');
-  if(!list) return;
-  if(state.tasks.length === 0){ if(wrap) wrap.style.display='none'; return; }
-  if(wrap) wrap.style.display = 'block';
-  list.innerHTML = '';
-  if(state.completed.length > 1){
-    const undoAll = document.createElement('button');
-    undoAll.className = 'undo-all-btn';
-    undoAll.textContent = 'Undo all completed';
-    undoAll.onclick = () => undoAllSteps();
-    list.appendChild(undoAll);
-  }
-  state.tasks.forEach((task, idx) => {
-    const done = state.completed.includes(idx);
-    const isCurrent = idx === state.currentIndex && !done;
-    const li = document.createElement('li');
-    li.className = 'unified-item' + (done ? ' unified-done' : isCurrent ? ' unified-current' : ' unified-future');
-    if(done){
-      li.innerHTML = `<span class="u-check">✓</span><span class="u-text">${task}</span><button class="done-undo-btn" onclick="undoSpecificStep(${idx})">Undo</button>`;
-    } else if(isCurrent){
-      li.innerHTML = `<span class="u-num">${idx+1}</span><span class="u-text">${task}</span><span class="u-tag">Now</span>`;
-    } else {
-      li.innerHTML = `<span class="u-num">${idx+1}</span><span class="u-text">${task}</span>`;
-    }
-    list.appendChild(li);
-  });
-}
-
-function markStepDone(){
-  const i = state.currentIndex;
-  state.completed.push(i);
-  let next = -1;
-  for(let j = 0; j < state.tasks.length; j++){
-    if(!state.completed.includes(j)){ next = j; break; }
-  }
-  if(next === -1){
-    state.done = true;
-    showPhase(3);
-    setTimeout(() => toast('All steps complete. Well done.'), 300);
-  } else {
-    state.currentIndex = next;
-    renderStep();
-    const undoArea = document.getElementById('undoArea');
-    if(undoArea){
-      undoArea.style.display = 'flex';
-      document.getElementById('undoStepLabel').textContent = '✓ Step '+(i+1)+' done';
-    }
-  }
-}
-
-function undoStep(){
-  if(state.completed.length === 0) return;
-  const last = state.completed.pop();
-  state.currentIndex = last;
-  state.done = false;
-  renderStep();
-}
-
-function undoSpecificStep(idx){
-  const pos = state.completed.indexOf(idx);
-  if(pos === -1) return;
-  state.completed = state.completed.slice(0, pos);
-  state.currentIndex = idx;
-  state.done = false;
-  const undoArea = document.getElementById('undoArea');
-  if(undoArea) undoArea.style.display = 'none';
-  renderStep();
-}
-
-function undoAllSteps(){
-  state.completed = [];
-  state.currentIndex = 0;
-  state.done = false;
-  const undoArea = document.getElementById('undoArea');
-  if(undoArea) undoArea.style.display = 'none';
-  renderStep();
-}
-
-function toggleAllSteps(){
-  // If not yet started, start steps and show the unified list immediately
-  if(document.getElementById('simplePhase2').style.display === 'none'){
-    startSteps();
-    const unified = document.getElementById('unifiedSteps');
-    if(unified) unified.style.display = 'block';
-  } else {
-    // Already in phase 2 — scroll to the unified list
-    const unified = document.getElementById('unifiedSteps');
-    if(unified){
-      unified.style.display = 'block';
-      unified.scrollIntoView({behavior:'smooth', block:'nearest'});
-    }
-  }
-}
-function renderAllStepsLists(){ }
-
-// ── Reminder ──────────────────────────────────────────────
-// Keywords that suggest a deadline task — show date picker by default
-const DEADLINE_KEYWORDS = ['deadline','days','date','by ','within','expires','due','60-day','30-day','90-day','submit by','before'];
-
-function taskHasDeadline(text){
-  const low = (text || '').toLowerCase();
-  return DEADLINE_KEYWORDS.some(k => low.includes(k));
-}
-
-function openReminderPicker(){
-  const stepText = state.tasks[state.currentIndex] || 'this step';
-  const preview = document.getElementById('reminderStepPreview');
-  if(preview) preview.textContent = stepText;
-
-  // Set default date to tomorrow
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
-  const dateInput = document.getElementById('reminderDateInput');
-  if(dateInput) dateInput.value = tomorrow.toISOString().split('T')[0];
-
-  // Show date picker mode for deadline tasks, time buttons for others
-  const isDeadline = taskHasDeadline(stepText);
-  setReminderPickerMode(isDeadline ? 'date' : 'time');
-  setReminderUI('picker');
-}
-
-function setReminderPickerMode(mode){
-  const timeBtns = document.getElementById('reminderTimeBtns');
-  const dateRow = document.getElementById('reminderDateRow');
-  const toggle = document.getElementById('reminderModeToggle');
-  const whenLabel = document.getElementById('reminderWhenLabel');
-  if(mode === 'date'){
-    if(timeBtns) timeBtns.style.display = 'none';
-    if(dateRow) dateRow.style.display = 'flex';
-    if(toggle) toggle.textContent = 'Use quick times instead';
-    if(whenLabel) whenLabel.textContent = 'Add to calendar on:';
-  } else {
-    if(timeBtns) timeBtns.style.display = 'flex';
-    if(dateRow) dateRow.style.display = 'none';
-    if(toggle) toggle.textContent = 'Choose a specific date instead';
-    if(whenLabel) whenLabel.textContent = 'When?';
-  }
-}
-
-function toggleReminderMode(){
-  const timeBtns = document.getElementById('reminderTimeBtns');
-  const isTimesVisible = timeBtns && timeBtns.style.display !== 'none';
-  setReminderPickerMode(isTimesVisible ? 'date' : 'time');
-}
-
-async function setDateReminder(){
-  const dateVal = document.getElementById('reminderDateInput').value;
-  const timeVal = document.getElementById('reminderTimeInput').value || '09:00';
-  if(!dateVal){ return; }
-  const stepText = state.tasks[state.currentIndex] || '';
-  state.reminderMins = 'custom';
-  setReminderUI('loading');
-  try {
-    const res = await fetch(CALENDAR_FUNCTION_URL, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({step_text: stepText, time_choice: 'custom', custom_datetime: dateVal+'T'+timeVal+':00'})
-    });
-    if(!res.ok) throw new Error('Calendar function returned '+res.status);
-    const data = await res.json();
-    const gBtn = document.getElementById('calBtnGoogle');
-    const oBtn = document.getElementById('calBtnOutlook');
-    if(gBtn) gBtn.href = data.google_link || '#';
-    if(oBtn) oBtn.href = data.outlook_link || '#';
-    const lbl = document.getElementById('reminderActiveLabel');
-    const stepLbl = document.getElementById('reminderActiveStep');
-    if(lbl) lbl.textContent = 'Add to your calendar — '+dateVal+' at '+timeVal;
-    if(stepLbl) stepLbl.textContent = stepText;
-    const errEl = document.getElementById('reminderError');
-    if(errEl) errEl.style.display = 'none';
-    setReminderUI('active');
-  } catch(e){
-    console.error('Calendar error:', e);
-    const lbl = document.getElementById('reminderActiveLabel');
-    if(lbl) lbl.textContent = 'Calendar unavailable';
-    const errEl = document.getElementById('reminderError');
-    if(errEl){ errEl.style.display='block'; errEl.textContent='Could not connect to calendar. Try again.'; }
-    setReminderUI('active');
-  }
-}
-function closeReminderPicker(){ setReminderUI('none'); }
-
-// Joanne's Azure Function — generates real Google + Outlook calendar links
-const CALENDAR_FUNCTION_URL = '/api/calendar-link'; // proxied through app.py — no CORS issues
-
-async function setStepReminder(label){
-  const stepText = state.tasks[state.currentIndex] || '';
-  state.reminderMins = label;
-
-  // Show loading state immediately
-  setReminderUI('loading');
-
-  try {
-    const res = await fetch(CALENDAR_FUNCTION_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({step_text: stepText, time_choice: label})
-    });
-
-    if(!res.ok) throw new Error('Calendar function returned '+res.status);
-    const data = await res.json();
-
-    // Wire up the calendar links
-    const gBtn = document.getElementById('calBtnGoogle');
-    const oBtn = document.getElementById('calBtnOutlook');
-    if(gBtn) gBtn.href = data.google_link || '#';
-    if(oBtn) oBtn.href = data.outlook_link || '#';
-
-    // Update label
-    const timeLabels = {
-    '1hour': 'in 1 hour',
-    'afternoon': 'this afternoon',
-    'evening': 'this evening',
-    'tomorrow': 'tomorrow morning'
-  };
-  const timeLabel = timeLabels[label] || label;
-    const lbl = document.getElementById('reminderActiveLabel');
-    const stepLbl = document.getElementById('reminderActiveStep');
-    if(lbl) lbl.textContent = 'Add to your calendar — '+timeLabel;
-    if(stepLbl) stepLbl.textContent = stepText;
-
-    // Hide any previous error
-    const errEl = document.getElementById('reminderError');
-    if(errEl) errEl.style.display = 'none';
-
-    setReminderUI('active');
-
-  } catch(e) {
-    console.error('Calendar function error:', e);
-    // Show error inside the active state so user can still cancel
-    const lbl = document.getElementById('reminderActiveLabel');
-    const stepLbl = document.getElementById('reminderActiveStep');
-    if(lbl) lbl.textContent = 'Calendar unavailable';
-    if(stepLbl) stepLbl.textContent = stepText;
-    const errEl = document.getElementById('reminderError');
-    if(errEl){ errEl.style.display = 'block'; errEl.textContent = 'Could not connect to calendar. Try again.'; }
-    // Still show active state so user can cancel or retry
-    setReminderUI('active');
-  }
-}
-
-function cancelStepReminder(){
-  state.reminderMins = null;
-  // Clear calendar links so they don't linger on next step
-  const gBtn = document.getElementById('calBtnGoogle');
-  const oBtn = document.getElementById('calBtnOutlook');
-  if(gBtn) gBtn.href = '#';
-  if(oBtn) oBtn.href = '#';
-  resetReminderUI();
-  toast('Reminder removed.');
-}
-
-function changeReminder(){
-  state.reminderMins = null;
-  const preview = document.getElementById('reminderStepPreview');
-  if(preview) preview.textContent = state.tasks[state.currentIndex] || 'this step';
-  setReminderUI('picker');
-}
-
-function setReminderUI(mode){
-  const none = document.getElementById('reminderStateNone');
-  const picker = document.getElementById('reminderStatePicker');
-  const loading = document.getElementById('reminderStateLoading');
-  const active = document.getElementById('reminderStateActive');
-  if(none)    none.style.display    = mode==='none'    ? 'flex'   : 'none';
-  if(picker)  picker.style.display  = mode==='picker'  ? 'flex'   : 'none';
-  if(loading) loading.style.display = mode==='loading' ? 'flex'   : 'none';
-  if(active)  active.style.display  = mode==='active'  ? 'flex'   : 'none';
-}
-
-function resetReminderUI(){ setReminderUI('none'); }
-
-function resetTaskState(){
-  state = {tasks:[], currentIndex:0, completed:[], showAll:false, done:false, reminderMins:null};
-  allTasks = []; shownTaskCount = 0; doneTaskIndices = [];
-  currentIsMedical = false;
-}
-
+let state={tasks:[],currentIndex:0,completed:[],showAll:false,done:false,reminderMins:null};
+function showPhase(n){[1,2,3].forEach(i=>{const el=document.getElementById('simplePhase'+i);if(el)el.style.display=i===n?'block':'none';});}
+function initTasks(tasks){state={tasks,currentIndex:0,completed:[],showAll:false,done:false,reminderMins:null};allTasks=tasks;showPhase(1);renderAllStepsLists();}
+function startSteps(){if(!state.tasks.length)return;showPhase(2);renderStep();}
+function renderStep(){if(state.done){showPhase(3);return;}const i=state.currentIndex;const total=state.tasks.length;const numCur=document.getElementById('stepNumCurrent');const numTot=document.getElementById('stepNumTotal');const fill=document.getElementById('stepProgressFill');if(numCur){numCur.style.opacity='0';setTimeout(()=>{numCur.textContent=(i+1);numCur.style.opacity='1';},150);}if(numTot)numTot.textContent=total;if(fill)fill.style.width=((i+1)/total*100)+'%';const task=document.getElementById('stepTask');if(task)task.textContent=state.tasks[i]||'';const markArea=document.getElementById('markDoneArea');const undoArea=document.getElementById('undoArea');if(markArea)markArea.style.display='block';if(undoArea)undoArea.style.display='none';resetReminderUI();renderDoneList();renderAllStepsLists();}
+function renderDoneList(){const wrap=document.getElementById('unifiedSteps');const list=document.getElementById('unifiedList');if(!list)return;if(state.tasks.length===0){if(wrap)wrap.style.display='none';return;}if(wrap)wrap.style.display='block';list.innerHTML='';if(state.completed.length>1){const undoAll=document.createElement('button');undoAll.className='undo-all-btn';undoAll.textContent='Undo all completed';undoAll.onclick=()=>undoAllSteps();list.appendChild(undoAll);}state.tasks.forEach((task,idx)=>{const done=state.completed.includes(idx);const isCurrent=idx===state.currentIndex&&!done;const li=document.createElement('li');li.className='unified-item'+(done?' unified-done':isCurrent?' unified-current':' unified-future');if(done){li.innerHTML=`<span class="u-check">✓</span><span class="u-text">${task}</span><button class="done-undo-btn" onclick="undoSpecificStep(${idx})">Undo</button>`;}else if(isCurrent){li.innerHTML=`<span class="u-num">${idx+1}</span><span class="u-text">${task}</span><span class="u-tag">Now</span>`;}else{li.innerHTML=`<span class="u-num">${idx+1}</span><span class="u-text">${task}</span>`;}list.appendChild(li);});}
+function markStepDone(){const i=state.currentIndex;state.completed.push(i);let next=-1;for(let j=0;j<state.tasks.length;j++){if(!state.completed.includes(j)){next=j;break;}}if(next===-1){state.done=true;showPhase(3);setTimeout(()=>toast('All steps complete. Well done.'),300);}else{state.currentIndex=next;renderStep();const undoArea=document.getElementById('undoArea');if(undoArea){undoArea.style.display='flex';document.getElementById('undoStepLabel').textContent='✓ Step '+(i+1)+' done';}}}
+function undoStep(){if(state.completed.length===0)return;const last=state.completed.pop();state.currentIndex=last;state.done=false;renderStep();}
+function undoSpecificStep(idx){const pos=state.completed.indexOf(idx);if(pos===-1)return;state.completed=state.completed.slice(0,pos);state.currentIndex=idx;state.done=false;const undoArea=document.getElementById('undoArea');if(undoArea)undoArea.style.display='none';renderStep();}
+function undoAllSteps(){state.completed=[];state.currentIndex=0;state.done=false;const undoArea=document.getElementById('undoArea');if(undoArea)undoArea.style.display='none';renderStep();}
+function toggleAllSteps(){if(document.getElementById('simplePhase2').style.display==='none'){startSteps();const unified=document.getElementById('unifiedSteps');if(unified)unified.style.display='block';}else{const unified=document.getElementById('unifiedSteps');if(unified){unified.style.display='block';unified.scrollIntoView({behavior:'smooth',block:'nearest'});}}}
+function renderAllStepsLists(){}
+const DEADLINE_KEYWORDS=['deadline','days','date','by ','within','expires','due','60-day','30-day','90-day','submit by','before'];
+function taskHasDeadline(text){const low=(text||'').toLowerCase();return DEADLINE_KEYWORDS.some(k=>low.includes(k));}
+function openReminderPicker(){const stepText=state.tasks[state.currentIndex]||'this step';const preview=document.getElementById('reminderStepPreview');if(preview)preview.textContent=stepText;const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);const dateInput=document.getElementById('reminderDateInput');if(dateInput)dateInput.value=tomorrow.toISOString().split('T')[0];const isDeadline=taskHasDeadline(stepText);setReminderPickerMode(isDeadline?'date':'time');setReminderUI('picker');}
+function setReminderPickerMode(mode){const timeBtns=document.getElementById('reminderTimeBtns');const dateRow=document.getElementById('reminderDateRow');const toggle=document.getElementById('reminderModeToggle');const whenLabel=document.getElementById('reminderWhenLabel');if(mode==='date'){if(timeBtns)timeBtns.style.display='none';if(dateRow)dateRow.style.display='flex';if(toggle)toggle.textContent='Use quick times instead';if(whenLabel)whenLabel.textContent='Add to calendar on:';}else{if(timeBtns)timeBtns.style.display='flex';if(dateRow)dateRow.style.display='none';if(toggle)toggle.textContent='Choose a specific date instead';if(whenLabel)whenLabel.textContent='When?';}}
+function toggleReminderMode(){const timeBtns=document.getElementById('reminderTimeBtns');const isTimesVisible=timeBtns&&timeBtns.style.display!=='none';setReminderPickerMode(isTimesVisible?'date':'time');}
+async function setDateReminder(){const dateVal=document.getElementById('reminderDateInput').value;const timeVal=document.getElementById('reminderTimeInput').value||'09:00';if(!dateVal){return;}const stepText=state.tasks[state.currentIndex]||'';state.reminderMins='custom';setReminderUI('loading');try{const res=await fetch(CALENDAR_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({step_text:stepText,time_choice:'custom',custom_datetime:dateVal+'T'+timeVal+':00'})});if(!res.ok)throw new Error('Calendar function returned '+res.status);const data=await res.json();const gBtn=document.getElementById('calBtnGoogle');const oBtn=document.getElementById('calBtnOutlook');if(gBtn)gBtn.href=data.google_link||'#';if(oBtn)oBtn.href=data.outlook_link||'#';const lbl=document.getElementById('reminderActiveLabel');const stepLbl=document.getElementById('reminderActiveStep');if(lbl)lbl.textContent='Add to your calendar — '+dateVal+' at '+timeVal;if(stepLbl)stepLbl.textContent=stepText;const errEl=document.getElementById('reminderError');if(errEl)errEl.style.display='none';setReminderUI('active');}catch(e){const lbl=document.getElementById('reminderActiveLabel');if(lbl)lbl.textContent='Calendar unavailable';const errEl=document.getElementById('reminderError');if(errEl){errEl.style.display='block';errEl.textContent='Could not connect to calendar. Try again.';}setReminderUI('active');}}
+function closeReminderPicker(){setReminderUI('none');}
+const CALENDAR_FUNCTION_URL='/api/calendar-link';
+async function setStepReminder(label){const stepText=state.tasks[state.currentIndex]||'';state.reminderMins=label;setReminderUI('loading');try{const res=await fetch(CALENDAR_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({step_text:stepText,time_choice:label})});if(!res.ok)throw new Error('Calendar function returned '+res.status);const data=await res.json();const gBtn=document.getElementById('calBtnGoogle');const oBtn=document.getElementById('calBtnOutlook');if(gBtn)gBtn.href=data.google_link||'#';if(oBtn)oBtn.href=data.outlook_link||'#';const timeLabels={'1hour':'in 1 hour','afternoon':'this afternoon','evening':'this evening','tomorrow':'tomorrow morning'};const timeLabel=timeLabels[label]||label;const lbl=document.getElementById('reminderActiveLabel');const stepLbl=document.getElementById('reminderActiveStep');if(lbl)lbl.textContent='Add to your calendar — '+timeLabel;if(stepLbl)stepLbl.textContent=stepText;const errEl=document.getElementById('reminderError');if(errEl)errEl.style.display='none';setReminderUI('active');}catch(e){const lbl=document.getElementById('reminderActiveLabel');const stepLbl=document.getElementById('reminderActiveStep');if(lbl)lbl.textContent='Calendar unavailable';if(stepLbl)stepLbl.textContent=stepText;const errEl=document.getElementById('reminderError');if(errEl){errEl.style.display='block';errEl.textContent='Could not connect to calendar. Try again.';}setReminderUI('active');}}
+function cancelStepReminder(){state.reminderMins=null;const gBtn=document.getElementById('calBtnGoogle');const oBtn=document.getElementById('calBtnOutlook');if(gBtn)gBtn.href='#';if(oBtn)oBtn.href='#';resetReminderUI();toast('Reminder removed.');}
+function changeReminder(){state.reminderMins=null;const preview=document.getElementById('reminderStepPreview');if(preview)preview.textContent=state.tasks[state.currentIndex]||'this step';setReminderUI('picker');}
+function setReminderUI(mode){const none=document.getElementById('reminderStateNone');const picker=document.getElementById('reminderStatePicker');const loading=document.getElementById('reminderStateLoading');const active=document.getElementById('reminderStateActive');if(none)none.style.display=mode==='none'?'flex':'none';if(picker)picker.style.display=mode==='picker'?'flex':'none';if(loading)loading.style.display=mode==='loading'?'flex':'none';if(active)active.style.display=mode==='active'?'flex':'none';}
+function resetReminderUI(){setReminderUI('none');}
+function resetTaskState(){state={tasks:[],currentIndex:0,completed:[],showAll:false,done:false,reminderMins:null};allTasks=[];shownTaskCount=0;doneTaskIndices=[];currentIsMedical=false;}
 function showNextBatch(){}
-
-// ═══ EXPLAINABILITY ═══════════════════════════════════════
-function renderExplain(risk, signals){
-  const body = document.getElementById('explainBody'); body.innerHTML = '';
-  const items = [];
-  if(risk === 'Safe'){
-    items.push({type:'safe', text:'No pressure tactics, suspicious links, or unusual requests found.'});
-  } else {
-    (signals||[]).forEach(s => {
-      const lookup = {'Urgent language':'Uses words like "immediately" to stop you thinking.','Threat language':'Threatens consequences to create fear.','Suspicious link':'Contains a link that may not go where it says.','Impersonation':'Pretends to be someone you know or trust.','Gift card request':'Gift card requests are always a scam.'};
-      items.push({type: risk==='High Risk'?'flag':'info', text: lookup[s] || `"${s}" was identified in this message.`});
-    });
-  }
-  items.push({type:'info', text:'ClearStep is an AI tool. Always verify with a professional if unsure.'});
-  items.forEach(item => {
-    const div = document.createElement('div'); div.className = 'explain-item';
-    const iconChar = item.type==='flag'?'!':item.type==='safe'?'✓':'i';
-    div.innerHTML = `<div class="ei">${iconChar}</div><span>${item.text}</span>`;
-    body.appendChild(div);
-  });
-}
+function renderExplain(risk,signals){const body=document.getElementById('explainBody');body.innerHTML='';const items=[];if(risk==='Safe'){items.push({type:'safe',text:'No pressure tactics, suspicious links, or unusual requests found.'});}else{(signals||[]).forEach(s=>{const lookup={'Urgent language':'Uses words like "immediately" to stop you thinking.','Threat language':'Threatens consequences to create fear.','Suspicious link':'Contains a link that may not go where it says.','Impersonation':'Pretends to be someone you know or trust.','Gift card request':'Gift card requests are always a scam.'};items.push({type:risk==='High Risk'?'flag':'info',text:lookup[s]||`"${s}" was identified in this message.`});});}items.push({type:'info',text:'ClearStep is an AI tool. Always verify with a professional if unsure.'});items.forEach(item=>{const div=document.createElement('div');div.className='explain-item';const iconChar=item.type==='flag'?'!':item.type==='safe'?'✓':'i';div.innerHTML=`<div class="ei">${iconChar}</div><span>${item.text}</span>`;body.appendChild(div);});}
 function toggleExplain(){const btn=document.getElementById('explainToggle');const body=document.getElementById('explainBody');const open=body.classList.contains('open');body.classList.toggle('open',!open);btn.classList.toggle('open',!open);}
-function toggleExplainSimple(){
-  const body=document.getElementById('explainBodySimple');
-  const chev=document.getElementById('explainChevronSimple');
-  const open=body.style.display!=='none';
-  body.style.display=open?'none':'block';
-  if(chev)chev.style.transform=open?'':'rotate(180deg)';
-}
-
-// ═══ RENDER RESULT ════════════════════════════════════════
-// Disclaimer sentinel — the backend always appends this exact string
-const DISCLAIMER_SENTINEL = 'reminder tool only — always follow your original prescription';
-
-function renderResult(r){
-  currentIsMedical = r.is_medical === true;
-  // Clear any standing error message — chip clicks bypass analyze() so need to clear here
-  document.getElementById('errorMsg').classList.remove('visible');
-
-  // ── Badge logic ──────────────────────────────────────────
-  const badge = document.getElementById('riskBadge');
-  if(currentMode === 'simple'){
-    // Medical content: never show CLEAR — always COMPLEX minimum
-    let simpleLabel;
-    if(currentIsMedical){
-      simpleLabel = r.risk_level === 'High Risk' ? 'IMPORTANT' : 'MEDICAL';
-    } else {
-      simpleLabel = r.badge_label || (
-        r.risk_level === 'High Risk' ? 'IMPORTANT' :
-        r.risk_level === 'Safe' ? 'CLEAR' : 'COMPLEX'
-      );
-    }
-    badge.textContent = simpleLabel;
-    badge.className = 'risk-badge '+(
-      simpleLabel==='IMPORTANT' ? 'risk-danger' :
-      simpleLabel==='MEDICAL'   ? 'risk-caution' :
-      simpleLabel==='CLEAR'     ? 'risk-safe'    : 'risk-caution'
-    );
-  } else {
-    badge.textContent = r.risk_level;
-    badge.className = 'risk-badge '+(r.risk_level==='Safe'?'risk-safe':r.risk_level==='Caution'?'risk-caution':'risk-danger');
-  }
-
-  document.getElementById('meaningText').textContent = r.meaning;
-
-  const safeBody = document.getElementById('safeResultBody');
-  const simpleBody = document.getElementById('simpleResultBody');
-  const medBar = document.getElementById('medicalDisclaimerBar');
-
-  if(currentMode === 'safe'){
-    safeBody.style.display = 'grid';
-    simpleBody.style.display = 'none';
-    if(medBar) medBar.classList.remove('visible');
-    // Signals
-    const dotClass = r.risk_level==='Safe'?'safe':r.risk_level==='High Risk'?'danger':'caution';
-    const sl = document.getElementById('signalsList'); sl.innerHTML = '';
-    (r.signals&&r.signals.length?r.signals:['No suspicious signals']).forEach(s=>{
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="sdot ${dotClass}"></span><span>${s}</span>`;
-      sl.appendChild(li);
-    });
-    // Steps — max 2
-    const stl = document.getElementById('stepsList'); stl.innerHTML = '';
-    (r.next_steps||[]).slice(0,2).forEach((s,i)=>{
-      const li = document.createElement('li');
-      const textStyle = i===0 ? 'font-weight:600;color:var(--text);' : '';
-      li.innerHTML = `<span class="step-num">${i+1}</span><span style="${textStyle}">${s}</span>`;
-      stl.appendChild(li);
-    });
-    renderExplain(r.risk_level, r.signals||[]);
-
-  } else {
-    safeBody.style.display = 'none';
-    simpleBody.style.display = 'block';
-
-    // ── Medical disclaimer bar ─────────────────────────────
-    if(medBar){
-      if(currentIsMedical) medBar.classList.add('visible');
-      else medBar.classList.remove('visible');
-    }
-
-    // ── Warnings — separate disclaimer from safety rules ───
-    const warningsBlock = document.getElementById('warningsBlock');
-    const warnList = document.getElementById('warnList');
-
-    // Split: safety warnings vs disclaimer sentinel
-    const allWarnings = r.warnings || [];
-    const safetyWarnings = allWarnings.filter(w =>
-      w.toLowerCase().trim() !== DISCLAIMER_SENTINEL
-    );
-    const hasDisclaimer = allWarnings.some(w =>
-      w.toLowerCase().trim() === DISCLAIMER_SENTINEL
-    );
-
-    if(safetyWarnings.length > 0){
-      warningsBlock.style.display = 'block';
-      warningsBlock.className = 'warnings-block';
-      document.querySelector('#warningsBlock .warn-label').textContent = '⚠ Before you start';
-      warnList.innerHTML = '';
-      safetyWarnings.forEach(w => {
-        const li = document.createElement('li');
-        li.textContent = w;
-        warnList.appendChild(li);
-      });
-      // Disclaimer as separate styled note at bottom of warnings block — only if not medical bar
-      if(hasDisclaimer && !currentIsMedical){
-        const li = document.createElement('li');
-        li.className = 'warn-disclaimer';
-        li.textContent = 'This is a reminder tool only — always follow your original document';
-        warnList.appendChild(li);
-      }
-    } else if(r.key_items && r.key_items.length > 0 && !currentIsMedical){
-      warningsBlock.style.display = 'block';
-      warningsBlock.className = 'warnings-block warnings-block-soft';
-      document.querySelector('#warningsBlock .warn-label').textContent = '↓ Key things in this message';
-      warnList.innerHTML = '';
-      r.key_items.forEach(w => {
-        const li = document.createElement('li'); li.textContent = w;
-        warnList.appendChild(li);
-      });
-    } else {
-      warningsBlock.style.display = 'none';
-    }
-
-    // Key items in explainability
-    const kl = document.getElementById('keyItemsList');
-    if(kl){ kl.innerHTML = '';
-      (r.key_items||r.signals||[]).forEach(s=>{
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="sdot caution"></span><span>${s}</span>`;
-        kl.appendChild(li);
-      });
-    }
-
-    // Explain items
-    const eis = document.getElementById('explainItemsSimple');
-    if(eis){ eis.innerHTML='';
-      const note = document.createElement('div'); note.className='explain-item';
-      note.innerHTML=`<div class="ei">i</div><span>ClearStep is an AI tool. Always verify with a professional if unsure.</span>`;
-      eis.appendChild(note);
-    }
-
-    // Tasks
-    initTasks(r.tasks || r.next_steps || []);
-  }
-
-  const safePnl=document.getElementById('explainPanelSafe');
-  const simplePnl=document.getElementById('explainPanelSimple');
-  if(safePnl) safePnl.style.display=currentMode==='safe'?'block':'none';
-  if(simplePnl) simplePnl.style.display=currentMode==='simple'?'block':'none';
-
-  document.getElementById('fbY').className = 'fb-btn';
-  document.getElementById('fbN').className = 'fb-btn';
-  document.getElementById('fbThanks').classList.remove('show');
-  document.getElementById('explainBody').classList.remove('open');
-  document.getElementById('explainToggle').classList.remove('open');
-  document.getElementById('resultCard').classList.add('visible');
-  document.getElementById('resetBtn').classList.add('visible');
-  const fa=document.getElementById('feedbackAfter'); if(fa) fa.style.display='flex';
-  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-// ═══ ANALYZE ══════════════════════════════════════════════
-const API_URL = '/api/analyze';
-
-async function analyze(){
-  const msg = document.getElementById('msgInput').value.trim();
-  if(!msg){showError('Please paste something to check.');return;}
-  document.getElementById('resultCard').classList.remove('visible');
-  document.getElementById('errorMsg').classList.remove('visible');
-  document.getElementById('resetBtn').classList.remove('visible');
-  document.getElementById('loading').classList.add('visible');
-  document.getElementById('analyzeBtn').disabled = true;
-  document.getElementById('explainBody').classList.remove('open');
-  document.getElementById('explainToggle').classList.remove('open');
-  try{
-    const res = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg, reading_level:curRL, mode:currentMode})});
-    if(!res.ok) throw new Error('API error '+res.status);
-    const data = await res.json();
-    renderResult(data);
-  }catch(e){
-    renderResult(fallback(msg));
-  }finally{
-    document.getElementById('loading').classList.remove('visible');
-    document.getElementById('analyzeBtn').disabled = false;
-  }
-}
-
-function fallback(msg){
-  const m = msg.toLowerCase();
-  let score = 0;
-  if(m.match(/urgent|immediately|right now|24 hour/))score+=3;
-  if(m.match(/click|http|bit\.ly|verify/))score+=2;
-  if(m.match(/gift card|bitcoin|wire transfer/))score+=4;
-  const isMed = !!(m.match(/tablet|dose|medication|mg|prescription|pharmacist|swallow|daily|twice/));
-  if(currentMode==='simple'){
-    return{risk_level:'Caution', is_medical: isMed, meaning:'This message has several things that need attention.',warnings:isMed?['Reminder tool only — always follow your original prescription']:[], key_items:['Multiple items detected','Review carefully'],tasks:['Start with the first action only','Check the original document for full details']};
-  }
-  if(score>=5)return{risk_level:'High Risk',meaning:'This message shows several warning signs.',signals:['Urgent language','Suspicious request'],next_steps:['Do not click any links','Contact the organisation directly']};
-  if(score>=2)return{risk_level:'Caution',meaning:'Parts of this message are worth checking.',signals:['Unusual phrasing','Action request'],next_steps:['Pause before clicking anything','Verify through an official channel']};
-  return{risk_level:'Safe',meaning:'This message looks routine with no obvious warning signs.',signals:['No suspicious signals'],next_steps:['No urgent action needed']};
-}
-
+function toggleExplainSimple(){const body=document.getElementById('explainBodySimple');const chev=document.getElementById('explainChevronSimple');const open=body.style.display!=='none';body.style.display=open?'none':'block';if(chev)chev.style.transform=open?'':'rotate(180deg)';}
+const DISCLAIMER_SENTINEL='reminder tool only — always follow your original prescription';
+function renderResult(r){currentIsMedical=r.is_medical===true;document.getElementById('errorMsg').classList.remove('visible');const badge=document.getElementById('riskBadge');if(currentMode==='simple'){let simpleLabel;if(currentIsMedical){simpleLabel=r.risk_level==='High Risk'?'IMPORTANT':'MEDICAL';}else{simpleLabel=r.badge_label||(r.risk_level==='High Risk'?'IMPORTANT':r.risk_level==='Safe'?'CLEAR':'COMPLEX');}badge.textContent=simpleLabel;badge.className='risk-badge '+(simpleLabel==='IMPORTANT'?'risk-danger':simpleLabel==='MEDICAL'?'risk-caution':simpleLabel==='CLEAR'?'risk-safe':'risk-caution');}else{badge.textContent=r.risk_level;badge.className='risk-badge '+(r.risk_level==='Safe'?'risk-safe':r.risk_level==='Caution'?'risk-caution':'risk-danger');}document.getElementById('meaningText').textContent=r.meaning;const safeBody=document.getElementById('safeResultBody');const simpleBody=document.getElementById('simpleResultBody');const medBar=document.getElementById('medicalDisclaimerBar');if(currentMode==='safe'){safeBody.style.display='grid';simpleBody.style.display='none';if(medBar)medBar.classList.remove('visible');const dotClass=r.risk_level==='Safe'?'safe':r.risk_level==='High Risk'?'danger':'caution';const sl=document.getElementById('signalsList');sl.innerHTML='';(r.signals&&r.signals.length?r.signals:['No suspicious signals']).forEach(s=>{const li=document.createElement('li');li.innerHTML=`<span class="sdot ${dotClass}"></span><span>${s}</span>`;sl.appendChild(li);});const stl=document.getElementById('stepsList');stl.innerHTML='';(r.next_steps||[]).slice(0,2).forEach((s,i)=>{const li=document.createElement('li');const textStyle=i===0?'font-weight:600;color:var(--text);':'';li.innerHTML=`<span class="step-num">${i+1}</span><span style="${textStyle}">${s}</span>`;stl.appendChild(li);});renderExplain(r.risk_level,r.signals||[]);}else{safeBody.style.display='none';simpleBody.style.display='block';if(medBar){if(currentIsMedical)medBar.classList.add('visible');else medBar.classList.remove('visible');}const warningsBlock=document.getElementById('warningsBlock');const warnList=document.getElementById('warnList');const allWarnings=r.warnings||[];const safetyWarnings=allWarnings.filter(w=>w.toLowerCase().trim()!==DISCLAIMER_SENTINEL);const hasDisclaimer=allWarnings.some(w=>w.toLowerCase().trim()===DISCLAIMER_SENTINEL);if(safetyWarnings.length>0){warningsBlock.style.display='block';warningsBlock.className='warnings-block';document.querySelector('#warningsBlock .warn-label').textContent='⚠ Before you start';warnList.innerHTML='';safetyWarnings.forEach(w=>{const li=document.createElement('li');li.textContent=w;warnList.appendChild(li);});if(hasDisclaimer&&!currentIsMedical){const li=document.createElement('li');li.className='warn-disclaimer';li.textContent='This is a reminder tool only — always follow your original document';warnList.appendChild(li);}}else if(r.key_items&&r.key_items.length>0&&!currentIsMedical){warningsBlock.style.display='block';warningsBlock.className='warnings-block warnings-block-soft';document.querySelector('#warningsBlock .warn-label').textContent='↓ Key things in this message';warnList.innerHTML='';r.key_items.forEach(w=>{const li=document.createElement('li');li.textContent=w;warnList.appendChild(li);});}else{warningsBlock.style.display='none';}const kl=document.getElementById('keyItemsList');if(kl){kl.innerHTML='';(r.key_items||r.signals||[]).forEach(s=>{const li=document.createElement('li');li.innerHTML=`<span class="sdot caution"></span><span>${s}</span>`;kl.appendChild(li);});}const eis=document.getElementById('explainItemsSimple');if(eis){eis.innerHTML='';const note=document.createElement('div');note.className='explain-item';note.innerHTML=`<div class="ei">i</div><span>ClearStep is an AI tool. Always verify with a professional if unsure.</span>`;eis.appendChild(note);}initTasks(r.tasks||r.next_steps||[]);}const safePnl=document.getElementById('explainPanelSafe');const simplePnl=document.getElementById('explainPanelSimple');if(safePnl)safePnl.style.display=currentMode==='safe'?'block':'none';if(simplePnl)simplePnl.style.display=currentMode==='simple'?'block':'none';document.getElementById('fbY').className='fb-btn';document.getElementById('fbN').className='fb-btn';document.getElementById('fbThanks').classList.remove('show');document.getElementById('explainBody').classList.remove('open');document.getElementById('explainToggle').classList.remove('open');document.getElementById('resultCard').classList.add('visible');document.getElementById('resetBtn').classList.add('visible');const fa=document.getElementById('feedbackAfter');if(fa)fa.style.display='flex';document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});}
+const API_URL='/api/analyze';
+async function analyze(){const msg=document.getElementById('msgInput').value.trim();if(!msg){showError('Please paste something to check.');return;}document.getElementById('resultCard').classList.remove('visible');document.getElementById('errorMsg').classList.remove('visible');document.getElementById('resetBtn').classList.remove('visible');document.getElementById('loading').classList.add('visible');document.getElementById('analyzeBtn').disabled=true;document.getElementById('explainBody').classList.remove('open');document.getElementById('explainToggle').classList.remove('open');try{const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,reading_level:curRL,mode:currentMode})});if(!res.ok)throw new Error('API error '+res.status);const data=await res.json();renderResult(data);}catch(e){renderResult(fallback(msg));}finally{document.getElementById('loading').classList.remove('visible');document.getElementById('analyzeBtn').disabled=false;}}
+function fallback(msg){const m=msg.toLowerCase();let score=0;if(m.match(/urgent|immediately|right now|24 hour/))score+=3;if(m.match(/click|http|bit\.ly|verify/))score+=2;if(m.match(/gift card|bitcoin|wire transfer/))score+=4;const isMed=!!(m.match(/tablet|dose|medication|mg|prescription|pharmacist|swallow|daily|twice/));if(currentMode==='simple'){return{risk_level:'Caution',is_medical:isMed,meaning:'This message has several things that need attention.',warnings:isMed?['Reminder tool only — always follow your original prescription']:[],key_items:['Multiple items detected','Review carefully'],tasks:['Start with the first action only','Check the original document for full details']};}if(score>=5)return{risk_level:'High Risk',meaning:'This message shows several warning signs.',signals:['Urgent language','Suspicious request'],next_steps:['Do not click any links','Contact the organisation directly']};if(score>=2)return{risk_level:'Caution',meaning:'Parts of this message are worth checking.',signals:['Unusual phrasing','Action request'],next_steps:['Pause before clicking anything','Verify through an official channel']};return{risk_level:'Safe',meaning:'This message looks routine with no obvious warning signs.',signals:['No suspicious signals'],next_steps:['No urgent action needed']};}
 function showError(msg){const el=document.getElementById('errorMsg');el.textContent=msg;el.classList.add('visible');document.getElementById('loading').classList.remove('visible');}
-
-function resetAll(){
-  document.getElementById('msgInput').value='';
-  document.getElementById('resultCard').classList.remove('visible');
-  document.getElementById('errorMsg').classList.remove('visible');
-  document.getElementById('resetBtn').classList.remove('visible');
-  const fa=document.getElementById('feedbackAfter');if(fa){fa.style.display='none';}
-  document.getElementById('fbY').className='fb-btn';
-  document.getElementById('fbN').className='fb-btn';
-  document.getElementById('fbThanks').classList.remove('show');
-  document.getElementById('msgInput').focus();
-  // Hide medical bar on reset
-  const medBar=document.getElementById('medicalDisclaimerBar');
-  if(medBar) medBar.classList.remove('visible');
-  resetTaskState();
-}
-
-// ═══ FOCUS SUPPORT ════════════════════════════════════════
+function resetAll(){document.getElementById('msgInput').value='';document.getElementById('resultCard').classList.remove('visible');document.getElementById('errorMsg').classList.remove('visible');document.getElementById('resetBtn').classList.remove('visible');const fa=document.getElementById('feedbackAfter');if(fa){fa.style.display='none';}document.getElementById('fbY').className='fb-btn';document.getElementById('fbN').className='fb-btn';document.getElementById('fbThanks').classList.remove('show');document.getElementById('msgInput').focus();const medBar=document.getElementById('medicalDisclaimerBar');if(medBar)medBar.classList.remove('visible');resetTaskState();}
 const calmPhrases=['Take a moment. You are in control.','No rush. You have time.','Breathe. Then decide.','Whenever you are ready.','You have got this. Take your time.'];
 let calmIdx=0;
 function calmToast(){const t=document.getElementById('toast');t.textContent=calmPhrases[calmIdx%calmPhrases.length];calmIdx++;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),9000);}
 function playBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=520;gain.gain.setValueAtTime(0.4,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.2);}catch(e){}if(navigator.vibrate)navigator.vibrate([300,100,300]);}
-
-// ═══ FEEDBACK ═════════════════════════════════════════════
 function feedback(helpful){document.getElementById('fbY').className='fb-btn'+(helpful?' yes':'');document.getElementById('fbN').className='fb-btn'+(!helpful?' no':'');const thanks=document.getElementById('fbThanks');thanks.textContent=helpful?'Glad it helped.':'Thanks — we will use this to improve.';thanks.classList.add('show');try{const d=JSON.parse(localStorage.getItem('cs_fb')||'{"y":0,"n":0}');if(helpful)d.y++;else d.n++;localStorage.setItem('cs_fb',JSON.stringify(d));}catch(e){}}
-
-// ═══ TOAST ════════════════════════════════════════════════
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),9000);}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){analyze();return;}if(!currentMode&&document.getElementById('modeScreen').style.display!=='none'){if(e.key==='1'){selectMode('safe');return;}if(e.key==='2'){selectMode('simple');return;}}});
 
-// ═══ KEYBOARD ═════════════════════════════════════════════
-document.addEventListener('keydown',e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){analyze();return;}
-  if(!currentMode && document.getElementById('modeScreen').style.display !== 'none'){
-    if(e.key==='1'){selectMode('safe');return;}
-    if(e.key==='2'){selectMode('simple');return;}
-  }
-});
+// ═══ PERSISTENT PREFERENCES (Cosmos DB) ══════════════════
+const SESSION_KEY='cs_session_id';
+function getSessionId(){let sid=localStorage.getItem(SESSION_KEY);if(!sid){sid='cs_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);localStorage.setItem(SESSION_KEY,sid);}return sid;}
+async function loadPreferences(){const sid=getSessionId();loadProfile();loadRL();try{const res=await fetch(`/api/preferences/${sid}`);if(!res.ok)return;const data=await res.json();if(data.found){if(data.palette&&PROFILES[data.palette]){curProfile=data.palette;applyVars(PROFILES[data.palette].vars);buildProfGrid();}if(data.reading_level){const btn=document.querySelector(`[data-rl="${data.reading_level}"]`);if(btn)setRL(btn);}}}catch(e){}}
+async function syncPreferencesToCloud(palette,reading_level){const sid=getSessionId();try{await fetch(`/api/preferences/${sid}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({palette,reading_level})});}catch(e){}}
+function saveProfile(k){try{localStorage.setItem('cs_profile',k);}catch(e){}syncPreferencesToCloud(k,curRL);}
+function setRL(btn){document.querySelectorAll('.rl-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRL=btn.dataset.rl;document.documentElement.style.setProperty('--fs',RL_FS[curRL]);document.documentElement.style.setProperty('--lh',RL_LH[curRL]);try{localStorage.setItem('cs_rl',curRL);}catch(e){}syncPreferencesToCloud(curProfile,curRL);}
 
 // ═══ INIT ═════════════════════════════════════════════════
 const tb=document.querySelector('.topbar-right');tb.style.opacity='0';tb.style.transition='opacity 0.8s';tb.style.pointerEvents='none';setTimeout(()=>{if(!currentMode){tb.style.opacity='0.2';}},2000);
-// ═══ PERSISTENT PREFERENCES (Cosmos DB) ══════════════════
-const SESSION_KEY = 'cs_session_id';
-
-function getSessionId() {
-  let sid = localStorage.getItem(SESSION_KEY);
-  if (!sid) {
-    sid = 'cs_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9);
-    localStorage.setItem(SESSION_KEY, sid);
-  }
-  return sid;
-}
-
-async function loadPreferences() {
-  const sid = getSessionId();
-  loadProfile();
-  loadRL();
-  try {
-    const res = await fetch(`/api/preferences/${sid}`);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (data.found) {
-      if (data.palette && PROFILES[data.palette]) {
-        curProfile = data.palette;
-        applyVars(PROFILES[data.palette].vars);
-        buildProfGrid();
-      }
-      if (data.reading_level) {
-        const btn = document.querySelector(`[data-rl="${data.reading_level}"]`);
-        if (btn) setRL(btn);
-      }
-    }
-  } catch (e) {}
-}
-
-async function syncPreferencesToCloud(palette, reading_level) {
-  const sid = getSessionId();
-  try {
-    await fetch(`/api/preferences/${sid}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ palette, reading_level })
-    });
-  } catch (e) {}
-}
-
-function saveProfile(k) {
-  try { localStorage.setItem('cs_profile', k); } catch(e) {}
-  syncPreferencesToCloud(k, curRL);
-}
-
-function setRL(btn) {
-  document.querySelectorAll('.rl-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  curRL = btn.dataset.rl;
-  document.documentElement.style.setProperty('--fs', RL_FS[curRL]);
-  document.documentElement.style.setProperty('--lh', RL_LH[curRL]);
-  try { localStorage.setItem('cs_rl', curRL); } catch(e) {}
-  syncPreferencesToCloud(curProfile, curRL);
-}
-
 loadPreferences();
 buildProfGrid();
 renderWizStep();
+</script>
+</body>
+</html>
