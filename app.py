@@ -6,8 +6,25 @@ import os
 import requests
 import json
 from flask import Flask, request, jsonify, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder='.', static_url_path='')
+
+# ── Rate limiting — prevent API abuse ────────────────────
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["30 per minute"],
+    storage_uri="memory://"
+)
+
+# ── CORS — restrict to own domain ────────────────────────
+CORS(app, origins=[
+    "https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net",
+    "http://localhost:5000"
+])
 
 # ── Application Insights telemetry ───────────────────────
 logger = logging.getLogger(__name__)
@@ -523,6 +540,7 @@ def index():
     return send_from_directory(".", "index.html")
 
 @app.route("/api/analyze", methods=["POST"])
+@limiter.limit("10 per minute")
 def analyze():
     data = request.get_json(silent=True) or {}
     msg = data.get("message", "").strip()
@@ -577,8 +595,8 @@ def analyze():
         timeout=30
     )
     if response.status_code != 200:
-        logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code)}})
-        return jsonify({"error": response.text}), response.status_code
+        logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code), "detail": response.text[:200]}})
+        return jsonify({"error": "Analysis service temporarily unavailable. Please try again."}), 503
 
     result = response.json()
     raw_text = result["content"][0]["text"].strip().replace("```json", "").replace("```", "").strip()
@@ -678,6 +696,7 @@ def build_outlook_link(step_text, start, end):
     )
 
 @app.route("/api/calendar-link", methods=["POST"])
+@limiter.limit("20 per minute")
 def calendar_link():
     data = request.get_json(silent=True) or {}
     step_text = data.get("step_text", "").strip()
