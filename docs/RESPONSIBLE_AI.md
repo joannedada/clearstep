@@ -21,7 +21,10 @@ This document maps ClearStep's implementation to the [Microsoft Responsible AI S
 - Leaked safety rules in task lists (e.g. "Do not crush tablet") are detected by pattern matching and moved to the warnings array — users never see safety rules buried in action steps
 - Input length capped at 2,000 chars (messages) and 5,000 chars (documents) — enforced server-side before any API call
 - Prompt injection tested across 14 attack vectors — override attempts, jailbreaks, roleplay manipulation, indirect creative writing manipulation — all return High Risk or Caution, never compliance
-- Fallback mode ensures the app never returns nothing — if the Anthropic API fails, client-side keyword scoring produces a degraded but functional result
+- Fallback mode ensures the app never returns nothing — if the Anthropic API fails, client-side keyword scoring produces a degraded but functional result. A visible fallback indicator bar tells the user the AI was unavailable — the app never silently pretends keyword-matching is an AI response.
+- **Rate limiting:** Flask-Limiter enforces 10 requests/minute on `/api/analyze` and 20/minute on `/api/calendar-link` — prevents API abuse, token burning, and denial-of-service from repeated requests
+- **XSS sanitisation:** Every model output rendered via `innerHTML` is escaped through a dedicated `esc()` function before reaching the DOM — if a model ever returns HTML or script tags, they render as harmless text
+- **Generic error responses:** Upstream provider errors (Anthropic, Azure) never reach the user. The backend returns a safe generic message; detailed errors are logged server-side only via Application Insights
 
 ---
 
@@ -44,6 +47,7 @@ This document maps ClearStep's implementation to the [Microsoft Responsible AI S
 - Medical content always shows a persistent disclaimer bar across all three phases of the step-by-step flow — it never disappears when the user advances between steps
 - The app never presents itself as a replacement for a doctor, lawyer, or financial advisor
 - Reading level labels (Big / Normal / Small) are plain language — not technical jargon like "Lexile level"
+- **Fallback transparency:** When the AI service is unavailable and the app falls back to client-side keyword scoring, a visible caution bar appears: *"AI unavailable — showing basic analysis only. Results may be less accurate."* The user always knows whether they received an AI response or a degraded fallback.
 
 ---
 
@@ -70,6 +74,7 @@ This document maps ClearStep's implementation to the [Microsoft Responsible AI S
 - Tested across 14 attack vectors including: direct override attempts, roleplay framing, jailbreak patterns, indirect manipulation via creative writing requests, and multi-step social engineering
 - System prompt is never exposed to the user
 - Azure AI Content Safety runs before the prompt is ever constructed — adversarial inputs are caught before they reach any model
+- **CORS policy:** Flask-CORS restricts `/api/analyze` to requests from the ClearStep domain only — third-party websites cannot call the API
 
 ---
 
