@@ -463,7 +463,10 @@ CRITICAL SAFETY RULES:
 
 {mode_instruction}
 
-Message: "{msg}"
+Message to analyze:
+<user_message>
+{msg}
+</user_message>
 """
 
 
@@ -609,6 +612,29 @@ def validate_response(parsed, mode, reading_level="standard"):
         parsed[field] = _trim_items(parsed[field], field)
 
     if mode == "simple":
+        # Keyword backstop — if model returned is_medical=False but content is clearly medical,
+        # override to True so all medical safeguards apply. Never overrides True→False.
+        MEDICAL_KEYWORD_RE = re.compile(
+            r'\b(tablet|capsule|pill|dose|dosage|medication|medicine|medicines|'
+            r'mg|mcg|ml|prescription|pharmacist|pharmacy|swallow|inhaler|inject|injection|'
+            r'antibiotic|insulin|amoxicillin|ibuprofen|aspirin|paracetamol|'
+            r'every\s+\d+\s+hours?|times?\s+daily|times?\s+a\s+day|twice\s+daily|'
+            r'once\s+daily|take\s+\d+|take\s+one|take\s+two)\b',
+            re.IGNORECASE
+        )
+        # Import re at module level — use the module-level re here
+        import re as _re_medical
+        original_msg = parsed.get("_source_msg", "")  # not available here — check via tasks/warnings text
+        # Check the concatenated task + warning text as a proxy for the original message content
+        all_content = " ".join(
+            parsed.get("tasks", []) + parsed.get("warnings", []) + parsed.get("key_items", [])
+        )
+        if not parsed.get("is_medical") and MEDICAL_KEYWORD_RE.search(all_content):
+            logger.warning("ClearStep is_medical_backstop_triggered", extra={
+                "custom_dimensions": {"reason": "keyword_match_in_output"}
+            })
+            parsed["is_medical"] = True
+
         parsed["is_medical"] = bool(parsed.get("is_medical", False))
         if not parsed.get("tasks"):
             errors.append("tasks list is empty")
@@ -647,6 +673,7 @@ def validate_response(parsed, mode, reading_level="standard"):
         # Enforce frequency expansion — stacked frequency in a task is a structural error
         # The model was instructed to expand "three times daily" → 3 instances.
         # If it didn't, we expand programmatically for safe mappings, or reject for unsafe ones.
+        import re as _re
         FREQ_EXPAND = {
             "once daily":        ["morning"],
             "once a day":        ["morning"],
@@ -658,22 +685,28 @@ def validate_response(parsed, mode, reading_level="standard"):
             "three times a day": ["morning", "afternoon", "evening"],
             "3 times daily":     ["morning", "afternoon", "evening"],
             "3 times a day":     ["morning", "afternoon", "evening"],
+            "four times daily":  ["morning", "midday", "afternoon", "evening"],
+            "four times a day":  ["morning", "midday", "afternoon", "evening"],
+            "4 times daily":     ["morning", "midday", "afternoon", "evening"],
+            "4 times a day":     ["morning", "midday", "afternoon", "evening"],
         }
-        FREQ_REJECT_PATTERNS = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
+        # Patterns that indicate stacked frequency — used to detect but not crash
+        FREQ_STACKED_PATTERNS = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
 
         expanded_tasks = []
-        freq_error = False
         for task in parsed.get("tasks", []):
             task_lower = task.lower()
             matched = False
             for phrase, labels in FREQ_EXPAND.items():
                 if phrase in task_lower:
-                    # Strip the frequency phrase and trailing whitespace/punctuation
-                    base = task_lower.replace(phrase, "").strip().rstrip(",.")
-                    # Restore original casing from the task using base position
-                    base_original = task[:len(base)] if len(base) <= len(task) else base
-                    # Capitalise first letter
-                    base_original = base_original.strip().capitalize() if base_original.strip() else task
+                    # Use regex sub on original task to preserve casing and remove phrase cleanly
+                    base_original = _re.sub(_re.escape(phrase), "", task, flags=_re.IGNORECASE)
+                    base_original = _re.sub(r'\s{2,}', ' ', base_original).strip().rstrip(",.").strip()
+                    # Capitalize first letter if needed
+                    if base_original:
+                        base_original = base_original[0].upper() + base_original[1:]
+                    else:
+                        base_original = task
                     logger.warning("ClearStep frequency_expanded", extra={
                         "custom_dimensions": {"phrase": phrase, "instances": str(len(labels)), "base": base_original}
                     })
@@ -682,19 +715,29 @@ def validate_response(parsed, mode, reading_level="standard"):
                     matched = True
                     break
             if not matched:
-                # Check for unmappable frequency patterns — these can't be safely expanded
-                if any(p in task_lower for p in FREQ_REJECT_PATTERNS):
-                    logger.error("ClearStep frequency_unexpandable", extra={
+                # Unmappable frequency (e.g. "5 times daily", "times per day") — keep as single
+                # task and surface the frequency phrase in key_items so context is not lost
+                stacked = next((p for p in FREQ_STACKED_PATTERNS if p in task_lower), None)
+                if stacked:
+                    logger.warning("ClearStep frequency_unmappable_kept", extra={
                         "custom_dimensions": {"task": task}
                     })
-                    freq_error = True
-                    break
-                expanded_tasks.append(task)
+                    # Move the frequency phrase to key_items rather than dropping the task
+                    words = task.split()
+                    freq_label = " ".join(w for w in words if any(
+                        p_word in w.lower() for p_word in ["time", "daily", "week", "per", "day"]
+                    )).strip()
+                    if freq_label and freq_label.lower() not in [k.lower() for k in parsed.get("key_items", [])]:
+                        parsed.setdefault("key_items", []).append(freq_label)
+                    # Strip the stacked phrase from the task text so it reads cleanly
+                    clean_task = _re.sub(stacked, "", task, flags=_re.IGNORECASE).strip().rstrip(",.").strip()
+                    if clean_task:
+                        clean_task = clean_task[0].upper() + clean_task[1:]
+                    expanded_tasks.append(clean_task if clean_task else task)
+                else:
+                    expanded_tasks.append(task)
 
-        if freq_error:
-            errors.append("frequency in task could not be safely expanded")
-            return None, errors
-        elif expanded_tasks != parsed.get("tasks", []):
+        if expanded_tasks != parsed.get("tasks", []):
             parsed["tasks"] = expanded_tasks
 
         if parsed["is_medical"]:
