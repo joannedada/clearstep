@@ -201,7 +201,10 @@ clearstep/
 - **Attachment support:** Drag-and-drop for screenshots, photos, and documents — for users who can't copy/paste. Requires Azure AI Vision (OCR) integration to extract text before the existing pipeline processes it.
 - **Session history:** Optional anonymous history so users can revisit past analyses
 - **Browser extension:** "Is This Safe?" directly from email clients
-
+- **Image Upload/OCR:** Image upload and OCR integration are implemented in the backend.
+	•	In the current deployment environment, Azure Vision OCR is limited by the selected resource tier.
+	•	For demo stability, ClearStep is presented primarily as a text-first experience.
+	•	Upgrading the OCR resource tier would enable full screenshot-to-text extraction.
 ---
 
 ## Team
