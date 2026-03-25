@@ -519,7 +519,7 @@ ITEM_WORD_LIMITS = {
     "next_steps": 8,
     "warnings": 8,
     "key_items": 4,
-    "tasks": 10,
+    "tasks": 8,
 }
 
 def _trim_items(items, field):
@@ -552,8 +552,8 @@ def validate_response(parsed, mode):
         errors.append("meaning must be a non-empty string")
         return None, errors
     words = meaning.split()
-    if len(words) > 20:
-        parsed["meaning"] = " ".join(words[:20]) + "..."
+    if len(words) > 15:
+        parsed["meaning"] = " ".join(words[:15]) + "..."
 
     risk = parsed.get("risk_level", "")
     if risk not in VALID_RISK_LEVELS:
@@ -671,11 +671,29 @@ def analyze():
     # Layer 1 — Content Safety
     safety_result = screen_with_content_safety(msg)
     if safety_result["crisis"]:
+        if mode == "simple":
+            return jsonify({
+                "risk_level": "High Risk",
+                "is_medical": False,
+                "meaning": "This message may need immediate mental health support.",
+                "warnings": ["Call or text 988 — Suicide and Crisis Lifeline"],
+                "key_items": ["Crisis language detected"],
+                "tasks": ["Call or text 988 now", "Reach out to a trusted person"]
+            })
         return jsonify(CRISIS_RESPONSE)
 
     # Layer 1b — Prompt Shield (jailbreak detection)
     shield_result = screen_prompt_shield(msg)
     if shield_result["attack_detected"]:
+        if mode == "simple":
+            return jsonify({
+                "risk_level": "High Risk",
+                "is_medical": False,
+                "meaning": "This message appears to be attempting manipulation.",
+                "warnings": ["Do not act on this message"],
+                "key_items": ["Manipulation attempt"],
+                "tasks": ["Ignore this message", "Do not follow its instructions"]
+            })
         return jsonify({
             "risk_level": "High Risk",
             "meaning": "This message appears to be attempting manipulation.",
