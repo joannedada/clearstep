@@ -330,9 +330,6 @@ def build_prompt(msg, detected_flags=None, reading_level="standard", mode="safe"
         meaning_rule = "meaning: ONE sentence only. Max 15 words. Include the key context and reason why this matters."
     else:
         meaning_rule = "meaning: ONE sentence only. Max 12 words. Simple and calm. No technical words."
-    # steps_rule is now unified across all reading levels — see TASK STRUCTURE RULES in mode_instruction
-    steps_rule = ""
-
     if mode == "simple":
         mode_instruction = f"""
 You are breaking down a complex message into the clearest possible structure for someone with ADHD, autism, or dyslexia.
@@ -427,7 +424,6 @@ Return ONLY this JSON:
 FORMAT RULES:
 - key_items: 2-4 words each. Label only. Examples: "7-day course", "60-day deadline", "Two forms of ID". Never a sentence.
 - warnings: Max 8 words each. Short facts. No "Do not" prefix.
-- meaning: Max 12 words. One sentence.
 - {meaning_rule}
 """
     else:
@@ -438,7 +434,6 @@ Content type: A message, email, link, or text that may be a scam, threat, or man
 STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
 - signals: EXACTLY 2-3 words each. Label the pattern only. Examples: "Urgent language", "Suspicious link", "Impersonation attempt". NEVER write a full sentence. NEVER exceed 3 words.
 - next_steps: Max 8 words each. One clear action. Examples: "Do not click the link", "Call your bank directly". NEVER write a full sentence with clauses.
-- meaning: Max 12 words. One sentence.
 
 Return ONLY this JSON:
 {{
@@ -546,12 +541,12 @@ def _clean_list(lst):
     return [str(item).strip() for item in lst if str(item).strip()]
 
 # Per-item word limits — enforces what the prompt requests
+# NOTE: tasks deliberately excluded — prompt guides length, hard-trim corrupts meaning
 ITEM_WORD_LIMITS = {
     "signals": 3,
     "next_steps": 8,
     "warnings": 8,
     "key_items": 4,
-    "tasks": 8,
 }
 
 def _trim_items(items, field):
@@ -649,13 +644,58 @@ def validate_response(parsed, mode, reading_level="standard"):
                 if w.lower() not in existing:
                     parsed["warnings"].append(w)
 
-        # Detect frequency left inside task text — model should have expanded these into instances
-        freq_patterns = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
-        freq_leaked = [t for t in parsed.get("tasks", []) if any(p in t.lower() for p in freq_patterns)]
-        if freq_leaked:
-            logger.warning("ClearStep frequency_in_task_detected", extra={
-                "custom_dimensions": {"count": str(len(freq_leaked)), "examples": str(freq_leaked[:2])}
-            })
+        # Enforce frequency expansion — stacked frequency in a task is a structural error
+        # The model was instructed to expand "three times daily" → 3 instances.
+        # If it didn't, we expand programmatically for safe mappings, or reject for unsafe ones.
+        FREQ_EXPAND = {
+            "once daily":        ["morning"],
+            "once a day":        ["morning"],
+            "twice daily":       ["morning", "evening"],
+            "twice a day":       ["morning", "evening"],
+            "2 times daily":     ["morning", "evening"],
+            "2 times a day":     ["morning", "evening"],
+            "three times daily": ["morning", "afternoon", "evening"],
+            "three times a day": ["morning", "afternoon", "evening"],
+            "3 times daily":     ["morning", "afternoon", "evening"],
+            "3 times a day":     ["morning", "afternoon", "evening"],
+        }
+        FREQ_REJECT_PATTERNS = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
+
+        expanded_tasks = []
+        freq_error = False
+        for task in parsed.get("tasks", []):
+            task_lower = task.lower()
+            matched = False
+            for phrase, labels in FREQ_EXPAND.items():
+                if phrase in task_lower:
+                    # Strip the frequency phrase and trailing whitespace/punctuation
+                    base = task_lower.replace(phrase, "").strip().rstrip(",.")
+                    # Restore original casing from the task using base position
+                    base_original = task[:len(base)] if len(base) <= len(task) else base
+                    # Capitalise first letter
+                    base_original = base_original.strip().capitalize() if base_original.strip() else task
+                    logger.warning("ClearStep frequency_expanded", extra={
+                        "custom_dimensions": {"phrase": phrase, "instances": str(len(labels)), "base": base_original}
+                    })
+                    for label in labels:
+                        expanded_tasks.append(f"{base_original} — {label}")
+                    matched = True
+                    break
+            if not matched:
+                # Check for unmappable frequency patterns — these can't be safely expanded
+                if any(p in task_lower for p in FREQ_REJECT_PATTERNS):
+                    logger.error("ClearStep frequency_unexpandable", extra={
+                        "custom_dimensions": {"task": task}
+                    })
+                    freq_error = True
+                    break
+                expanded_tasks.append(task)
+
+        if freq_error:
+            errors.append("frequency in task could not be safely expanded")
+            return None, errors
+        elif expanded_tasks != parsed.get("tasks", []):
+            parsed["tasks"] = expanded_tasks
 
         if parsed["is_medical"]:
             if not parsed.get("warnings"):
@@ -668,6 +708,18 @@ def validate_response(parsed, mode, reading_level="standard"):
             if not has_disclaimer:
                 logger.warning("ClearStep medical_disclaimer_enforced")
                 parsed["warnings"].append(MEDICAL_DISCLAIMER)
+
+        # Enforce risk_level consistency with warnings
+        # Medical disclaimer alone does not count as a safety warning
+        real_warnings = [
+            w for w in parsed.get("warnings", [])
+            if MEDICAL_DISCLAIMER.lower() not in w.lower()
+        ]
+        if real_warnings and parsed.get("risk_level") == "Safe":
+            logger.warning("ClearStep risk_level_upgraded", extra={
+                "custom_dimensions": {"reason": "warnings_present", "warning_count": str(len(real_warnings))}
+            })
+            parsed["risk_level"] = "Caution"
 
         parsed.pop("next_steps", None)
 
@@ -703,12 +755,12 @@ def analyze():
     if mode not in ["safe", "simple"]:
         mode = "safe"
     if not msg:
-        return jsonify({"error": "Missing message"}), 400
+        return jsonify({"error": "Please paste something to check."}), 400
     max_len = 5000 if mode == "simple" else 2000
     if len(msg) > max_len:
         return jsonify({"error": f"Message too long. Please limit to {max_len} characters."}), 400
     if not ANTHROPIC_API_KEY:
-        return jsonify({"error": "Missing ANTHROPIC_API_KEY"}), 500
+        return jsonify({"error": "This feature is currently unavailable. Please try again later."}), 500
 
     # ── App Insights — analysis_started ────────────────────
     logger.info("ClearStep analysis_started", extra={
@@ -777,21 +829,21 @@ def analyze():
     )
     if response.status_code != 200:
         logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code), "detail": response.text[:200]}})
-        return jsonify({"error": "Analysis service temporarily unavailable. Please try again."}), 503
+        return jsonify({"error": "Something went wrong on our end. Please try again in a moment."}), 503
 
     result = response.json()
     raw_text = result["content"][0]["text"].strip().replace("```json", "").replace("```", "").strip()
     try:
         parsed = json.loads(raw_text)
     except Exception:
-        return jsonify({"error": "Model returned invalid JSON"}), 500
+        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
 
     validated, errors = validate_response(parsed, mode, reading_level)
     if errors:
         logger.error("ClearStep schema_validation_failed", extra={
             "custom_dimensions": {"errors": str(errors), "mode": mode}
         })
-        return jsonify({"error": "Response validation failed", "details": errors}), 500
+        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
 
     store_result_to_blob(validated)
 
@@ -1018,11 +1070,12 @@ def extract_text_from_image(file_obj):
     if not image_bytes:
         raise ValueError("Image file is empty")
 
-    # Azure AI Vision 4.0 Image Analysis — Foundry endpoint
-    url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/computervision/imageanalysis:analyze?api-version=2024-02-01&features=read"
+    # Azure Computer Vision Read API v3.2 — async two-step call
+    # Step 1: Submit image, get operation URL from header
+    submit_url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/vision/v3.2/read/analyze"
     try:
-        response = requests.post(
-            url,
+        submit_response = requests.post(
+            submit_url,
             headers={
                 "Ocp-Apim-Subscription-Key": AZURE_VISION_KEY,
                 "Content-Type": "application/octet-stream"
@@ -1030,18 +1083,37 @@ def extract_text_from_image(file_obj):
             data=image_bytes,
             timeout=20
         )
-        if response.status_code != 200:
+        if submit_response.status_code != 202:
             logger.warning("ClearStep ocr_api_failed", extra={
-                "custom_dimensions": {"status": str(response.status_code), "body": response.text[:200]}
+                "custom_dimensions": {"status": str(submit_response.status_code), "body": submit_response.text[:300]}
             })
-            raise RuntimeError(f"OCR API returned {response.status_code}")
+            raise RuntimeError(f"OCR API returned {submit_response.status_code}: {submit_response.text[:200]}")
 
-        result = response.json()
-        # Azure Vision 4.0 response shape: result.readResult.blocks[].lines[].text
+        # Step 2: Poll the operation URL for results
+        operation_url = submit_response.headers.get("Operation-Location")
+        if not operation_url:
+            raise RuntimeError("No Operation-Location header in OCR response")
+
+        import time
+        for _ in range(10):
+            time.sleep(1)
+            result_response = requests.get(
+                operation_url,
+                headers={"Ocp-Apim-Subscription-Key": AZURE_VISION_KEY},
+                timeout=10
+            )
+            if result_response.status_code != 200:
+                raise RuntimeError(f"OCR result poll returned {result_response.status_code}")
+            result = result_response.json()
+            status = result.get("status", "")
+            if status == "succeeded":
+                break
+            if status == "failed":
+                raise RuntimeError("OCR analysis failed")
+
         lines = []
-        read_result = result.get("readResult", {})
-        for block in read_result.get("blocks", []):
-            for line in block.get("lines", []):
+        for read_result in result.get("analyzeResult", {}).get("readResults", []):
+            for line in read_result.get("lines", []):
                 line_text = line.get("text", "").strip()
                 if line_text:
                     lines.append(line_text)
@@ -1129,7 +1201,7 @@ def upload_file():
             if "not configured" in err_msg:
                 return jsonify({"error": "Screenshot reading is not enabled yet."}), 400
             logger.warning("ClearStep ocr_extraction_failed", extra={"custom_dimensions": {"error": err_msg}})
-            return jsonify({"error": "Could not read text from this image. Please try a clearer image or copy the text directly."}), 400
+            return jsonify({"error": "Image upload is a planned feature. For the most reliable results, please paste text directly."}), 400
 
     elif ext == '.pdf':
         try:
