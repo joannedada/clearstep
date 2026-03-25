@@ -703,12 +703,12 @@ def analyze():
     if mode not in ["safe", "simple"]:
         mode = "safe"
     if not msg:
-        return jsonify({"error": "Missing message"}), 400
+        return jsonify({"error": "Please paste something to check."}), 400
     max_len = 5000 if mode == "simple" else 2000
     if len(msg) > max_len:
         return jsonify({"error": f"Message too long. Please limit to {max_len} characters."}), 400
     if not ANTHROPIC_API_KEY:
-        return jsonify({"error": "Missing ANTHROPIC_API_KEY"}), 500
+        return jsonify({"error": "This feature is currently unavailable. Please try again later."}), 500
 
     # ── App Insights — analysis_started ────────────────────
     logger.info("ClearStep analysis_started", extra={
@@ -777,21 +777,21 @@ def analyze():
     )
     if response.status_code != 200:
         logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code), "detail": response.text[:200]}})
-        return jsonify({"error": "Analysis service temporarily unavailable. Please try again."}), 503
+        return jsonify({"error": "Something went wrong on our end. Please try again in a moment."}), 503
 
     result = response.json()
     raw_text = result["content"][0]["text"].strip().replace("```json", "").replace("```", "").strip()
     try:
         parsed = json.loads(raw_text)
     except Exception:
-        return jsonify({"error": "Model returned invalid JSON"}), 500
+        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
 
     validated, errors = validate_response(parsed, mode, reading_level)
     if errors:
         logger.error("ClearStep schema_validation_failed", extra={
             "custom_dimensions": {"errors": str(errors), "mode": mode}
         })
-        return jsonify({"error": "Response validation failed", "details": errors}), 500
+        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
 
     store_result_to_blob(validated)
 
