@@ -397,7 +397,7 @@ TASK STRUCTURE — this app is for neurodivergent users. One action per step is 
 - If a task contains "and" followed by a second action, split it into two tasks.
 - If a task contains a time qualifier ("in the morning", "before bed"), embed it naturally — do not append it as a second clause.
 - Keep tasks under 8 words when possible. If a task is too long: simplify wording first. Only split if it contains multiple distinct actions. Never split a single clear action just to meet word count.
-- Start every task with an action verb: Take, Call, Submit, Sign, Go, Open, Write, Pay, Reply, Schedule, Gather.
+- Start tasks with a clear action when possible. Examples: Take, Call, Submit, Sign, Go, Open, Write, Pay, Reply, Schedule.
 
 WARNINGS rule — warnings come ONLY from the document:
 - Only include warnings that are explicitly stated as prohibitions, restrictions, or exception conditions in the source.
@@ -419,7 +419,7 @@ Return ONLY this JSON:
 {{
   "risk_level": "Safe | Caution | High Risk",
   "is_medical": true | false,
-  "meaning": "one short sentence, max 12 words",
+  "meaning": "one short sentence",
   "warnings": ["safety rule 1", "safety rule 2"],
   "key_items": ["key fact 1", "key fact 2"],
   "tasks": ["action step 1", "action step 2", "action step 3"]
@@ -444,7 +444,7 @@ STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity i
 Return ONLY this JSON:
 {{
   "risk_level": "Safe | Caution | High Risk",
-  "meaning": "one short sentence, max 12 words",
+  "meaning": "one short sentence",
   "signals": ["2-3 words", "2-3 words", "2-3 words"],
   "next_steps": ["max 8 words", "max 8 words"]
 }}"""
@@ -649,6 +649,14 @@ def validate_response(parsed, mode, reading_level="standard"):
             for w in leaked:
                 if w.lower() not in existing:
                     parsed["warnings"].append(w)
+
+        # Detect frequency left inside task text — model should have expanded these into instances
+        freq_patterns = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
+        freq_leaked = [t for t in parsed.get("tasks", []) if any(p in t.lower() for p in freq_patterns)]
+        if freq_leaked:
+            logger.warning("ClearStep frequency_in_task_detected", extra={
+                "custom_dimensions": {"count": str(len(freq_leaked)), "examples": str(freq_leaked[:2])}
+            })
 
         if parsed["is_medical"]:
             if not parsed.get("warnings"):
