@@ -53,6 +53,8 @@ COSMOS_ENDPOINT = os.getenv("COSMOS_ENDPOINT")
 COSMOS_KEY = os.getenv("COSMOS_KEY")
 COSMOS_DB_NAME = os.getenv("COSMOS_DB_NAME", "clearstep")
 COSMOS_CONTAINER_NAME = os.getenv("COSMOS_CONTAINER_NAME", "user_preferences")
+AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
+AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION")
 
 try:
     vault_url = "https://keyvault-clearstep.vault.azure.net/"
@@ -77,6 +79,11 @@ try:
         COSMOS_KEY = secret_client.get_secret("COSMOS-KEY").value
     except Exception:
         print("Cosmos DB secrets not in Key Vault — using env vars")
+    try:
+        AZURE_SPEECH_KEY = secret_client.get_secret("AZURE-SPEECH-KEY").value
+        AZURE_SPEECH_REGION = secret_client.get_secret("AZURE-SPEECH-REGION").value
+    except Exception:
+        print("Speech secrets not in Key Vault — using env vars")
     print("Secrets loaded successfully from Key Vault.")
 except Exception as e:
     print(f"Key Vault unavailable, using environment variables: {e}")
@@ -819,6 +826,115 @@ def calendar_link():
         "event_title": f"ClearStep reminder: {step_text}",
         "event_start": start.strftime("%Y-%m-%dT%H:%M:%S")
     })
+
+# ── Azure AI Speech — Text-to-Speech ────────────────────
+# Converts visible result text to MP3 audio on demand.
+# Uses Azure Speech REST API — no SDK dependency.
+# Audio is never stored. Generated per request only.
+
+VOICE_MAP = {
+    "en": "en-US-JennyNeural",
+    "es": "es-ES-ElviraNeural",
+    "fr": "fr-FR-DeniseNeural",
+    "pt": "pt-BR-FranciscaNeural",
+    "de": "de-DE-KatjaNeural",
+    "zh": "zh-CN-XiaoxiaoNeural",
+    "ja": "ja-JP-NanamiNeural",
+    "ko": "ko-KR-SunHiNeural",
+    "ar": "ar-SA-ZariyahNeural",
+    "hi": "hi-IN-SwaraNeural",
+}
+
+# Full SSML locale must match the voice — "en" alone is invalid
+VOICE_LOCALE_MAP = {
+    "en": "en-US",
+    "es": "es-ES",
+    "fr": "fr-FR",
+    "pt": "pt-BR",
+    "de": "de-DE",
+    "zh": "zh-CN",
+    "ja": "ja-JP",
+    "ko": "ko-KR",
+    "ar": "ar-SA",
+    "hi": "hi-IN",
+}
+
+import re
+from xml.sax.saxutils import escape as xml_escape
+
+def strip_html(text):
+    return re.sub(r'<[^>]+>', '', text).strip()
+
+@app.route("/api/tts", methods=["POST"])
+@limiter.limit("5 per minute")
+def text_to_speech():
+    if not all([AZURE_SPEECH_KEY, AZURE_SPEECH_REGION]):
+        return jsonify({"error": "Audio unavailable"}), 503
+
+    data = request.get_json(silent=True) or {}
+    text = data.get("text", "").strip()
+    lang = data.get("lang", "en").strip().lower()
+
+    if not text:
+        return jsonify({"error": "Missing text"}), 400
+
+    # Strip HTML tags
+    text = strip_html(text)
+
+    if not text:
+        return jsonify({"error": "Missing text"}), 400
+
+    if len(text) > 500:
+        return jsonify({"error": "Text too long. Maximum 500 characters."}), 400
+
+    # Select voice — fall back to English if unsupported
+    voice = VOICE_MAP.get(lang, VOICE_MAP["en"])
+    ssml_locale = VOICE_LOCALE_MAP.get(lang, VOICE_LOCALE_MAP["en"])
+
+    # Build SSML — xml_escape prevents & < > from breaking XML
+    safe_text = xml_escape(text)
+    ssml = f'''<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="{ssml_locale}">
+    <voice name="{voice}">
+        <prosody rate="0.95">{safe_text}</prosody>
+    </voice>
+</speak>'''
+
+    tts_url = f"https://{AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1"
+
+    try:
+        response = requests.post(
+            tts_url,
+            headers={
+                "Ocp-Apim-Subscription-Key": AZURE_SPEECH_KEY,
+                "Content-Type": "application/ssml+xml",
+                "X-Microsoft-OutputFormat": "audio-16khz-32kbitrate-mono-mp3",
+                "User-Agent": "ClearStep"
+            },
+            data=ssml.encode("utf-8"),
+            timeout=10
+        )
+
+        if response.status_code != 200:
+            logger.warning("ClearStep tts_failed", extra={
+                "custom_dimensions": {"status": str(response.status_code)}
+            })
+            return jsonify({"error": "Audio unavailable"}), 503
+
+        logger.info("ClearStep tts_generated", extra={
+            "custom_dimensions": {"lang": lang, "text_length": str(len(text))}
+        })
+
+        return response.content, 200, {
+            "Content-Type": "audio/mpeg",
+            "Content-Disposition": "inline"
+        }
+
+    except Exception as e:
+        logger.warning("ClearStep tts_exception", extra={
+            "custom_dimensions": {"error": str(e)}
+        })
+        return jsonify({"error": "Audio unavailable"}), 503
+
 
 if __name__ == "__main__":
     app.run()
