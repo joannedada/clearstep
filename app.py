@@ -106,8 +106,7 @@ def get_cosmos_container():
         db = client.create_database_if_not_exists(id=COSMOS_DB_NAME)
         container = db.create_container_if_not_exists(
             id=COSMOS_CONTAINER_NAME,
-            partition_key=PartitionKey(path="/session_id"),
-            offer_throughput=400
+            partition_key=PartitionKey(path="/session_id")
         )
         return container
     except Exception as e:
@@ -327,13 +326,12 @@ def build_prompt(msg, detected_flags=None, reading_level="standard", mode="safe"
 
     if reading_level == "simple":
         meaning_rule = "meaning: ONE sentence only. Max 8 words. Use the simplest everyday words possible. Like explaining to a 10-year-old."
-        steps_rule = "tasks: Each step max 8 words. Simple action words only. Physical actions from the source text only."
     elif reading_level == "detailed":
         meaning_rule = "meaning: ONE sentence only. Max 15 words. Include the key context and reason why this matters."
-        steps_rule = "tasks: Be specific about what to do. Include context where helpful. Still physical actions only."
     else:
         meaning_rule = "meaning: ONE sentence only. Max 12 words. Simple and calm. No technical words."
-        steps_rule = "tasks: Each step max 10 words. Simple action words. Physical actions only."
+    # steps_rule is now unified across all reading levels — see TASK STRUCTURE RULES in mode_instruction
+    steps_rule = ""
 
     if mode == "simple":
         mode_instruction = f"""
@@ -342,47 +340,95 @@ You are breaking down a complex message into the clearest possible structure for
 FIRST: Detect if this message contains medical instructions, medication directions, or health advice.
 Set "is_medical": true if yes, false if no.
 
-STRICT SEPARATION RULES — read carefully:
+CONTENT CLASSIFICATION — before writing any task or warning, classify every piece of information:
 
-WARNINGS = things the person must NEVER do, or safety rules.
-TASKS = physical actions the person needs to DO, in the order they do them.
-A task starts with an action verb: Take, Call, Submit, Sign, Go, Set, Open, Write.
-"Do not" is NEVER a task.
+ROUTINE TASK: A single physical action performed at a specific moment. One action. One moment. No "and".
+  Examples: "Take 1 tablet with food", "Submit form by certified mail", "Call your doctor"
 
-TASK ORDER RULES:
-- Tasks must be in the real-world order a person would do them, one after another.
-- Do not repeat information that is already in warnings.
+FREQUENCY RULE: How often a routine task repeats ("twice daily", "every 8 hours", "three times a day").
+  Frequency determines task instances ONLY when it can be mapped to clear, natural time labels without changing meaning.
+  → "twice daily" → 2 instances: morning / evening
+  → "three times daily" → 3 instances: morning / afternoon / evening
+  Each instance must contain the same core action, include execution context (e.g. "with food"), and include a simple time label.
+
+  EXAMPLE (MANDATORY BEHAVIOR):
+  Source: "Take 1 tablet three times daily with food for 7 days"
+  WRONG: ["Take 1 tablet three times daily with food"]  ← stacked
+  WRONG: ["Take 1 tablet", "Take with food", "Three times daily"]  ← atomized
+  WRONG: ["Take first tablet", "Take second tablet", "Take third tablet"]  ← fabricated sequence
+  RIGHT: ["Take 1 tablet with food — morning", "Take 1 tablet with food — afternoon", "Take 1 tablet with food — evening"]
+  key_items: ["7-day course"]
+
+  EXCEPTION: If frequency cannot be safely mapped to clear time labels (e.g. "every 6 hours", "every 8 hours", "as needed", "before meals", "at bedtime"):
+  → Do NOT create artificial labels. Keep a single task. Move timing into key_items.
+  Example:
+  Source: "Take 1 tablet every 6 hours with food"
+  tasks: ["Take 1 tablet with food"]
+  key_items: ["Every 6 hours"]
+
+  EXECUTION CONTEXT IS NOT A SECOND ACTION:
+  "Take 1 tablet with food" = ONE task. "with food" is context, not a second action.
+  "Call and confirm appointment" = TWO tasks. The "and" separates two distinct actions.
+
+DURATION RULE: How long something continues ("for 7 days", "for 2 weeks").
+  → Never create a task for this. Surface it as a key_item only.
+  EXAMPLE: "for 7 days" → key_item: "7-day course"
+
+EXCEPTION CONDITION: What to do in an unusual scenario ("if you miss a dose", "unless", "in case of").
+  → Always a WARNING. Never a task.
+
+PROHIBITION: Something the person must never do ("do not crush", "avoid alcohol", "never double up").
+  → Always a WARNING. Never a task.
+
+WARNINGS AND TASKS ARE MUTUALLY EXCLUSIVE:
+- If something is in warnings, it cannot appear in tasks in any form — not even rephrased.
+- "Swallow whole — never crush or chew" in warnings means "Take tablet whole" must NOT appear in tasks.
+- The task is simply: "Take 1 tablet with food" — the method is not the user's action to manage.
+- Zero overlap between the two lists.
+
+EXTRACTION RULE:
+- Extract every routine task from the source. Do not invent tasks not in the document.
+- Do not add meta-advice like "Pick most urgent tasks" or "Focus on today only".
+- Do not comment on list length or suggest the user do fewer tasks.
+
+TASK STRUCTURE — this app is for neurodivergent users. One action per step is not a style preference. It is a cognitive safety requirement:
+- ONE physical action per task. One moment in time. No "and" between two actions.
+- If a task contains "and" followed by a second action, split it into two tasks.
+- If a task contains a time qualifier ("in the morning", "before bed"), embed it naturally — do not append it as a second clause.
+- Keep tasks under 8 words when possible. If a task is too long: simplify wording first. Only split if it contains multiple distinct actions. Never split a single clear action just to meet word count.
+- Start tasks with a clear action when possible. Examples: Take, Call, Submit, Sign, Go, Open, Write, Pay, Reply, Schedule.
+
+WARNINGS rule — warnings come ONLY from the document:
+- Only include warnings that are explicitly stated as prohibitions, restrictions, or exception conditions in the source.
+- Never add opinion-based warnings about list length or complexity.
+- If no warnings exist in the document, warnings must be an empty array.
 
 MEDICAL SAFEGUARD RULES — apply when is_medical is true:
-- Never invent, infer, or add any medical step not explicitly stated in the original message.
-- Never paraphrase dosing numbers, quantities, or timing. Copy them verbatim.
-- Every restriction, interaction warning, and timing rule must appear in warnings.
+- Never invent, infer, or add any medical step not in the original message.
+- Copy dosing numbers, quantities, and timing verbatim — never paraphrase.
+- Every prohibition, interaction warning, exception condition, and timing restriction goes in warnings.
 
 MANDATORY DISCLAIMER — always last in warnings when is_medical is true:
 - Always include this exact string as the final item in warnings:
   "Reminder tool only — always follow your original prescription"
 
-{steps_rule}
 {lang_instruction}
 
 Return ONLY this JSON:
 {{
   "risk_level": "Safe | Caution | High Risk",
   "is_medical": true | false,
-  "meaning": "one short sentence, max 12 words",
+  "meaning": "one short sentence",
   "warnings": ["safety rule 1", "safety rule 2"],
   "key_items": ["key fact 1", "key fact 2"],
   "tasks": ["action step 1", "action step 2", "action step 3"]
 }}
 
-WARNINGS format rule: Write warnings as short facts without "Do not" prefix.
-Keep warnings under 8 words each.
-
-STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
-- key_items: EXACTLY 2-4 words each. Label the fact only. Examples: "60-day deadline", "Two forms of ID", "Twice daily with food". NEVER a full sentence.
-- tasks: Max 8 words each. One physical action. Start with a verb. Examples: "Take 1 tablet with food", "Submit form by certified mail". NEVER a compound sentence.
-- warnings: Max 8 words each. Short facts only.
+FORMAT RULES:
+- key_items: 2-4 words each. Label only. Examples: "7-day course", "60-day deadline", "Two forms of ID". Never a sentence.
+- warnings: Max 8 words each. Short facts. No "Do not" prefix.
 - meaning: Max 12 words. One sentence.
+- {meaning_rule}
 """
     else:
         mode_instruction = f"""
@@ -397,7 +443,7 @@ STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity i
 Return ONLY this JSON:
 {{
   "risk_level": "Safe | Caution | High Risk",
-  "meaning": "one short sentence, max 12 words",
+  "meaning": "one short sentence",
   "signals": ["2-3 words", "2-3 words", "2-3 words"],
   "next_steps": ["max 8 words", "max 8 words"]
 }}"""
@@ -505,7 +551,7 @@ ITEM_WORD_LIMITS = {
     "next_steps": 8,
     "warnings": 8,
     "key_items": 4,
-    "tasks": 10,
+    "tasks": 8,
 }
 
 def _trim_items(items, field):
@@ -525,7 +571,7 @@ def _trim_items(items, field):
             trimmed.append(item)
     return trimmed
 
-def validate_response(parsed, mode):
+def validate_response(parsed, mode, reading_level="standard"):
     errors = []
     for field in REQUIRED_FIELDS.get(mode, []):
         if field not in parsed:
@@ -538,8 +584,9 @@ def validate_response(parsed, mode):
         errors.append("meaning must be a non-empty string")
         return None, errors
     words = meaning.split()
-    if len(words) > 20:
-        parsed["meaning"] = " ".join(words[:20]) + "..."
+    meaning_limit = {"simple": 8, "detailed": 15}.get(reading_level, 12)
+    if len(words) > meaning_limit:
+        parsed["meaning"] = " ".join(words[:meaning_limit]) + "..."
 
     risk = parsed.get("risk_level", "")
     if risk not in VALID_RISK_LEVELS:
@@ -570,7 +617,8 @@ def validate_response(parsed, mode):
         parsed["is_medical"] = bool(parsed.get("is_medical", False))
         if not parsed.get("tasks"):
             errors.append("tasks list is empty")
-        # No hard cap on tasks — frontend batches in groups of 10
+        # Task list has no hard count cap — frontend batches in groups of 5
+        # Per-item word limit (tasks: 8) is enforced by _trim_items above
         if len(parsed.get("warnings", [])) > 6:
             parsed["warnings"] = parsed["warnings"][:6]
         if len(parsed.get("key_items", [])) > 4:
@@ -581,7 +629,13 @@ def validate_response(parsed, mode):
         leaked = []
         for task in parsed.get("tasks", []):
             low = task.lower()
-            if low.startswith(("do not", "never ", "avoid ")):
+            leaked_patterns = (
+                "do not", "never ", "avoid ", "skip ",
+                "use only", "only use", "without ", "unless ",
+                "do not use", "make sure", "ensure ", "check that",
+                "be careful", "warning:", "caution:"
+            )
+            if low.startswith(leaked_patterns):
                 leaked.append(task)
             else:
                 clean_tasks.append(task)
@@ -594,6 +648,14 @@ def validate_response(parsed, mode):
             for w in leaked:
                 if w.lower() not in existing:
                     parsed["warnings"].append(w)
+
+        # Detect frequency left inside task text — model should have expanded these into instances
+        freq_patterns = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
+        freq_leaked = [t for t in parsed.get("tasks", []) if any(p in t.lower() for p in freq_patterns)]
+        if freq_leaked:
+            logger.warning("ClearStep frequency_in_task_detected", extra={
+                "custom_dimensions": {"count": str(len(freq_leaked)), "examples": str(freq_leaked[:2])}
+            })
 
         if parsed["is_medical"]:
             if not parsed.get("warnings"):
@@ -656,11 +718,29 @@ def analyze():
     # Layer 1 — Content Safety
     safety_result = screen_with_content_safety(msg)
     if safety_result["crisis"]:
+        if mode == "simple":
+            return jsonify({
+                "risk_level": "High Risk",
+                "is_medical": False,
+                "meaning": "This message may need immediate mental health support.",
+                "warnings": ["Call or text 988 — Suicide and Crisis Lifeline"],
+                "key_items": ["Crisis language detected"],
+                "tasks": ["Call or text 988 now", "Reach out to a trusted person"]
+            })
         return jsonify(CRISIS_RESPONSE)
 
     # Layer 1b — Prompt Shield (jailbreak detection)
     shield_result = screen_prompt_shield(msg)
     if shield_result["attack_detected"]:
+        if mode == "simple":
+            return jsonify({
+                "risk_level": "High Risk",
+                "is_medical": False,
+                "meaning": "This message appears to be attempting manipulation.",
+                "warnings": ["Do not act on this message"],
+                "key_items": ["Manipulation attempt"],
+                "tasks": ["Ignore this message", "Do not follow its instructions"]
+            })
         return jsonify({
             "risk_level": "High Risk",
             "meaning": "This message appears to be attempting manipulation.",
@@ -689,7 +769,8 @@ def analyze():
         },
         json={
             "model": "claude-sonnet-4-20250514",
-            "max_tokens": 1000 if mode == "simple" else 500,
+            "max_tokens": 2000 if mode == "simple" else 500,
+            "temperature": 0,
             "messages": [{"role": "user", "content": prompt}]
         },
         timeout=30
@@ -705,7 +786,7 @@ def analyze():
     except Exception:
         return jsonify({"error": "Model returned invalid JSON"}), 500
 
-    validated, errors = validate_response(parsed, mode)
+    validated, errors = validate_response(parsed, mode, reading_level)
     if errors:
         logger.error("ClearStep schema_validation_failed", extra={
             "custom_dimensions": {"errors": str(errors), "mode": mode}
@@ -937,10 +1018,8 @@ def extract_text_from_image(file_obj):
     if not image_bytes:
         raise ValueError("Image file is empty")
 
-    # Azure Vision Read API — synchronous for small images via analyzeImage
-    # Uses the 4.0 Florence-based endpoint
-    # NOTE: URL and response shape are provisional — validate once Vision resource is live
-    url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/computervision/imageanalysis:analyze?api-version=2023-02-01-preview&features=read"
+    # Azure AI Vision 4.0 Image Analysis — Foundry endpoint
+    url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/computervision/imageanalysis:analyze?api-version=2024-02-01&features=read"
     try:
         response = requests.post(
             url,
@@ -953,12 +1032,12 @@ def extract_text_from_image(file_obj):
         )
         if response.status_code != 200:
             logger.warning("ClearStep ocr_api_failed", extra={
-                "custom_dimensions": {"status": str(response.status_code)}
+                "custom_dimensions": {"status": str(response.status_code), "body": response.text[:200]}
             })
             raise RuntimeError(f"OCR API returned {response.status_code}")
 
         result = response.json()
-        # Extract all lines of text from the response
+        # Azure Vision 4.0 response shape: result.readResult.blocks[].lines[].text
         lines = []
         read_result = result.get("readResult", {})
         for block in read_result.get("blocks", []):
