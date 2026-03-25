@@ -1018,11 +1018,12 @@ def extract_text_from_image(file_obj):
     if not image_bytes:
         raise ValueError("Image file is empty")
 
-    # Azure Computer Vision — tries 4.0 Image Analysis API first, falls back to legacy Read API
-    url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/computervision/imageanalysis:analyze?api-version=2024-02-01&features=read"
+    # Azure Computer Vision Read API v3.2 — async two-step call
+    # Step 1: Submit image, get operation URL from header
+    submit_url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/vision/v3.2/read/analyze"
     try:
-        response = requests.post(
-            url,
+        submit_response = requests.post(
+            submit_url,
             headers={
                 "Ocp-Apim-Subscription-Key": AZURE_VISION_KEY,
                 "Content-Type": "application/octet-stream"
@@ -1030,30 +1031,40 @@ def extract_text_from_image(file_obj):
             data=image_bytes,
             timeout=20
         )
-        if response.status_code != 200:
+        if submit_response.status_code != 202:
             logger.warning("ClearStep ocr_api_failed", extra={
-                "custom_dimensions": {"status": str(response.status_code), "body": response.text[:300]}
+                "custom_dimensions": {"status": str(submit_response.status_code), "body": submit_response.text[:300]}
             })
-            raise RuntimeError(f"OCR API returned {response.status_code}: {response.text[:200]}")
+            raise RuntimeError(f"OCR API returned {submit_response.status_code}: {submit_response.text[:200]}")
 
-        result = response.json()
+        # Step 2: Poll the operation URL for results
+        operation_url = submit_response.headers.get("Operation-Location")
+        if not operation_url:
+            raise RuntimeError("No Operation-Location header in OCR response")
+
+        import time
+        for _ in range(10):
+            time.sleep(1)
+            result_response = requests.get(
+                operation_url,
+                headers={"Ocp-Apim-Subscription-Key": AZURE_VISION_KEY},
+                timeout=10
+            )
+            if result_response.status_code != 200:
+                raise RuntimeError(f"OCR result poll returned {result_response.status_code}")
+            result = result_response.json()
+            status = result.get("status", "")
+            if status == "succeeded":
+                break
+            if status == "failed":
+                raise RuntimeError("OCR analysis failed")
+
         lines = []
-
-        # Try 4.0 response shape first: readResult.blocks[].lines[].text
-        read_result = result.get("readResult", {})
-        for block in read_result.get("blocks", []):
-            for line in block.get("lines", []):
+        for read_result in result.get("analyzeResult", {}).get("readResults", []):
+            for line in read_result.get("lines", []):
                 line_text = line.get("text", "").strip()
                 if line_text:
                     lines.append(line_text)
-
-        # Fall back to legacy response shape: regions[].lines[].words[].text
-        if not lines:
-            for region in result.get("regions", []):
-                for line in region.get("lines", []):
-                    words = [w.get("text", "") for w in line.get("words", [])]
-                    if words:
-                        lines.append(" ".join(words))
 
         return "\n".join(lines)
 
