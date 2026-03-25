@@ -330,9 +330,6 @@ def build_prompt(msg, detected_flags=None, reading_level="standard", mode="safe"
         meaning_rule = "meaning: ONE sentence only. Max 15 words. Include the key context and reason why this matters."
     else:
         meaning_rule = "meaning: ONE sentence only. Max 12 words. Simple and calm. No technical words."
-    # steps_rule is now unified across all reading levels — see TASK STRUCTURE RULES in mode_instruction
-    steps_rule = ""
-
     if mode == "simple":
         mode_instruction = f"""
 You are breaking down a complex message into the clearest possible structure for someone with ADHD, autism, or dyslexia.
@@ -427,7 +424,6 @@ Return ONLY this JSON:
 FORMAT RULES:
 - key_items: 2-4 words each. Label only. Examples: "7-day course", "60-day deadline", "Two forms of ID". Never a sentence.
 - warnings: Max 8 words each. Short facts. No "Do not" prefix.
-- meaning: Max 12 words. One sentence.
 - {meaning_rule}
 """
     else:
@@ -438,7 +434,6 @@ Content type: A message, email, link, or text that may be a scam, threat, or man
 STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
 - signals: EXACTLY 2-3 words each. Label the pattern only. Examples: "Urgent language", "Suspicious link", "Impersonation attempt". NEVER write a full sentence. NEVER exceed 3 words.
 - next_steps: Max 8 words each. One clear action. Examples: "Do not click the link", "Call your bank directly". NEVER write a full sentence with clauses.
-- meaning: Max 12 words. One sentence.
 
 Return ONLY this JSON:
 {{
@@ -546,12 +541,12 @@ def _clean_list(lst):
     return [str(item).strip() for item in lst if str(item).strip()]
 
 # Per-item word limits — enforces what the prompt requests
+# NOTE: tasks deliberately excluded — prompt guides length, hard-trim corrupts meaning
 ITEM_WORD_LIMITS = {
     "signals": 3,
     "next_steps": 8,
     "warnings": 8,
     "key_items": 4,
-    "tasks": 8,
 }
 
 def _trim_items(items, field):
@@ -649,13 +644,58 @@ def validate_response(parsed, mode, reading_level="standard"):
                 if w.lower() not in existing:
                     parsed["warnings"].append(w)
 
-        # Detect frequency left inside task text — model should have expanded these into instances
-        freq_patterns = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
-        freq_leaked = [t for t in parsed.get("tasks", []) if any(p in t.lower() for p in freq_patterns)]
-        if freq_leaked:
-            logger.warning("ClearStep frequency_in_task_detected", extra={
-                "custom_dimensions": {"count": str(len(freq_leaked)), "examples": str(freq_leaked[:2])}
-            })
+        # Enforce frequency expansion — stacked frequency in a task is a structural error
+        # The model was instructed to expand "three times daily" → 3 instances.
+        # If it didn't, we expand programmatically for safe mappings, or reject for unsafe ones.
+        FREQ_EXPAND = {
+            "once daily":        ["morning"],
+            "once a day":        ["morning"],
+            "twice daily":       ["morning", "evening"],
+            "twice a day":       ["morning", "evening"],
+            "2 times daily":     ["morning", "evening"],
+            "2 times a day":     ["morning", "evening"],
+            "three times daily": ["morning", "afternoon", "evening"],
+            "three times a day": ["morning", "afternoon", "evening"],
+            "3 times daily":     ["morning", "afternoon", "evening"],
+            "3 times a day":     ["morning", "afternoon", "evening"],
+        }
+        FREQ_REJECT_PATTERNS = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
+
+        expanded_tasks = []
+        freq_error = False
+        for task in parsed.get("tasks", []):
+            task_lower = task.lower()
+            matched = False
+            for phrase, labels in FREQ_EXPAND.items():
+                if phrase in task_lower:
+                    # Strip the frequency phrase and trailing whitespace/punctuation
+                    base = task_lower.replace(phrase, "").strip().rstrip(",.")
+                    # Restore original casing from the task using base position
+                    base_original = task[:len(base)] if len(base) <= len(task) else base
+                    # Capitalise first letter
+                    base_original = base_original.strip().capitalize() if base_original.strip() else task
+                    logger.warning("ClearStep frequency_expanded", extra={
+                        "custom_dimensions": {"phrase": phrase, "instances": str(len(labels)), "base": base_original}
+                    })
+                    for label in labels:
+                        expanded_tasks.append(f"{base_original} — {label}")
+                    matched = True
+                    break
+            if not matched:
+                # Check for unmappable frequency patterns — these can't be safely expanded
+                if any(p in task_lower for p in FREQ_REJECT_PATTERNS):
+                    logger.error("ClearStep frequency_unexpandable", extra={
+                        "custom_dimensions": {"task": task}
+                    })
+                    freq_error = True
+                    break
+                expanded_tasks.append(task)
+
+        if freq_error:
+            errors.append("frequency in task could not be safely expanded")
+            return None, errors
+        elif expanded_tasks != parsed.get("tasks", []):
+            parsed["tasks"] = expanded_tasks
 
         if parsed["is_medical"]:
             if not parsed.get("warnings"):
@@ -668,6 +708,18 @@ def validate_response(parsed, mode, reading_level="standard"):
             if not has_disclaimer:
                 logger.warning("ClearStep medical_disclaimer_enforced")
                 parsed["warnings"].append(MEDICAL_DISCLAIMER)
+
+        # Enforce risk_level consistency with warnings
+        # Medical disclaimer alone does not count as a safety warning
+        real_warnings = [
+            w for w in parsed.get("warnings", [])
+            if MEDICAL_DISCLAIMER.lower() not in w.lower()
+        ]
+        if real_warnings and parsed.get("risk_level") == "Safe":
+            logger.warning("ClearStep risk_level_upgraded", extra={
+                "custom_dimensions": {"reason": "warnings_present", "warning_count": str(len(real_warnings))}
+            })
+            parsed["risk_level"] = "Caution"
 
         parsed.pop("next_steps", None)
 
