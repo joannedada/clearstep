@@ -1,4 +1,4 @@
-ffrom azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from azure.storage.blob import BlobServiceClient
 import logging
