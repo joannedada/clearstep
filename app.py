@@ -347,13 +347,26 @@ ROUTINE TASK: A single physical action performed at a specific moment. One actio
   Examples: "Take 1 tablet with food", "Submit form by certified mail", "Call your doctor"
 
 FREQUENCY RULE: How often a routine task repeats ("twice daily", "every 8 hours", "three times a day").
-  → Do NOT add frequency as extra words to a task.
-  → Use frequency to determine how many task instances to create.
-  → "Twice daily" = create two separate task instances with time context embedded.
-  EXAMPLE: "Take 1 tablet twice daily with food"
-    WRONG: ["Take 1 tablet twice daily with food"]  ← stacked
-    WRONG: ["Take 1 tablet", "Twice daily", "With food"]  ← atomized
-    RIGHT: ["Take 1 tablet with food — morning", "Take 1 tablet with food — evening"]
+  Frequency is NEVER a separate task. Frequency is NEVER appended text in a task. Frequency is NEVER optional.
+  Frequency ALWAYS determines how many task instances exist.
+  → "twice daily" → create exactly 2 task instances
+  → "three times daily" → create exactly 3 task instances
+  Each instance must contain the same core action, include execution context (e.g. "with food"), and include a simple time label if appropriate.
+
+  EXAMPLE (MANDATORY BEHAVIOR):
+  Source: "Take 1 tablet three times daily with food for 7 days"
+  WRONG: ["Take 1 tablet three times daily with food"]  ← stacked
+  WRONG: ["Take 1 tablet", "Take with food", "Three times daily"]  ← atomized
+  WRONG: ["Take first tablet", "Take second tablet", "Take third tablet"]  ← fabricated sequence
+  RIGHT: ["Take 1 tablet with food — morning", "Take 1 tablet with food — afternoon", "Take 1 tablet with food — evening"]
+  key_items: ["7-day course"]
+
+  EXCEPTION: If frequency cannot be safely mapped to clear time labels (e.g. "every 6 hours", "as needed"):
+  → Do NOT create artificial labels. Keep a single task. Move timing into key_items.
+
+  EXECUTION CONTEXT IS NOT A SECOND ACTION:
+  "Take 1 tablet with food" = ONE task. "with food" is context, not a second action.
+  "Call and confirm appointment" = TWO tasks. The "and" separates two distinct actions.
 
 DURATION RULE: How long something continues ("for 7 days", "for 2 weeks").
   → Never create a task for this. Surface it as a key_item only.
@@ -556,7 +569,7 @@ def _trim_items(items, field):
             trimmed.append(item)
     return trimmed
 
-def validate_response(parsed, mode):
+def validate_response(parsed, mode, reading_level="standard"):
     errors = []
     for field in REQUIRED_FIELDS.get(mode, []):
         if field not in parsed:
@@ -569,8 +582,9 @@ def validate_response(parsed, mode):
         errors.append("meaning must be a non-empty string")
         return None, errors
     words = meaning.split()
-    if len(words) > 15:
-        parsed["meaning"] = " ".join(words[:15]) + "..."
+    meaning_limit = {"simple": 8, "detailed": 15}.get(reading_level, 12)
+    if len(words) > meaning_limit:
+        parsed["meaning"] = " ".join(words[:meaning_limit]) + "..."
 
     risk = parsed.get("risk_level", "")
     if risk not in VALID_RISK_LEVELS:
@@ -756,7 +770,7 @@ def analyze():
     except Exception:
         return jsonify({"error": "Model returned invalid JSON"}), 500
 
-    validated, errors = validate_response(parsed, mode)
+    validated, errors = validate_response(parsed, mode, reading_level)
     if errors:
         logger.error("ClearStep schema_validation_failed", extra={
             "custom_dimensions": {"errors": str(errors), "mode": mode}
