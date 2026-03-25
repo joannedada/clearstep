@@ -741,6 +741,7 @@ def analyze():
             "schema_valid": "true"
         }
     })
+    validated["lang"] = detected_language
     return jsonify(validated)
 
 
