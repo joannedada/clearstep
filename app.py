@@ -132,7 +132,8 @@ def get_preferences(session_id):
         return jsonify({
             "found": True,
             "palette": item.get("palette", "calm"),
-            "reading_level": item.get("reading_level", "standard")
+            "reading_level": item.get("reading_level", "standard"),
+            "reading_level_history": item.get("reading_level_history", [])
         })
     except Exception:
         return jsonify({"found": False})
@@ -143,6 +144,12 @@ def save_preferences(session_id):
     data = request.get_json(silent=True) or {}
     palette = data.get("palette", "calm")
     reading_level = data.get("reading_level", "standard")
+    reading_level_history = data.get("reading_level_history", [])
+    # Cap history at 10 entries server-side
+    if isinstance(reading_level_history, list):
+        reading_level_history = reading_level_history[-10:]
+    else:
+        reading_level_history = []
 
     container = get_cosmos_container()
     if not container:
@@ -152,7 +159,8 @@ def save_preferences(session_id):
             "id": session_id,
             "session_id": session_id,
             "palette": palette,
-            "reading_level": reading_level
+            "reading_level": reading_level,
+            "reading_level_history": reading_level_history
         })
         logger.info("ClearStep preferences_saved", extra={
             "custom_dimensions": {
@@ -330,6 +338,9 @@ def build_prompt(msg, detected_flags=None, reading_level="standard", mode="safe"
         meaning_rule = "meaning: ONE sentence only. Max 15 words. Include the key context and reason why this matters."
     else:
         meaning_rule = "meaning: ONE sentence only. Max 12 words. Simple and calm. No technical words."
+    # steps_rule is now unified across all reading levels — see TASK STRUCTURE RULES in mode_instruction
+    steps_rule = ""
+
     if mode == "simple":
         mode_instruction = f"""
 You are breaking down a complex message into the clearest possible structure for someone with ADHD, autism, or dyslexia.
@@ -424,6 +435,7 @@ Return ONLY this JSON:
 FORMAT RULES:
 - key_items: 2-4 words each. Label only. Examples: "7-day course", "60-day deadline", "Two forms of ID". Never a sentence.
 - warnings: Max 8 words each. Short facts. No "Do not" prefix.
+- meaning: Max 12 words. One sentence.
 - {meaning_rule}
 """
     else:
@@ -434,6 +446,7 @@ Content type: A message, email, link, or text that may be a scam, threat, or man
 STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
 - signals: EXACTLY 2-3 words each. Label the pattern only. Examples: "Urgent language", "Suspicious link", "Impersonation attempt". NEVER write a full sentence. NEVER exceed 3 words.
 - next_steps: Max 8 words each. One clear action. Examples: "Do not click the link", "Call your bank directly". NEVER write a full sentence with clauses.
+- meaning: Max 12 words. One sentence.
 
 Return ONLY this JSON:
 {{
@@ -463,10 +476,7 @@ CRITICAL SAFETY RULES:
 
 {mode_instruction}
 
-Message to analyze:
-<user_message>
-{msg}
-</user_message>
+Message: "{msg}"
 """
 
 
@@ -544,12 +554,12 @@ def _clean_list(lst):
     return [str(item).strip() for item in lst if str(item).strip()]
 
 # Per-item word limits — enforces what the prompt requests
-# NOTE: tasks deliberately excluded — prompt guides length, hard-trim corrupts meaning
 ITEM_WORD_LIMITS = {
     "signals": 3,
     "next_steps": 8,
     "warnings": 8,
     "key_items": 4,
+    "tasks": 8,
 }
 
 def _trim_items(items, field):
@@ -612,29 +622,6 @@ def validate_response(parsed, mode, reading_level="standard"):
         parsed[field] = _trim_items(parsed[field], field)
 
     if mode == "simple":
-        # Keyword backstop — if model returned is_medical=False but content is clearly medical,
-        # override to True so all medical safeguards apply. Never overrides True→False.
-        MEDICAL_KEYWORD_RE = re.compile(
-            r'\b(tablet|capsule|pill|dose|dosage|medication|medicine|medicines|'
-            r'mg|mcg|ml|prescription|pharmacist|pharmacy|swallow|inhaler|inject|injection|'
-            r'antibiotic|insulin|amoxicillin|ibuprofen|aspirin|paracetamol|'
-            r'every\s+\d+\s+hours?|times?\s+daily|times?\s+a\s+day|twice\s+daily|'
-            r'once\s+daily|take\s+\d+|take\s+one|take\s+two)\b',
-            re.IGNORECASE
-        )
-        # Import re at module level — use the module-level re here
-        import re as _re_medical
-        original_msg = parsed.get("_source_msg", "")  # not available here — check via tasks/warnings text
-        # Check the concatenated task + warning text as a proxy for the original message content
-        all_content = " ".join(
-            parsed.get("tasks", []) + parsed.get("warnings", []) + parsed.get("key_items", [])
-        )
-        if not parsed.get("is_medical") and MEDICAL_KEYWORD_RE.search(all_content):
-            logger.warning("ClearStep is_medical_backstop_triggered", extra={
-                "custom_dimensions": {"reason": "keyword_match_in_output"}
-            })
-            parsed["is_medical"] = True
-
         parsed["is_medical"] = bool(parsed.get("is_medical", False))
         if not parsed.get("tasks"):
             errors.append("tasks list is empty")
@@ -670,75 +657,13 @@ def validate_response(parsed, mode, reading_level="standard"):
                 if w.lower() not in existing:
                     parsed["warnings"].append(w)
 
-        # Enforce frequency expansion — stacked frequency in a task is a structural error
-        # The model was instructed to expand "three times daily" → 3 instances.
-        # If it didn't, we expand programmatically for safe mappings, or reject for unsafe ones.
-        import re as _re
-        FREQ_EXPAND = {
-            "once daily":        ["morning"],
-            "once a day":        ["morning"],
-            "twice daily":       ["morning", "evening"],
-            "twice a day":       ["morning", "evening"],
-            "2 times daily":     ["morning", "evening"],
-            "2 times a day":     ["morning", "evening"],
-            "three times daily": ["morning", "afternoon", "evening"],
-            "three times a day": ["morning", "afternoon", "evening"],
-            "3 times daily":     ["morning", "afternoon", "evening"],
-            "3 times a day":     ["morning", "afternoon", "evening"],
-            "four times daily":  ["morning", "midday", "afternoon", "evening"],
-            "four times a day":  ["morning", "midday", "afternoon", "evening"],
-            "4 times daily":     ["morning", "midday", "afternoon", "evening"],
-            "4 times a day":     ["morning", "midday", "afternoon", "evening"],
-        }
-        # Patterns that indicate stacked frequency — used to detect but not crash
-        FREQ_STACKED_PATTERNS = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
-
-        expanded_tasks = []
-        for task in parsed.get("tasks", []):
-            task_lower = task.lower()
-            matched = False
-            for phrase, labels in FREQ_EXPAND.items():
-                if phrase in task_lower:
-                    # Use regex sub on original task to preserve casing and remove phrase cleanly
-                    base_original = _re.sub(_re.escape(phrase), "", task, flags=_re.IGNORECASE)
-                    base_original = _re.sub(r'\s{2,}', ' ', base_original).strip().rstrip(",.").strip()
-                    # Capitalize first letter if needed
-                    if base_original:
-                        base_original = base_original[0].upper() + base_original[1:]
-                    else:
-                        base_original = task
-                    logger.warning("ClearStep frequency_expanded", extra={
-                        "custom_dimensions": {"phrase": phrase, "instances": str(len(labels)), "base": base_original}
-                    })
-                    for label in labels:
-                        expanded_tasks.append(f"{base_original} — {label}")
-                    matched = True
-                    break
-            if not matched:
-                # Unmappable frequency (e.g. "5 times daily", "times per day") — keep as single
-                # task and surface the frequency phrase in key_items so context is not lost
-                stacked = next((p for p in FREQ_STACKED_PATTERNS if p in task_lower), None)
-                if stacked:
-                    logger.warning("ClearStep frequency_unmappable_kept", extra={
-                        "custom_dimensions": {"task": task}
-                    })
-                    # Move the frequency phrase to key_items rather than dropping the task
-                    words = task.split()
-                    freq_label = " ".join(w for w in words if any(
-                        p_word in w.lower() for p_word in ["time", "daily", "week", "per", "day"]
-                    )).strip()
-                    if freq_label and freq_label.lower() not in [k.lower() for k in parsed.get("key_items", [])]:
-                        parsed.setdefault("key_items", []).append(freq_label)
-                    # Strip the stacked phrase from the task text so it reads cleanly
-                    clean_task = _re.sub(stacked, "", task, flags=_re.IGNORECASE).strip().rstrip(",.").strip()
-                    if clean_task:
-                        clean_task = clean_task[0].upper() + clean_task[1:]
-                    expanded_tasks.append(clean_task if clean_task else task)
-                else:
-                    expanded_tasks.append(task)
-
-        if expanded_tasks != parsed.get("tasks", []):
-            parsed["tasks"] = expanded_tasks
+        # Detect frequency left inside task text — model should have expanded these into instances
+        freq_patterns = ["times daily", "times a day", "times per day", "times weekly", "times a week"]
+        freq_leaked = [t for t in parsed.get("tasks", []) if any(p in t.lower() for p in freq_patterns)]
+        if freq_leaked:
+            logger.warning("ClearStep frequency_in_task_detected", extra={
+                "custom_dimensions": {"count": str(len(freq_leaked)), "examples": str(freq_leaked[:2])}
+            })
 
         if parsed["is_medical"]:
             if not parsed.get("warnings"):
@@ -751,18 +676,6 @@ def validate_response(parsed, mode, reading_level="standard"):
             if not has_disclaimer:
                 logger.warning("ClearStep medical_disclaimer_enforced")
                 parsed["warnings"].append(MEDICAL_DISCLAIMER)
-
-        # Enforce risk_level consistency with warnings
-        # Medical disclaimer alone does not count as a safety warning
-        real_warnings = [
-            w for w in parsed.get("warnings", [])
-            if MEDICAL_DISCLAIMER.lower() not in w.lower()
-        ]
-        if real_warnings and parsed.get("risk_level") == "Safe":
-            logger.warning("ClearStep risk_level_upgraded", extra={
-                "custom_dimensions": {"reason": "warnings_present", "warning_count": str(len(real_warnings))}
-            })
-            parsed["risk_level"] = "Caution"
 
         parsed.pop("next_steps", None)
 
@@ -798,12 +711,12 @@ def analyze():
     if mode not in ["safe", "simple"]:
         mode = "safe"
     if not msg:
-        return jsonify({"error": "Please paste something to check."}), 400
+        return jsonify({"error": "Missing message"}), 400
     max_len = 5000 if mode == "simple" else 2000
     if len(msg) > max_len:
         return jsonify({"error": f"Message too long. Please limit to {max_len} characters."}), 400
     if not ANTHROPIC_API_KEY:
-        return jsonify({"error": "This feature is currently unavailable. Please try again later."}), 500
+        return jsonify({"error": "Missing ANTHROPIC_API_KEY"}), 500
 
     # ── App Insights — analysis_started ────────────────────
     logger.info("ClearStep analysis_started", extra={
@@ -872,21 +785,21 @@ def analyze():
     )
     if response.status_code != 200:
         logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code), "detail": response.text[:200]}})
-        return jsonify({"error": "Something went wrong on our end. Please try again in a moment."}), 503
+        return jsonify({"error": "Analysis service temporarily unavailable. Please try again."}), 503
 
     result = response.json()
     raw_text = result["content"][0]["text"].strip().replace("```json", "").replace("```", "").strip()
     try:
         parsed = json.loads(raw_text)
     except Exception:
-        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
+        return jsonify({"error": "Model returned invalid JSON"}), 500
 
     validated, errors = validate_response(parsed, mode, reading_level)
     if errors:
         logger.error("ClearStep schema_validation_failed", extra={
             "custom_dimensions": {"errors": str(errors), "mode": mode}
         })
-        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
+        return jsonify({"error": "Response validation failed", "details": errors}), 500
 
     store_result_to_blob(validated)
 
