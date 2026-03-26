@@ -1,12 +1,13 @@
-# Architecture - ClearStep
+[ARCHITECTURE.md](https://github.com/user-attachments/files/26266756/ARCHITECTURE.md)
+# Architecture — ClearStep
 
 ## System Overview
 
-ClearStep is a Flask web application deployed on Azure App Service. It processes user-submitted text, either typed or uploaded from a file, through a multi-layer safety and AI pipeline and returns structured, validated JSON to a single-page frontend.
+ClearStep is a Flask web application deployed on Azure App Service. It processes user-submitted text — typed or uploaded from a file — through a multi-layer safety and AI pipeline and returns structured, validated JSON to a single-page frontend.
 
 ---
 
-## Request Flow - Analyze
+## Request Flow — Analyze
 
 ```
 Browser (index.html)
@@ -69,7 +70,7 @@ Flask (app.py)
 
 ---
 
-## Request Flow - File Upload
+## Request Flow — File Upload
 
 ```
 Browser (index.html)
@@ -82,21 +83,18 @@ Flask (app.py)
         ├─── Validation
         │         secure_filename() — strips path traversal, null bytes
         │         Extension: blocked list + allowed list
-        │           Allowed: .txt .pdf .doc .docx .png .jpg .jpeg
+        │           Allowed: .txt .pdf .doc .docx
         │           Blocked: .js .py .sh .exe .zip .html .svg .xml and others
         │         Size: max 5 MB, reject empty
         │         MIME type: per-extension dict — no bypass for any type
         │           .txt  → text/plain (or text/* with empty allowed)
         │           .pdf  → application/pdf
         │           .docx → application/vnd.openxmlformats...
-        │           .png  → image/png
-        │           .jpg/.jpeg → image/jpeg
         │
         ├─── Format routing
         │         .doc            → rejected — "save as .docx" message returned
         │         .pdf            → pypdf page-by-page extraction
         │         .docx           → python-docx paragraph extraction
-        │         .png/.jpg/.jpeg → Azure Computer Vision OCR (provisional)
         │         .txt            → UTF-8 decode, latin-1 fallback
         │
         ├─── Content screening — screen_upload_content()
@@ -118,7 +116,7 @@ Flask (app.py)
 
 ---
 
-## Request Flow - Text-to-Speech
+## Request Flow — Text-to-Speech
 
 ```
 Browser (index.html)
@@ -141,7 +139,7 @@ Flask (app.py)
 
 ## Frontend Architecture
 
-Single HTML file. No build step. No framework. Fully responsive on desktop and mobile.
+Single HTML file. No build step. No framework. Fully responsive — desktop and mobile.
 
 **Task engine state machine:**
 - Phase 1: overview (warnings, start button, batch notice if > 5 tasks)
@@ -151,11 +149,11 @@ Single HTML file. No build step. No framework. Fully responsive on desktop and m
 
 **Batch task delivery:** Frontend slices the full task list into batches of 5 (`TASK_BATCH_SIZE = 5`). After each batch completes, the user is offered the next — never shown all tasks at once for long documents.
 
-**Upload flow:** Client pre-checks extension + size → POST to `/api/upload` → text loaded into textarea. Error handling: `clearUpload()` runs first, then `showUploadError()` — prevents the flash-hide bug where' clearUpload () ' killed the error message.
+**Upload flow:** Client pre-checks extension + size → POST to `/api/upload` → text loaded into textarea. Error handling: `clearUpload()` runs first, then `showUploadError()` — prevents the flash-hide bug where clearUpload was killing the error message.
 
-**TTS:** Read-aloud buttons on meaning, next steps, warnings, and current step. Language is passed from the API response, and the voice matches the detected language one audio at a time.
+**TTS:** Read-aloud buttons on meaning, next steps, warnings, and current step. Language passed from the API response — voice matches detected language. One audio at a time.
 
-**Palette engine:** 5 profiles via CSS custom properties. Each profile overrides the full semantic variable set, including `--mark-done` for profile-aware button colours.
+**Palette engine:** 5 profiles via CSS custom properties. Each profile overrides the full semantic variable set including `--mark-done` for profile-aware button colours.
 
 ---
 
@@ -179,14 +177,13 @@ Every Azure dependency is wrapped in try/except. The app never fails because a n
 | Service | If unavailable |
 |---|---|
 | Azure Key Vault | Falls back to App Service env vars |
-| Azure AI Content Safety | Screening skipped - analysis continues |
-| Azure Prompt Shields | Skipped - analysis continues |
-| Azure OpenAI / Foundry | Layer 2 skipped - Claude runs without signal flags |
-| Azure AI Language | Returns `en` - analysis continues |
-| Azure Blob Storage | Audit log skipped - analysis continues |
-| Azure Application Insights | Telemetry skipped - analysis continues |
+| Azure AI Content Safety | Screening skipped — analysis continues |
+| Azure Prompt Shields | Skipped — analysis continues |
+| Azure OpenAI / Foundry | Layer 2 skipped — Claude runs without signal flags |
+| Azure AI Language | Returns `en` — analysis continues |
+| Azure Blob Storage | Audit log skipped — analysis continues |
+| Azure Application Insights | Telemetry skipped — analysis continues |
 | Azure Cosmos DB | Falls back to localStorage silently |
-| Azure AI Speech | TTS unavailable - 503 returned |
-| Azure Computer Vision | "Screenshot reading is not enabled yet." |
+| Azure AI Speech | TTS unavailable — 503 returned |
 
 Full security documentation: `docs/SECURITY.md`
