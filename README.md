@@ -303,7 +303,7 @@ These decisions were made to prioritise reliable real-time interaction, clear us
 | Name | Role |
 |---|---|
 | **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (`app.py`) · Frontend development (`index.html`) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS, SECURITY) |
-| **Joanne Dada** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Azure Computer Vision resource provisioning · Cloud integration |
+| **Joanne Obodoagwu** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Azure Computer Vision resource provisioning · Cloud integration |
 | **Fatima** | Research support · Accessibility input · Feature ideation |
 
 ---
