@@ -132,7 +132,7 @@ Full architecture and request flow diagrams: [`docs/ARCHITECTURE.md`](./docs/ARC
 
 ![ClearStep AI Pipeline](./docs/pipeline_preview.png)
 
-**[→ Open interactive pipeline explorer](./docs/clearstep_pipeline.html)** — click any layer to see exactly how it works, what it enforces, and why it was built that way.
+**[→ Open interactive pipeline explorer](https://htmlpreview.github.io/?https://github.com/joannedada/clearstep/blob/main/docs/clearstep_pipeline.html)** — click any layer to see exactly how it works, what it enforces, and why it was built that way.
 
 ---
 
