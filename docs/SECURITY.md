@@ -1,7 +1,7 @@
 # Security — ClearStep
 ### Application security hardening, attack surface analysis, and test results
 
-ClearStep was tested across 14+ attack vectors including prompt injection, schema manipulation, file upload abuse, and safety bypass attempts. Security does not rely on prompt rules alone — behavior is enforced in code through validation, pre-screening, and layered defences that operate independently of model output.
+ClearStep was tested across 14+ attack vectors, including prompt injection, schema manipulation, file upload abuse, and safety bypass attempts. Security does not rely on prompt rules alone; behavior is enforced in code through validation, pre-screening, and layered defences that operate independently of model output.
 
 ---
 ## Attack Surface
@@ -56,7 +56,7 @@ When rate limit exceeded: HTTP 429, `Retry-After` header. Frontend catch block t
 
 Allowed origins: `https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net` and `http://localhost:5000`.
 
-Without CORS restriction, any website could call `/api/analyze` using a visitor's browser — burning API credits, harvesting responses, or attempting prompt injection at scale.
+Without CORS restriction, any website could call `/api/analyze` using a visitor's browser, burning API credits, harvesting responses, or attempting prompt injection at scale.
 
 ---
 
@@ -66,9 +66,9 @@ Files are treated as untrusted from the moment they arrive.
 
 **Extension validation:** Double-checked against a blocked list (scripts, executables, archives, web formats) and an allowed list (.txt, .pdf, .doc, .docx, .png, .jpg, .jpeg).
 
-**MIME type validation:** Per-extension dict — every extension has an explicit expected MIME set. `.txt` permits empty content-type (some browsers omit it) or any `text/*` subtype, but rejects clear mismatches. All other types require an exact match. No extension is exempt.
+**MIME type validation:** Per-extension dict, every extension has an explicit expected MIME set. `.txt` permits empty content-type (some browsers omit it) or any `text/*` subtype, but rejects clear mismatches. All other types require an exact match. No extension is exempt.
 
-**Size validation:** `file.seek(0, 2)` / `file.tell()` — actual byte count, not the `Content-Length` header which can be spoofed.
+**Size validation:** `file.seek(0, 2)` / `file.tell()` — actual byte count, not the `Content-Length` header, which can be spoofed.
 
 **Filename sanitisation:** `secure_filename()` from Werkzeug strips path traversal (`../../`), null bytes, and shell-special characters.
 
@@ -78,13 +78,13 @@ Files are treated as untrusted from the moment they arrive.
 - Azure Prompt Shields (first 1000 chars): attackDetected → blocked
 - Cyber abuse regex (full 5000 chars): reverse shells, payloads, credential theft, etc. → blocked
 
-**Files never stored.** Text is extracted in memory. The file object is discarded. Nothing is written to disk or blob.
+**Files never stored.** Text is extracted into memory. The file object is discarded. Nothing is written to disk or blob.
 
 ---
 
 ## Prompt Shields (Jailbreak Detection)
 
-`screen_prompt_shield()` calls the `/contentsafety/text:shieldPrompt` endpoint on every user input. Detected jailbreak attempts return a hardcoded High Risk response — Claude never sees the message.
+`screen_prompt_shield()` calls the `/contentsafety/text:shieldPrompt` endpoint on every user input. Detected jailbreak attempts return a hardcoded High Risk response, Claude never sees the message.
 
 Same resource as Content Safety — no extra config. Fires `prompt_shield_flagged` to App Insights when triggered.
 
@@ -154,7 +154,7 @@ Test results: `<script>alert(1)</script>`, `<img src=x onerror=alert(1)>`, `"><s
 | Uploaded file | Never | Extracted in memory, file object discarded |
 | AI response JSON | Yes — Blob Storage | risk_level, mode, is_medical, validated fields only |
 | User preferences | Yes — Cosmos DB | Anonymous session ID + palette + reading level only |
-| Telemetry | Yes — App Insights | Event names + custom_dimensions — no message content, no PII |
+| Telemetry | Yes — App Insights | Event names + custom_dimensions, no message content, no PII |
 
 ---
 
@@ -168,7 +168,7 @@ Test results: `<script>alert(1)</script>`, `<img src=x onerror=alert(1)>`, `"><s
 | Source code protection — requests for system files redirected, never actioned | `build_prompt()` |
 | User message XML-delimited in prompt — quote characters cannot escape prompt context | `build_prompt()` |
 | Schema validation rejects responses that break the expected structure | `validate_response()` |
-| Per-item word limits cap signals, warnings, and key_items — reduces label-field injection surface | `_trim_items()` |
+| Per-item word limits cap signals, warnings, and key_items, reduces label-field injection surface | `_trim_items()` |
 | Input length capped at 2,000 / 5,000 chars server-side | `analyze()` |
 
 **14 attack vectors tested:**
