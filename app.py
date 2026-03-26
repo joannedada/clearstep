@@ -3,6 +3,7 @@ from azure.keyvault.secrets import SecretClient
 from azure.storage.blob import BlobServiceClient
 import logging
 import os
+import re
 import requests
 import json
 from flask import Flask, request, jsonify, send_from_directory
