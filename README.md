@@ -1,144 +1,306 @@
-# ClearStep — Q&A
-### Design Decisions, Tradeoffs, and Judging Criteria
+# ClearStep
+### Microsoft Innovation Challenge Hackathon — March 2026
+
+> **ClearStep is an AI decision-support system that reduces cognitive overload** — helping users determine if something is safe to act on, and breaking overwhelming information into clear, calm, actionable steps. Built for neurodiverse users who need structure, not more noise.
+
+**🔗 Live Demo:** [`https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net`](https://clearstep-gqb6gpa9hzbdf5gy.canadaeast-01.azurewebsites.net)
+**📁 Repository:** [github.com/joannedada/clearstep](https://github.com/joannedada/clearstep)
 
 ---
 
-## Five Things to Remember
+## Hackathon Challenge
 
-> **1. Product thesis**
-> ClearStep treats cognitive overload as a safety problem, not a convenience problem.
+**Cognitive Load Reduction Assistant** — *An adaptive AI system that simplifies complex information for users experiencing cognitive overload.*
 
-> **2. Innovation**
-> Use the model for reasoning, use code for guarantees.
+Neurodiverse individuals — including people with ADHD, autism, and dyslexia — experience cognitive overload when interacting with dense documents, complex tasks, or unstructured information. The challenge called for an AI-powered assistant that:
 
-> **3. Responsible AI**
-> The model cannot produce a medically unsafe, misclassified, or structurally invalid output that reaches the user.
+- Transforms information into clear, structured, and personalised formats aligned to individual accessibility preferences
+- Decomposes complex instructions into step-by-step, time-boxed tasks
+- Simplifies and summarises documents at adjustable reading levels
+- Provides focus support through reminders and contextual guidance
+- Securely stores and applies user accessibility preferences across interactions
+- Enforces responsible AI safeguards through calm, supportive, non-anxiety-inducing language
+- Explains its simplification choices
+- Evolves from a proof of concept into an operational, observable accessibility service
 
-> **4. Security**
-> Defences are enforced before, during, and after model execution — not through prompt rules alone.
-
-> **5. Azure**
-> 11 Azure services + Microsoft Foundry — each with a specific architectural role. Not decorative integrations.
-
----
-
-## The Problem
-
-**Who is this actually built for?**
-People with ADHD, autism, dyslexia, low digital literacy, or anyone experiencing cognitive overload — which includes elderly users, non-English speakers, and people under stress. These users are disproportionately harmed by dense, unstructured information: medical instructions, government forms, scam messages, onboarding documents. They are also the users most likely to act on bad information because they struggle to parse good information.
-
-**Why is cognitive overload a real problem, not just UX friction?**
-Cognitive overload is not discomfort — it causes decision paralysis, missed deadlines, ignored medical instructions, and vulnerability to manipulation. For a neurodiverse user, a confusing government letter is not just annoying. It can mean a missed appeal, an unpaid bill, or a wrong medication dose. **ClearStep treats this as a safety problem, not a convenience problem.**
-
-**Why does this problem need AI specifically?**
-The volume and variety of overwhelming content is not reducible to templates. A medical discharge summary, a phishing email, and an onboarding pack require different decomposition logic, different safety rules, and different output structures. AI provides the reasoning layer. Azure provides the safety layer. The structure is enforced in code.
+ClearStep addresses every aspect of this brief. It extends the brief with a second mode focused on a closely related need: helping users decide whether something feels safe to act on at all — a trust gap that directly compounds cognitive overload for neurodiverse users.
 
 ---
 
-## The Solution
+## The Solution — Two Modes, One Goal
 
-**Why two modes instead of one?**
-The two problems are different in kind. "Is this safe?" requires risk assessment and signal detection. "Make it simple" requires extraction, sequencing, and cognitive pacing. Merging them into one flow would compromise both. Judges evaluate Mode 1 and Mode 2 as separate, complementary capabilities — not alternatives.
+ClearStep is a two-mode AI system designed to reduce cognitive overload in moments of uncertainty and overwhelm. Both modes use the same approach: calm, structured guidance without adding pressure.
 
-**Why not just use a chatbot?**
-ClearStep is not a conversational assistant. It enforces structured output — separating actions, warnings, and context into fixed fields — so users can follow steps under pressure without interpretation. A chatbot response to "explain this medical instruction" returns a paragraph. ClearStep returns a validated, sequenced task list with warnings separated and key facts labelled. That difference matters for users who cannot parse prose under stress.
+### Mode 1 — Is This Safe?
+Paste any message, email, link, or text that feels suspicious or confusing. ClearStep runs it through a 3-layer AI pipeline and returns:
+- A risk level: **Safe**, **Caution**, or **High Risk**
+- The specific warning signals detected (urgency pressure, impersonation, suspicious links, money requests, threat language)
+- Exactly what to do next — two calm, actionable steps
 
-**Why one step at a time instead of showing all steps?**
-Showing all steps at once recreates the overwhelm the user came to escape. The step engine delivers one action at a time, with a progress bar, undo, and optional reminders. For long documents, steps are batched in groups of five — the user completes a meaningful unit before the next set appears. This is a cognitive safety decision, not a UX preference.
-
-**Why no timers or enforced deadlines?**
-The challenge brief mentions "time-boxed tasks." ClearStep deliberately replaces imposed timers with optional calendar reminders. Countdown timers add urgency and anxiety for users already in cognitive overload. The reminder system is entirely user-initiated — they choose when, not the app. This is a direct response to how neurodiverse users experience enforced pacing.
-
-**How does the reading level feature actually work?**
-Three levels — Big, Normal, Small — control font size, line height, and AI output density. The model is prompted to write differently at each level: 8-word maximum meanings at Simple, 15-word at Detailed. The AI output changes, not just the display. Preferences persist across sessions via Azure Cosmos DB and are applied automatically on return.
-
----
-
-## Safety and Responsible AI
-
-**How do you prevent unsafe or misleading outputs?**
-We use layered safeguards: Azure Content Safety and Prompt Shields run before any model call, and all outputs are validated in Python. Risk levels, medical safeguards, and structure are enforced in code — not left to the model.
-
-Specifically: if the model returns `is_medical: false` for a medical input, a keyword backstop in the validator overrides it. If the model assigns `Safe` to content with real warnings, the validator upgrades the risk level. If the model puts a safety rule in the task list, the validator moves it to warnings. The model is the first line of reasoning. Python is the enforcement layer.
-
-**How does crisis handling work?**
-If Azure Content Safety detects self-harm content at severity 4, the pipeline short-circuits immediately. A hardcoded Python response is returned with the 988 Suicide and Crisis Lifeline. Claude is never called. This cannot be altered by prompt injection, model behaviour, or any input. It is the one response in the system that is completely outside model control.
-
-**How does medical content get special treatment?**
-When `is_medical` is true, the validator enforces: mandatory disclaimer always appended, warnings list cannot be empty, medical badge blocked from showing "CLEAR", leaked safety rules moved from tasks to warnings, dosing numbers and timing copied verbatim. These rules run in Python after every model call — the model cannot bypass them.
-
-**How do you handle prompt injection?**
-Three layers. Azure Prompt Shields detects jailbreak attempts at infrastructure level before any model call. The user message is delivered inside XML delimiters in the prompt — quote characters in user input cannot escape the prompt context. Schema validation rejects any response that breaks the expected structure. We tested 14+ attack vectors and all return High Risk or Caution, never compliance.
-
-**How was security tested?**
-The system was tested across 14+ attack vectors including prompt injection, schema manipulation, file upload abuse, and safety bypass attempts. **Defences are enforced before, during, and after model execution — not through prompt rules alone.** Results are documented in `docs/SECURITY.md`.
-
-**How does this comply with the Microsoft RAI Standard v2?**
-Every principle is mapped with specific implementation evidence in `docs/RESPONSIBLE_AI.md`. The short version: Accountability through Blob Storage logging and 22+ App Insights events. Reliability through hardcoded crisis responses and Python enforcement. Fairness through five accessibility palettes and automatic multilingual support. Transparency through the "Why this result?" panel. Privacy through zero message storage. Human Oversight through professional deference and no auto-advance in the step engine.
+### Mode 2 — Make It Simple
+Paste anything overwhelming — medical instructions, government appeals, confusing work emails, complex onboarding tasks. Or attach a file (.txt, .pdf, .docx, or a screenshot). ClearStep breaks it into:
+- **Before you start** — safety warnings (things to never do) separated from action steps
+- **Key facts** — deadlines, requirements, conditions (labelled, 2–4 words each)
+- **One step at a time** — progress bar, completion tracking, undo, optional calendar reminders
+- Steps batched in groups of 5 to prevent re-introducing cognitive overload on long documents
 
 ---
 
-## Azure and Technical Depth
+## How It Meets the Challenge Brief
 
-**Why 11 Azure services?**
-Each service was chosen for a specific job it does better than the alternatives. Content Safety runs before any LLM — because a hardened infrastructure safety layer is more reliable than a prompt instruction. Azure OpenAI runs signal extraction because a cheap, fast, zero-temperature classifier is the right tool for binary flag detection. Azure AI Language handles multilingual support automatically so users don't need to configure anything. None of the services overlap. Full rationale: `docs/AZURE_SERVICES.md`.
-
-**What is Microsoft Foundry's role?**
-Foundry hosts the signal-classifier (gpt-4o-mini) used in Layer 2 of the pipeline. It provides controlled capacity, version management, and deployment-level monitoring for the model that extracts the five boolean risk flags injected into Claude's prompt. The separation of classification (Foundry/Azure OpenAI) from reasoning (Anthropic Claude) is a deliberate architectural decision — not all tasks need the same model.
-
-**Why Anthropic Claude for the main reasoning layer?**
-Claude provides better nuanced reasoning for medical and safety content than alternatives at this task. Temperature is set to 0 for determinism. The model is not the only safety layer — it is the reasoning layer. Safety is enforced before and after.
-
-**Why vanilla HTML/CSS/JS instead of a framework?**
-Zero dependency surface. Instant load on any device. No build step. No framework version vulnerabilities. For a tool used by people under cognitive stress on potentially slow connections or old devices, load time and reliability matter more than developer convenience.
-
-**How does the file upload work safely?**
-Six layers of validation before any text reaches the AI pipeline: extension check (blocked list + allowed list), MIME type validation per extension, byte-count size check, filename sanitisation via `secure_filename()`, Azure Content Safety screening, and Prompt Shield screening. Files are never stored — extracted in memory and discarded.
-
-**What happens if an Azure service is down?**
-Every Azure dependency is wrapped in try/except with graceful degradation. Key Vault falls back to environment variables. Content Safety skips and logs. Azure OpenAI skips — Claude runs without signal flags. Language detection defaults to English. Cosmos DB falls back to localStorage. The app never fails because a non-core service is unavailable.
+| Challenge Requirement | ClearStep Implementation |
+|---|---|
+| Decompose complex instructions into step-by-step tasks | Make It Simple mode — extracts and sequences every action from the source document, one step at a time |
+| Time-boxed tasks | Optional calendar reminders — user-initiated, not imposed. Google Calendar + Outlook. No urgency added. |
+| Adjustable reading levels | Three levels (Big / Normal / Small) — controls font size, line height, and AI output density. The model writes differently at each level. |
+| Simplify and summarise documents | Meaning field capped at 8–15 words by reading level. Key items surface deadlines and conditions without surrounding complexity. |
+| Focus support through reminders | Step-level reminders with named time options. Smart detection opens date picker for deadline-containing tasks. |
+| Securely stored accessibility preferences | Palette and reading level stored in Azure Cosmos DB per anonymous session. Applied automatically on return. |
+| Responsible AI — calm language | No fear amplification. Signals are patterns, not accusations. High Risk means take care, not danger. |
+| Explain simplification choices | "Why this result?" explainability panel on every output. |
+| Operational, observable service | 22+ custom Application Insights telemetry events. Safety features proven firing in production. |
 
 ---
 
-## Innovation
+## 3-Layer AI Pipeline
 
-**What's genuinely new here?**
-Three things. First, a separation of trust (Mode 1) and comprehension (Mode 2) as complementary cognitive load problems — not combined into one chatbot flow. Second, medical instruction decomposition that expands frequency ("three times daily") into named task instances and enforces a complete safety validation pipeline in Python — not just in the prompt. Third, a layered safety architecture where the AI is the reasoning layer and Python is the enforcement layer — the model cannot produce an unsafe output that reaches the user.
+Every request passes through three layers in strict sequence. A failure at any layer is handled gracefully — the app never crashes.
 
-**Why does the two-mode structure matter for this population?**
-Neurodiverse users face two distinct threat types: manipulation (scams, pressure tactics, deceptive language) and complexity (instructions, forms, medical directions). Most tools address one. ClearStep addresses both — and keeps them separate because the reasoning, output structure, and safety rules for each are fundamentally different.
+```
+User Input (text or uploaded file)
+    │
+    ├─ [Upload only] /api/upload pre-screening
+    │         screen_upload_content() runs before text reaches the pipeline:
+    │         • Azure Content Safety: SelfHarm ≥ 4 → crisis block
+    │         •                       Sexual / Violence / Hate ≥ 2 → content block
+    │         • Prompt Shields: injection attempt → block
+    │         • Cyber keyword regex: exploitation content → block
+    │         Extracted text from .txt, .pdf, .docx, or image OCR
+    │         placed into textarea — user submits normally from there
+    │
+    ▼
+[Layer 1] Azure AI Content Safety
+          Screens for SelfHarm severity ≥ 4
+          IF triggered → hardcoded 988 response returned immediately
+          Claude is NEVER called
+    │
+    ▼
+[Layer 1b] Azure AI Content Safety — Prompt Shields
+          Detects jailbreak and prompt injection attempts
+          IF triggered → hardcoded High Risk response returned immediately
+          Claude is NEVER called
+    │
+    ▼
+[Layer 2a] Azure AI Language
+          Detects input language (ISO 639-1)
+          Non-English → lang_instruction injected into Layer 3 prompt
+    │
+    ▼ (Is This Safe? mode only)
+[Layer 2b] Azure OpenAI via Microsoft Foundry
+          Extracts 5 boolean signal flags:
+          urgency / money_request / impersonation / suspicious_link / threat_language
+          Flags passed as context to Layer 3
+    │
+    ▼
+[Layer 3] Anthropic Claude (claude-sonnet-4-20250514)
+          Final risk assessment + step generation
+          Mode-specific prompts, reading level rules, language instruction
+          User message XML-delimited — prompt injection surface eliminated
+    │
+    ▼
+[Validation] validate_response() — Python, server-side
+          Schema check, medical hardening, frequency expansion, leaked warning detection
+          risk_level enforced against warnings (Safe invalid when real warnings exist)
+          is_medical keyword backstop catches model misclassification
+          Per-item word limits enforced
+          Malformed output rejected before user sees anything
+    │
+    ▼
+[Storage] Azure Blob Storage
+          AI response JSON logged — no raw message content
+    │
+    ▼
+[Telemetry] Azure Application Insights
+          22+ custom events fired per request
+```
 
-**How does the system adapt to the user?**
-Accessibility preferences (colour palette and reading level) persist across sessions via Cosmos DB and apply automatically. Language detection makes multilingual support invisible — no selector, no configuration. The reading level setting changes how the AI writes, not just how the text displays. The system does not require the user to understand how it adapts — it just does.
+Full architecture and request flow diagrams: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 
 ---
 
-## Judging Criteria
+## Azure Services — 11 Services + Microsoft Foundry
 
-**Solution Performance — does it work?**
-Yes. The live demo is deployed at Azure App Service. Both modes are functional. The AI pipeline, file upload, text-to-speech, calendar reminders, and preference persistence all work in production. The system degrades gracefully on Azure service failures.
+ClearStep uses 11 Azure services and Microsoft Foundry. Each was chosen for a specific reason — not to pad a list.
 
-**Innovation — new scenario or approach?**
-Yes. The combination of trust assessment and cognitive load reduction in one system, the medical instruction decomposition pipeline, and the Python enforcement layer over model output are all novel approaches to this problem space.
+| Service | Purpose |
+|---|---|
+| **Azure App Service** | Hosts the Flask application — managed hosting with GitHub Actions CI/CD |
+| **Azure AI Content Safety** | Crisis screening (SelfHarm ≥ 4 → 988 response) + Prompt Shields jailbreak detection. Runs before any LLM. Also screens all uploaded file content. |
+| **Azure OpenAI via Microsoft Foundry** | Signal extraction — 5 boolean flags injected into Claude's prompt as pre-processed context |
+| **Azure AI Language** | Language detection — non-English inputs trigger full multilingual Claude response across all fields |
+| **Azure AI Speech** | Text-to-speech — converts result sections to MP3 audio on demand. 10 languages. Audio never stored. |
+| **Azure Computer Vision** | OCR for image uploads — extracts text from screenshots and photos (.png, .jpg, .jpeg) |
+| **Azure Key Vault** | Secrets management — no keys in code or config files. Managed Identity auth. |
+| **Azure Blob Storage** | Audit log — AI response JSON stored per analysis. No raw message content. |
+| **Azure Application Insights** | Telemetry — 22+ custom events prove safety features are firing in production |
+| **Azure Cosmos DB** | Persistent accessibility preferences — palette and reading level stored anonymously per session |
+| **Microsoft Foundry** | Deployment platform for signal-classifier (gpt-4o-mini). Controlled capacity, version management, monitoring. |
 
-**Responsible AI — adherence to Microsoft RAI Standard v2?**
-Yes. Full mapping documented in `docs/RESPONSIBLE_AI.md`. Key differentiator: safety behaviour is enforced in code, not just prompted. **The model cannot produce a medically unsafe, misclassified, or structurally invalid output that reaches the user.**
-
-**Azure Breadth — full advantage of the Azure platform?**
-Yes. **11 Azure services + Microsoft Foundry, each with a specific architectural role. Not decorative integrations** — every service is active in the production pipeline and documented in `docs/AZURE_SERVICES.md`.
+Full breakdown — why each was chosen, how it's wired, and where in the code: [`docs/AZURE_SERVICES.md`](./docs/AZURE_SERVICES.md)
 
 ---
 
-## Tradeoffs and Scope
+## Responsible AI — Microsoft RAI Standard v2
 
-**Why are some features marked as intentionally scoped?**
-This is a focused hackathon MVP. Core functionality and safety systems are complete. Infrastructure-level features — distributed rate limiting, authenticated preferences, full-document content safety screening — are intentionally deferred to prioritise reliability and clarity in the demo. All deferred items are documented and can be upgraded without changes to the core system design.
+| Principle | What ClearStep built |
+|---|---|
+| **Accountability** | Every analysis logged to Blob Storage. 22+ App Insights events track system behaviour in production including upload blocks, TTS generation, OCR failures, and safety enforcement events. |
+| **Reliability & Safety** | Crisis response hardcoded — cannot be altered by model behaviour. Prompt Shields detect jailbreak at infrastructure level. Upload content screening runs a full safety pipeline before any text reaches the LLM. Medical hardening enforced in Python. Schema validation rejects malformed output. Rate limiting prevents abuse. XSS sanitisation protects against model output injection. |
+| **Fairness** | 5 accessibility palettes designed for specific neurological needs. Reading level changes AI output density. Language detection serves non-English speakers automatically. File attachment supports users who cannot copy/paste. |
+| **Transparency** | "Why this result?" panel on every output. AI tool disclaimer always visible. Medical content always defers to original document. Fallback mode shows visible indicator when AI is unavailable. |
+| **Privacy** | No message content stored. No file content stored — files read in memory and discarded. Cosmos DB stores anonymous session ID + two preference values only. No accounts, no tracking. |
+| **Human Oversight** | Medical and legal content always defers to real professionals. Crisis response sends users to human services (988). App never presents itself as a replacement. Step engine never auto-advances — user controls every transition. |
+| **Inclusiveness** | Built for ADHD, dyslexia, autism, low digital literacy, elderly users, and non-English speakers. File attachment reduces friction. TTS supports low-literacy and vision-impaired users. Fully responsive. |
 
-**What is the hardest problem you solved?**
-Medical instruction decomposition. The challenge: "Take 1 tablet three times daily with food for 7 days" must become three named task instances, a duration key item, and a warnings list — with the model's output validated and corrected in Python if it fails. This required layered enforcement: prompt rules, a frequency expansion validator, a keyword backstop for is_medical misclassification, and risk_level logic enforcement. Getting that pipeline consistent and correct was the hardest engineering problem in the build.
+Full mapping with implementation detail: [`docs/RESPONSIBLE_AI.md`](./docs/RESPONSIBLE_AI.md)
 
-**What would you build next?**
-Azure Computer Vision OCR is scaffolded and ready — pending endpoint validation once the resource is live. After that: session history for returning users, and a browser extension for "Is This Safe?" directly from email clients.
+---
 
-**What did you learn?**
-That prompt rules are not enforcement. Every place we relied on the model to follow a rule, we eventually found a failure case. Every place we enforced the rule in Python, the failure case disappeared. The architecture lesson: **use the model for reasoning, use code for guarantees.**
+## Accessibility Design
+
+Five colour palettes each override the full CSS semantic variable set — not just background and text, but every state colour including safe, caution, danger, warning, medical bar, and completion states.
+
+| Profile | Who it's for | Key decision |
+|---|---|---|
+| **Calm default** | General users | Off-white (#F7F7F2) reduces screen glare. Muted teal accent is non-aggressive. |
+| **Low sensory** | Autism / sensory sensitivity | Zero red, orange, or amber. Even High Risk renders in deep muted teal. |
+| **Dyslexia-friendly** | Dyslexia | Cream background (#F5F0E0) reduces visual vibration. No competing colour families. |
+| **High focus** | ADHD | Single accent colour. Completion state visually distinct from safe-state green. |
+| **Dark mode** | Photosensitivity / night use | Dark navy (#1C1F26), not pure black. Muted variants across all states. |
+
+Three reading levels (Big / Normal / Small) control font size, line height, and AI output density — the model writes differently at each level. Preferences persist across sessions via Cosmos DB.
+
+Full design rationale: [`docs/DESIGN_DECISIONS.md`](./docs/DESIGN_DECISIONS.md)
+
+---
+
+## Security
+
+ClearStep was tested across 14+ attack vectors including prompt injection, schema manipulation, file upload abuse, and safety bypass attempts. Security does not rely on prompt rules alone — behavior is enforced in code through validation, pre-screening, and layered defences that operate independently of model output.
+
+- **CORS locked** to production domain — no third-party API access
+- **Rate limiting** on all AI-calling endpoints: 10/min analyze, 5/min upload and TTS, 20/min calendar
+- **Prompt injection** mitigated via Azure Prompt Shields (infrastructure) + XML message delimiters (prompt) + schema validation (output)
+- **14 attack vectors tested** — all return High Risk or Caution, never compliance
+- **XSS sanitisation** — all model output rendered via `innerHTML` escaped through `esc()` before DOM insertion
+- **File upload defence-in-depth** — extension + MIME + size + filename sanitisation + 3-layer content screening
+- **Zero secrets in code** — Azure Key Vault with Managed Identity, env var fallback
+
+Full security documentation including all 14 attack vector test results: [`docs/SECURITY.md`](./docs/SECURITY.md)
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| Frontend | Vanilla HTML/CSS/JS — single file, no build step | Zero dependency surface, instant load, works on any device |
+| Backend | Python Flask + Gunicorn | Lightweight, fast, native Azure deployment |
+| Primary AI | Anthropic Claude `claude-sonnet-4-20250514` | Best-in-class reasoning for medical and safety content |
+| Signal extraction | Azure OpenAI (gpt-4o-mini) via Microsoft Foundry | Fast, cheap, zero-temperature classification |
+| Crisis screening | Azure AI Content Safety | Hardened, purpose-built — not a prompt |
+| Language detection | Azure AI Language | Automatic multilingual support without UI complexity |
+| Text-to-speech | Azure AI Speech | On-demand MP3, 10 languages, audio never stored |
+| Image OCR | Azure Computer Vision | Extracts text from screenshots and photos |
+| PDF extraction | pypdf | Pure Python, no system dependencies |
+| Word extraction | python-docx | Pure Python .docx extraction |
+| Secrets | Azure Key Vault + DefaultAzureCredential | Zero secrets in code or config files |
+| Preferences | Azure Cosmos DB | Low-latency anonymous preference storage with graceful fallback |
+| Audit log | Azure Blob Storage | Immutable result log, no PII |
+| Observability | Azure Application Insights | 22+ custom events, production safety monitoring |
+| Deployment | Azure App Service + GitHub Actions CI/CD | Managed hosting, automatic deployments on push to main |
+| Rate limiting | Flask-Limiter | Per-IP request caps on all write endpoints |
+| CORS | Flask-CORS | API locked to ClearStep domain |
+
+---
+
+## Running Locally
+
+```bash
+git clone https://github.com/joannedada/clearstep
+cd clearstep
+pip install -r requirements.txt
+```
+
+Create a `.env` file — **never commit this:**
+```
+ANTHROPIC_API_KEY=your_key_here
+```
+
+```bash
+python app.py
+# Open http://localhost:5000
+```
+
+All Azure services degrade gracefully if not configured. Content Safety, Language detection, OpenAI extraction, Speech, Vision, Cosmos, and Blob all skip or return clean errors silently. The core experience works with only an Anthropic API key.
+
+---
+
+## Project Structure
+
+```
+clearstep/
+├── app.py                  # Flask backend — pipeline, Azure integrations, validation
+├── index.html              # Complete frontend — modes, palettes, task engine, reminders
+├── requirements.txt        # Python dependencies
+├── .github/
+│   └── workflows/          # Azure App Service CI/CD pipeline
+└── docs/
+    ├── ARCHITECTURE.md     # Full system design and request flow
+    ├── RESPONSIBLE_AI.md   # Microsoft RAI Standard v2 mapping
+    ├── SECURITY.md         # Application security hardening and test results
+    ├── AZURE_SERVICES.md   # Every Azure integration explained
+    ├── DESIGN_DECISIONS.md # Why we built it the way we did
+    ├── CONTRIBUTING.md     # Local setup, architecture orientation, dev notes
+    └── QA.md               # Design decisions, tradeoffs, judging criteria Q&A
+```
+
+---
+
+## Hackathon Scope & Intentional Tradeoffs
+
+This project is designed as a focused MVP for the Microsoft AI Innovation Challenge. Core functionality, safety handling, and user experience flows are fully implemented and tested.
+
+Some infrastructure-level features are intentionally scoped for post-hackathon hardening:
+
+- Rate limiting currently uses in-memory storage and resets on worker restart
+- `/api/preferences` endpoint is not authenticated
+- Content Safety currently evaluates the first 1,000 characters of uploaded file content
+- Self-harm detection uses a high-confidence threshold (severity ≥ 4)
+
+These decisions were made to prioritise reliable real-time interaction, clear user-facing safety behaviour, and consistent demo performance. All deferred items are documented and can be upgraded without changes to the core system design.
+
+---
+
+## Roadmap
+
+- **Azure Computer Vision live:** OCR endpoint URL and response shape to be validated once the Vision resource is active — scaffolding is complete in `app.py`
+- **Session history:** Optional anonymous history so users can revisit past analyses
+- **Browser extension:** "Is This Safe?" directly from email clients
+
+---
+
+## Team
+
+| Name | Role |
+|---|---|
+| **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (`app.py`) · Frontend development (`index.html`) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS, SECURITY) |
+| **Joanne Dada** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Azure Computer Vision resource provisioning · Cloud integration |
+| **Fatima** | Research support · Accessibility input · Feature ideation |
+
+---
+
+**Hackathon Challenge:** Cognitive Load Reduction Assistant
+**Deployed:** Azure App Service, Canada East
+**Repo:** [github.com/joannedada/clearstep](https://github.com/joannedada/clearstep)
+**Entry Period:** March 16–27, 2026
