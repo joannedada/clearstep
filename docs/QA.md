@@ -1,4 +1,4 @@
-[QA.md](https://github.com/user-attachments/files/26266774/QA.md)
+[QA.md](https://github.com/user-attachments/files/26270325/QA.md)
 # ClearStep — Q&A
 ### Design Decisions, Tradeoffs, and Judging Criteria
 
@@ -13,7 +13,7 @@
 > Use the model for reasoning, use code for guarantees.
 
 > **3. Responsible AI**
-> The model cannot produce a medically unsafe, misclassified, or structurally invalid output that reaches the user.
+> The model cannot produce a medically unsafe, misclassified, or structurally invalid output that reaches the user — within the scope of the validation rules enforced in `validate_response()`.
 
 > **4. Security**
 > Defences are enforced before, during, and after model execution — not through prompt rules alone.
@@ -104,7 +104,7 @@ Every Azure dependency is wrapped in try/except with graceful degradation. Key V
 ## Innovation
 
 **What's genuinely new here?**
-ClearStep learns from user behavior. Reading level preferences are inferred from usage history and auto-applied on return — no configuration required. The more a user interacts, the less they have to set up. Beyond adaptation: a layered safety architecture where the AI is the reasoning layer and Python is the enforcement layer — the model cannot produce an unsafe output that reaches the user. And medical instruction decomposition that expands frequency ("three times daily") into named task instances, enforced in Python after every model call. The separation of trust assessment (Mode 1) and comprehension support (Mode 2) as distinct cognitive load problems — not collapsed into one chatbot flow — completes the picture.
+ClearStep learns from user behavior. Reading level preferences are inferred from usage history and auto-applied on return — no configuration required. The more a user interacts, the less they have to set up. Beyond adaptation: a layered safety architecture where the AI is the reasoning layer and Python is the enforcement layer — the model cannot produce a structurally invalid, misclassified, or medically unsafe output that reaches the user, within the scope of the enforced validation rules. And medical instruction decomposition that expands frequency ("three times daily") into named task instances, enforced in Python after every model call. The separation of trust assessment (Mode 1) and comprehension support (Mode 2) as distinct cognitive load problems — not collapsed into one chatbot flow — completes the picture.
 
 **Why does the two-mode structure matter for this population?**
 Neurodiverse users face two distinct threat types: manipulation (scams, pressure tactics, deceptive language) and complexity (instructions, forms, medical directions). Most tools address one. ClearStep addresses both — and keeps them separate because the reasoning, output structure, and safety rules for each are fundamentally different.
@@ -126,13 +126,13 @@ AI does not have full context of the user's situation. ClearStep sees the text t
 ## Judging Criteria
 
 **Solution Performance — does it work?**
-Yes. The live demo is deployed at Azure App Service. Both modes are functional. The AI pipeline, file upload, text-to-speech, calendar reminders, and preference persistence all work in production. The system degrades gracefully on Azure service failures.
+Yes. The live demo is deployed at Azure App Service. Both modes are functional. The AI pipeline, file upload, text-to-speech, calendar reminders, and preference persistence all work in production. The system degrades gracefully on Azure service failures. Three interactive demo assets support evaluation: the pipeline explorer, the accessibility palette showcase, and the RAI compliance map — each principle in the RAI standard mapped to a named component and working code.
 
 **Innovation — new scenario or approach?**
 Yes. The combination of trust assessment and cognitive load reduction in one system, the medical instruction decomposition pipeline, and the Python enforcement layer over model output are all novel approaches to this problem space.
 
 **Responsible AI — adherence to Microsoft RAI Standard v2?**
-Yes. Full mapping documented in `docs/RESPONSIBLE_AI.md`. Key differentiator: safety behaviour is enforced in code, not just prompted. **The model cannot produce a medically unsafe, misclassified, or structurally invalid output that reaches the user.**
+Yes. Full mapping documented in `docs/RESPONSIBLE_AI.md`. Key differentiator: safety behaviour is enforced in code, not just prompted. **Within the scope of `validate_response()`, the model cannot produce a medically unsafe, misclassified, or structurally invalid output that reaches the user.**
 
 **Azure Breadth — full advantage of the Azure platform?**
 Yes. **10 Azure services + Microsoft Foundry, each with a specific architectural role. Not decorative integrations** — every service is active in the production pipeline and documented in `docs/AZURE_SERVICES.md`.
