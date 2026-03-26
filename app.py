@@ -1067,6 +1067,9 @@ def extract_text_from_image(file_obj):
             if status == "failed":
                 raise RuntimeError("OCR analysis failed")
 
+        if result.get("status") != "succeeded":
+            raise RuntimeError("OCR did not complete successfully in time")
+
         lines = []
         for read_result in result.get("analyzeResult", {}).get("readResults", []):
             for line in read_result.get("lines", []):
