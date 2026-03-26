@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/26266793/README.md)
 # ClearStep
 ### Microsoft AI Innovation Challenge Hackathon — March 2026
 
@@ -38,7 +39,7 @@ Paste any message, email, link, or text that feels suspicious or confusing. Clea
 - Exactly what to do next; two calm, actionable steps
 
 ### Mode 2 — Make It Simple
-Paste anything overwhelming like medical instructions, government appeals, confusing work emails, complex onboarding tasks. Or attach a file (.txt, .pdf, .docx, or a screenshot). ClearStep breaks it into:
+Paste anything overwhelming like medical instructions, government appeals, confusing work emails, complex onboarding tasks. Or attach a file (.txt, .pdf, .docx). ClearStep breaks it into:
 - **Before you start** — safety warnings (things to never do) separated from action steps
 - **Key facts** — deadlines, requirements, conditions (labelled, 2–4 words each)
 - **One step at a time** — progress bar, completion tracking, undo, optional calendar reminders
@@ -56,6 +57,7 @@ Paste anything overwhelming like medical instructions, government appeals, confu
 | Simplify and summarise documents | Meaning field capped at 8–15 words by reading level. Key items surface deadlines and conditions without surrounding complexity. |
 | Focus support through reminders | Step-level reminders with named time options. Smart detection opens date picker for deadline-containing tasks. |
 | Securely stored accessibility preferences | Palette and reading level stored in Azure Cosmos DB per anonymous session. Applied automatically on return. |
+| Adapts over time | Reading level auto-inferred from usage history via Cosmos DB. On return, the system applies the user's consistent preference automatically — no configuration required. The more a user interacts, the less they have to set up. |
 | Responsible AI — calm language | No fear amplification. Signals are patterns, not accusations. High Risk means take care, not danger. |
 | Explain simplification choices | "Why this result?" explainability panel on every output. |
 | Operational, observable service | 22+ custom Application Insights telemetry events. Safety features proven firing in production. |
@@ -75,7 +77,7 @@ User Input (text or uploaded file)
     │         •                       Sexual / Violence / Hate ≥ 2 → content block
     │         • Prompt Shields: injection attempt → block
     │         • Cyber keyword regex: exploitation content → block
-    │         Extracted text from .txt, .pdf, .docx, or image OCR
+    │         Extracted text from .txt, .pdf, or .docx
     │         placed into textarea — user submits normally from there
     │
     ▼
@@ -136,9 +138,9 @@ Full architecture and request flow diagrams: [`docs/ARCHITECTURE.md`](./docs/ARC
 
 ---
 
-## Azure Services — 11 Services + Microsoft Foundry
+## Azure Services — 10 Services + Microsoft Foundry
 
-ClearStep uses 11 Azure services and Microsoft Foundry. Each was chosen for a specific reason, not to pad a list.
+ClearStep uses 10 Azure services and Microsoft Foundry. Each was chosen for a specific reason, not to pad a list.
 
 | Service | Purpose |
 |---|---|
@@ -147,7 +149,6 @@ ClearStep uses 11 Azure services and Microsoft Foundry. Each was chosen for a sp
 | **Azure OpenAI via Microsoft Foundry** | Signal extraction - 5 boolean flags injected into Claude's prompt as pre-processed context |
 | **Azure AI Language** | Language detection - non-English inputs trigger full multilingual Claude response across all fields |
 | **Azure AI Speech** | Text-to-speech - converts result sections to MP3 audio on demand. 10 languages. Audio never stored. |
-| **Azure Computer Vision** | OCR for image uploads - extracts text from screenshots and photos (.png, .jpg, .jpeg) |
 | **Azure Key Vault** | Secrets management - no keys in code or config files. Managed Identity auth. |
 | **Azure Blob Storage** | Audit log - AI response JSON stored per analysis. No raw message content. |
 | **Azure Application Insights** | Telemetry - 22+ custom events prove safety features are firing in production |
@@ -162,7 +163,7 @@ Full breakdown including why each was chosen, how it's wired, and where in the c
 
 | Principle | What ClearStep built |
 |---|---|
-| **Accountability** | Every analysis logged to Blob Storage. 22+ App Insights events track system behaviour in production including upload blocks, TTS generation, OCR failures, and safety enforcement events. |
+| **Accountability** | Every analysis logged to Blob Storage. 22+ App Insights events track system behaviour in production including upload blocks, TTS generation, and safety enforcement events. |
 | **Reliability & Safety** | Crisis response hardcoded — cannot be altered by model behaviour. Prompt Shields detect jailbreak at infrastructure level. Upload content screening runs a full safety pipeline before any text reaches the LLM. Medical hardening enforced in Python. Schema validation rejects malformed output. Rate limiting prevents abuse. XSS sanitisation protects against model output injection. |
 | **Fairness** | 5 accessibility palettes designed for specific neurological needs. Reading level changes AI output density. Language detection serves non-English speakers automatically. File attachment supports users who cannot copy/paste. |
 | **Transparency** | "Why this result?" panel on every output. AI tool disclaimer always visible. Medical content always defers to original document. Fallback mode shows visible indicator when AI is unavailable. |
@@ -225,7 +226,6 @@ Full security documentation including all 14 attack vector test results: [`docs/
 | Crisis screening | Azure AI Content Safety | Hardened, purpose-built and not a prompt |
 | Language detection | Azure AI Language | Automatic multilingual support without UI complexity |
 | Text-to-speech | Azure AI Speech | On-demand MP3, 10 languages, audio never stored |
-| Image OCR | Azure Computer Vision | Extracts text from screenshots and photos |
 | PDF extraction | pypdf | Pure Python, no system dependencies |
 | Word extraction | python-docx | Pure Python .docx extraction |
 | Secrets | Azure Key Vault + DefaultAzureCredential | Zero secrets in code or config files |
@@ -256,7 +256,7 @@ python app.py
 # Open http://localhost:5000
 ```
 
-All Azure services degrade gracefully if not configured. Content Safety, Language detection, OpenAI extraction, Speech, Vision, Cosmos, and Blob all skip or return clean errors silently. The core experience works with only an Anthropic API key.
+All Azure services degrade gracefully if not configured. Content Safety, Language detection, OpenAI extraction, Speech, Cosmos, and Blob all skip or return clean errors silently. The core experience works with only an Anthropic API key.
 
 ---
 
@@ -303,7 +303,6 @@ These decisions were made to prioritise reliable real-time interaction, clear us
 
 ## Roadmap
 
-- **Azure Computer Vision live:** OCR endpoint URL and response shape to be validated once the Vision resource is active. Scaffolding is complete in `app.py`
 - **Session history:** Optional anonymous history so users can revisit past analyses
 - **Browser extension:** "Is This Safe?" directly from email clients
 
@@ -314,7 +313,7 @@ These decisions were made to prioritise reliable real-time interaction, clear us
 | Name | Role |
 |---|---|
 | **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (`app.py`) · Frontend development (`index.html`) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS, SECURITY) |
-| **Joanne Obodoagwu** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Azure Computer Vision resource provisioning · Cloud integration |
+| **Joanne Obodoagwu** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Cloud integration |
 | **Fatima** | Research support · Accessibility input · Feature ideation |
 
 ---
