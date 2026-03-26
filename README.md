@@ -1,5 +1,5 @@
 # ClearStep
-### Microsoft Innovation Challenge Hackathon — March 2026
+### Microsoft AI Innovation Challenge Hackathon — March 2026
 
 > **ClearStep is an AI decision-support system that reduces cognitive overload** while helping users determine if something is safe to act on, and breaking overwhelming information into clear, calm, actionable steps. Built for neurodiverse users who need structure, not more noise.
 
