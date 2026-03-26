@@ -28,7 +28,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .standard-link{display:inline-flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent2);border:1px solid var(--border2);border-radius:4px;padding:8px 18px;text-decoration:none;transition:all 0.2s;}
 .standard-link:hover{border-color:var(--accent2);background:rgba(90,175,216,0.06);}
 .standard-link::before{content:'↗';font-size:13px;}
-.rai-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;margin-bottom:56px;}
+.rai-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:56px;max-width:780px;margin-left:auto;margin-right:auto;}
 .rai-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color 0.25s,transform 0.18s,box-shadow 0.25s;position:relative;}
 .rai-card::after{content:'';position:absolute;inset:0;border-radius:12px;opacity:0;transition:opacity 0.25s;background:radial-gradient(ellipse at 50% 0%,var(--card-glow),transparent 70%);pointer-events:none;}
 .rai-card:hover{transform:translateY(-3px);box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 0 1px var(--card-accent);}
