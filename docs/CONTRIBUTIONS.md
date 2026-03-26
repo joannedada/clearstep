@@ -1,3 +1,4 @@
+[CONTRIBUTIONS.md](https://github.com/user-attachments/files/26266687/CONTRIBUTIONS.md)
 # Contributions — ClearStep
 This document reflects actual implementation based on the repository, system architecture, and deployed functionality.
 
@@ -15,7 +16,6 @@ This document reflects actual implementation based on the repository, system arc
 - Designed and implemented `validate_response()` — the Python enforcement layer for schema validation, medical safeguards, frequency expansion, leaked warning detection, is_medical keyword backstop, and risk_level logic enforcement
 - Integrated Azure AI Language — automatic language detection, multilingual prompt injection, response in detected language across all fields
 - Integrated Azure AI Speech — SSML-based TTS with 10-language Neural voice map, HTML stripping, rate limiting, audio never stored
-- Integrated Azure Computer Vision — image OCR scaffolding (v3.2 Read API, two-step async pattern)
 - Integrated Azure Blob Storage — timestamped audit log of every validated response, no message content stored
 - Integrated Azure Cosmos DB — anonymous session-based preference persistence (palette + reading level)
 - Integrated Azure Application Insights — 25 custom telemetry events across the full request lifecycle
@@ -48,7 +48,6 @@ This document reflects actual implementation based on the repository, system arc
 - Provisioned Azure Blob Storage container and connection
 - Provisioned Azure Cosmos DB database and container
 - Deployed signal-classifier (gpt-4o-mini) through Microsoft Foundry — controlled capacity, Standard deployment type
-- Provisioned Azure Computer Vision resource
 - Configured Azure-to-Azure Managed Identity authentication
 - Managed cloud integration between all provisioned resources
 - Repository management and branch workflow
@@ -60,7 +59,7 @@ This document reflects actual implementation based on the repository, system arc
 
 ---
 
-## Fatima
+## Fatima Ahmed
 
 **Primary Contributions:**
 
