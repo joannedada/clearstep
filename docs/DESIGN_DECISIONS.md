@@ -1,137 +1,163 @@
 # ClearStep — Design Decisions
 ### Why we built it the way we did
 
-This document captures the intentional design choices behind ClearStep — the reasoning behind the UI, the interaction patterns, the safety architecture, and the technical details that don't belong in a README but matter deeply to how the system works.
+---
+
+## The Core Principle
+> If the user feels panic, the system has failed.
+
+Every design decision flows from this constraint.
 
 ---
 
-## Intentional Design Philosophy
+## Colour System — Accessibility Tools, Not Themes
 
-**Nothing in this application is accidental.** Every colour, every spacing decision, every word of copy, every interaction pattern was deliberately chosen with one goal: reduce cognitive load, not add to it.
-
-### The Core Principle
-> If the user feels panic, the system has failed.
-
-ClearStep was designed around this constraint. Every design decision flows from it.
-
-### Colour System — Designed for Safety, Not Aesthetics
-
-The five colour palettes are not themes. They are accessibility tools.
-
-Each palette overrides the **full set of CSS semantic variables** — not just background and text, but every state colour including safe, caution, danger, warning, and the medical bar. No hardcoded colour competes with the active profile anywhere in the codebase.
+Each palette overrides the full set of CSS semantic variables — not just background and text, but every state colour including safe, caution, danger, warning, medical bar, and now `--mark-done`. No hardcoded colour competes with the active profile.
 
 | Profile | Who it's for | Design decision |
 |---|---|---|
 | **Calm default** | General users | Off-white (#F7F7F2) reduces screen glare. Muted teal accent is non-aggressive. No pure white — pure white creates harsh contrast under stress. |
-| **Low sensory** | Autism / sensory sensitivity | **Zero red or orange anywhere in the entire interface.** Every alert uses the muted amber family. Even "High Risk" renders in warm brown, not red. |
-| **Dyslexia-friendly** | Dyslexia | Cream background (#F5F0E0) reduces the visual vibration that white backgrounds cause for dyslexic readers. Warm tones reduce eye strain on long reads. |
-| **High focus** | ADHD | Single accent colour only. No competing visual elements. Amber for all alerts — one colour family, not three. Strips everything that pulls the eye away from the current task. |
-| **Dark mode** | Photosensitivity / night use | Dark navy (#1C1F26), not pure black. Muted colour variants across all states — no blinding contrast shifts when alert colours appear. |
+| **Low sensory** | Autism / sensory sensitivity | Zero red, orange, or amber anywhere. All alerts use darker/lighter variants of the accent green-neutral family. Even "High Risk" renders in deep muted teal. |
+| **Dyslexia-friendly** | Dyslexia | Cream background (#F5F0E0) reduces visual vibration. Both --accent and --safe are muted and in the same blue-green family — no competing colours. |
+| **High focus** | ADHD | Single accent colour only. `--mark-done` shifted to blue (#2A6EA8) — the completion action is visually distinct from safe-state green, reinforcing focus on the current task. |
+| **Dark mode** | Photosensitivity / night use | Dark navy (#1C1F26), not pure black. `--mark-done` uses muted teal (#28806A) instead of the vivid safe green — calmer on dark backgrounds. |
 
-### Typography and Spacing
-
-- **Bebas Neue** for display headings — high visual weight, low character count, fast to scan under stress
-- **DM Sans** for body copy — optimised for readability at small sizes, low cognitive effort to parse
-- **DM Mono** for labels and metadata — visually separates instructional text from UI chrome
-- Line height scales with reading level: 2.0 (Big), 1.75 (Normal), 1.65 (Small) — not just font size
-- Maximum content width 640px — prevents long line lengths that increase reading error rate
-- A `fractalNoise` SVG texture overlay (opacity 0.025) is applied to the entire body — reduces the sterile feeling of a pure-colour screen and adds warmth without distraction
-
-### Interaction Design — Slowing Down, Not Speeding Up
-
-Most apps optimise for speed. ClearStep optimises for **deliberate decision-making**.
-
-- The mode selection screen shows two options only — no menu, no dashboard, no choices before you've started
-- Results never auto-scroll. The user controls pacing.
-- Step-by-step mode shows **one step at a time by default** — not a list. Seeing 8 steps at once recreates the original overwhelm.
-- Undo is available at every stage — last step, specific step, or all steps. No decision is permanent.
-- **No enforced timers.** The challenge brief mentioned time-boxed tasks. ClearStep deliberately does not implement them. For many users already in cognitive overload, a countdown timer adds urgency and anxiety — the opposite of what the tool is for. Focus support is delivered through optional, user-initiated calendar reminders, not imposed deadlines.
-- Calm phrases appear as toasts during longer operations: *"No rush. You have time."* — the system models the calm it wants the user to feel.
-- The topbar fades to 20% opacity on the mode selection screen — it exists but does not compete for attention until the user has made a choice.
-
-### Emotional Design
-
-- **No "you are being scammed" language.** Signals are labelled as patterns, not accusations.
-- **No fear amplification.** High Risk means "take care", not "you are in danger right now."
-- **No false certainty.** Every result includes "ClearStep is an AI tool. Always verify with a professional."
-- **Crisis response bypasses the entire AI pipeline.** When Azure AI Content Safety detects severe self-harm (severity ≥ 4), no model is ever invoked. The 988 Lifeline response is hardcoded in Python — it cannot be altered by a prompt, a model hallucination, or an API failure.
+**Mode card readability fix:** The mode selection cards use hardcoded light backgrounds (#EDF4F8, #F5F0E8) that don't respond to profile variables. Subtitle text is hardcoded to dark (#3A3630) so it remains readable regardless of which profile is active — including dark mode.
 
 ---
 
+## Typography and Spacing
+
+- **Bebas Neue** — display headings, high visual weight, fast to scan under stress
+- **DM Sans** — body copy, low cognitive effort to parse
+- **DM Mono** — labels and metadata, visually separates instructional text from UI chrome
+- Line height scales with reading level: 2.0 (Big), 1.75 (Normal), 1.65 (Small)
+- Maximum content width 640px — prevents long line lengths that increase reading error rate
+- `fractalNoise` SVG texture overlay (opacity 0.025) — reduces sterile feel of flat colour screens
+
+---
+
+## Interaction Design — Slowing Down, Not Speeding Up
+
+- Mode selection: two options only. No menu, no dashboard.
+- Results never auto-scroll. User controls pacing.
+- Step-by-step shows one step at a time by default — seeing all steps at once recreates the original overwhelm
+- Undo available at every stage — last step, specific step, or all steps
+- **No enforced timers.** Countdown timers add urgency and anxiety for users already in cognitive overload. Optional calendar reminders replace imposed deadlines.
+- The topbar fades to 20% opacity on the mode screen — it exists but does not compete for attention
+
+---
+
+## Word Limits — A Safety Decision, Not a Style Choice
+
+Tasks are guided to 8 words or fewer. This is intentional and non-negotiable for this user group:
+
+- Reading a long task creates cognitive load before the action even begins
+- Incomplete tasks (truncated mid-word) create anxiety and confusion
+- The correct solution when an action needs more words is to **split it into 2 tasks**, not stretch the limit
+
+The model is explicitly instructed to split overlong actions. Unlike other fields (signals, warnings, key_items), tasks are **not** hard-truncated by `_trim_items()` in Python — because truncating a task mid-thought is worse than a task running slightly long. The prompt is the enforcement layer for task length. Python truncation is reserved for fields where a hard cut cannot corrupt meaning (labels, signals, short warnings).
+
+---
+
+## Batch Task Delivery — A Cognitive Load Decision
+
+When a document produces more than 5 tasks, all tasks are generated by the model but the frontend delivers them 5 at a time. Rationale:
+
+- Seeing 10+ steps at once recreates the overwhelm the user came to escape
+- The user completes a meaningful unit of work before the next set appears
+- A clear notice appears before the user starts: "Long document — showing 5 steps at a time. More will follow."
+- The user controls when to load the next batch — it never auto-loads
+- The "Continue to next N steps" button shows exactly how many steps are coming
+
+---
+
+## File Attachment — Reducing the Copy/Paste Barrier
+
+Many users who would benefit most from ClearStep have the hardest time using it without file attachment:
+- Motor difficulties make selecting and copying text from a PDF painful
+- Low digital literacy means multi-step copy/paste workflows are confusing
+- Some documents arrive as images (photos of letters, screenshots of instructions) with no copyable text
+
+File attachment supports .txt, .pdf, .docx, and screenshots (.png, .jpg, .jpeg). All files are extracted in memory — nothing stored. All extracted text passes through the full content screening stack before reaching the user or the AI pipeline.
+
+The attach button is deliberately sized and styled to be visible and easy to click — larger padding, legible font, distinct border — while remaining calm and consistent with the ClearStep aesthetic.
+
+---
+
+## Upload Safety — Defence in Depth
+
+Uploads are the highest-risk input vector. A user pasting text is a known format. A file is unknown until opened. The upload pipeline applies more checks than the text pipeline:
+
+1. Extension validation (blocked list + allowed list)
+2. MIME type validation (per-extension dict, no bypass)
+3. Size validation (byte-count based, not header trust)
+4. Filename sanitisation (werkzeug secure_filename)
+5. Content screening at 3 layers: Azure Content Safety (all 4 harm categories), Prompt Shields, cyber abuse regex
+
+All of this runs before any text is returned to the frontend. Files are never stored — extracted in memory only.
 
 ---
 
 ## Medical Safety Hardening
 
-Medical content receives a separate, stricter pipeline. All of the following are **enforced in Python** inside `validate_response()` — they cannot be bypassed by a model hallucination, prompt injection, or a model ignoring instructions.
+Medical content receives a stricter pipeline. All of the following are enforced in Python inside `validate_response()` — not just in the prompt:
 
-- **Mandatory disclaimer:** If `"Reminder tool only — always follow your original prescription"` is missing from warnings, `validate_response()` appends it and fires `medical_disclaimer_enforced` to App Insights.
-- **Leaked warning detection:** Tasks starting with `"do not"`, `"never "`, or `"avoid "` are moved from `tasks` to `warnings`. Safety rules cannot appear as action steps.
-- **Hard fail on empty warnings:** If `is_medical` is `true` and warnings is empty, the endpoint returns 500. Nothing reaches the user.
-- **Medical badge blocked:** Medical content never shows "CLEAR" regardless of model output. Enforced in `renderResult()` in `index.html`.
-- **Persistent disclaimer bar:** The medical disclaimer banner stays visible across all three phases of the step-by-step flow — it is never cleared by phase transitions.
-- **Dosing verbatim rule:** The prompt instructs Claude to never paraphrase dosing numbers, quantities, or timing.
-
----
-
+- **Mandatory disclaimer:** If missing, appended automatically and logged to App Insights
+- **Leaked warning detection:** Tasks starting with "do not", "never", "avoid" are moved to warnings
+- **Hard fail on empty warnings:** If `is_medical=True` and warnings is empty, endpoint returns 500
+- **Medical badge blocked:** Medical content never shows "CLEAR" — enforced in `renderResult()`
+- **Persistent disclaimer bar:** Stays visible across all phases — never cleared by phase transitions
+- **Dosing verbatim rule:** Model instructed never to paraphrase dosing numbers, quantities, or timing
+- **Extraction-only rule:** Model instructed to extract only steps that appear in the document — never invent generic medical advice
 
 ---
 
-## Schema Validation
+## Text-to-Speech — Reducing Reading Burden
 
-`validate_response()` in `app.py` runs on every model response before the user sees anything:
+For users with dyslexia, low literacy, or cognitive fatigue, reading result sections creates the very overhead ClearStep is designed to reduce. TTS buttons appear on:
+- The meaning summary
+- Warnings (simple mode)
+- Next steps (safe mode)
+- The current task in step-by-step view
 
-- Required fields verified per mode — missing fields return 500, never a partial result
-- `risk_level` casing normalised automatically (`"high risk"` → `"High Risk"`)
-- All list fields coerced to clean string arrays — wrong types reset to empty list
-- List caps enforced: tasks ≤ 10, warnings ≤ 6, key items ≤ 4, signals ≤ 3, next_steps ≤ 2
-- Mode field isolation — safe mode strips `tasks`, `warnings`, `key_items`; simple mode strips `next_steps`
-
----
-
+The voice matches the detected language — a Spanish-speaking user hears Spanish audio without configuration. Audio is generated per request and never stored. Rate limited at 5/min to prevent abuse.
 
 ---
 
-## Calendar Reminder System
+## Calendar Reminders — Voluntary, Not Imposed
 
-Built entirely in Flask — no external service dependency, no OAuth, no account required.
+The reminder system is entirely optional and user-initiated. The design:
 
-`/api/calendar-link` receives the step text and time choice and returns pre-filled Google Calendar and Outlook URLs. The event title is `"ClearStep reminder: [step text]"`.
+- User adds a reminder only when they decide they need one
+- Smart mode detection: tasks containing deadline keywords automatically open the date picker
+- Time options are named in plain language ("In 1 hour", "This afternoon", "Tomorrow morning")
+- Calendar events open in Google Calendar or Outlook — no accounts, no OAuth, no data stored in ClearStep
 
-**Smart mode detection:** Tasks containing deadline keywords (`"60-day"`, `"expires"`, `"submit by"`, `"within"`, `"due"`) automatically open the date picker instead of quick time buttons. The system reads content and infers intent.
-
-Time options: `1hour` (now + 60 min, rounded), `afternoon` (2:00 PM), `evening` (7:00 PM), `tomorrow` (8:00 AM next day), `custom` (user picks exact date + time).
-
----
-
+This is a deliberate contrast to systems that auto-set reminders or impose deadlines — both patterns that add urgency for users who are already overwhelmed.
 
 ---
 
-## Fallback Mode
+## Schema Validation — Why Python Enforcement Matters
 
-If the Anthropic API fails, the frontend `fallback()` function runs a local keyword scoring pass in JavaScript. Detects urgent language (+3), suspicious links (+2), gift card requests (+4), and medical keywords. Returns a structured result in the exact same schema as the API — the user always gets something, even if the server is unreachable.
+The prompt asks Claude to follow rules. `validate_response()` enforces them. Both are needed:
 
-**Fallback transparency:** Every fallback result carries a `_fallback: true` flag. When `renderResult()` detects this flag, it displays a visible caution bar: *"AI unavailable — showing basic analysis only. Results may be less accurate."* The bar uses the caution palette and monospace font to visually distinguish it from normal results. This ensures the app never silently presents keyword-matching as AI analysis — a core transparency requirement.
-
----
-
-
----
-
-## Security
-
-- **14 prompt injection attack vectors tested** — override attempts, jailbreaks, roleplay manipulation, indirect creative writing manipulation. All return High Risk or Caution. The model is never instructed to comply.
-- **Input length limits:** 2,000 chars for messages, 5,000 for documents — enforced server-side before any API call
-- **No raw message content stored anywhere**
-- **No API keys in any file** — Key Vault only, with env var fallback
-- **Content Safety runs before any LLM** — adversarial inputs never reach the model pipeline
-- **Rate limiting:** Flask-Limiter enforces per-IP request caps — 10/minute on `/api/analyze`, 20/minute on `/api/calendar-link`. Prevents token burning, credit abuse, and denial-of-service.
-- **CORS restriction:** Flask-CORS locks all API endpoints to the ClearStep domain and localhost. No third-party website can call the backend.
-- **XSS sanitisation:** A dedicated `esc()` function in `index.html` escapes all model-derived content before DOM insertion. Every `innerHTML` that renders signals, next_steps, tasks, key_items, or explainability text is wrapped in `esc()`. If a model returns `<script>` tags or HTML payloads, they render as plain text.
-- **Generic error responses:** Upstream API errors (Anthropic, Azure OpenAI) are logged server-side with detail but never returned to the user. The frontend receives only `"Analysis service temporarily unavailable. Please try again."` — no internal URLs, auth details, or stack traces leak.
-- **Fallback transparency:** When the AI is unavailable and client-side keyword scoring runs instead, a visible caution bar informs the user: *"AI unavailable — showing basic analysis only."* The app never silently pretends a keyword match is an AI result.
-
-Full security documentation: [`docs/SECURITY.md`]
+- The prompt is the first line of defence but models can deviate
+- Python validation catches deviations before the user sees anything
+- This is especially important for medical content where a missed disclaimer or a safety rule appearing as a task could cause real harm
+- Schema failures return 500 — a partial or malformed result never reaches the user
 
 ---
 
+## Fallback Mode — Transparency Over Silence
+
+If the Anthropic API fails, the frontend runs a keyword-scoring fallback. This always produces something — but it must never be silent about what it is. A visible caution bar ("AI unavailable — showing basic analysis only") appears on every fallback result. The app never pretends a keyword match is an AI analysis.
+
+---
+
+## Emotional Design Principles
+
+- No "you are being scammed" language — signals are labelled as patterns, not accusations
+- No fear amplification — High Risk means "take care", not "you are in immediate danger"
+- No false certainty — every result includes "ClearStep is an AI tool. Always verify with a professional."
+- Crisis response bypasses the entire AI pipeline — hardcoded 988 response in Python, cannot be altered by any model behaviour
