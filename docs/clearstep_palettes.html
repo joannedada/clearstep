@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStep — Accessibility Colour Profiles</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0E1520; font-family: system-ui, -apple-system, sans-serif; padding: 48px 40px; }
+  h1 { color: #F0F4F8; font-size: 30px; font-weight: 600; text-align: center; margin-bottom: 6px; letter-spacing: -0.02em; }
+  .sub { color: #9AAEBB; font-size: 14px; text-align: center; margin-bottom: 8px; }
+  .wcag { color: #7AB8D4; font-size: 13px; text-align: center; margin-bottom: 36px; }
+  .rationale { background: #182030; border: 1px solid #2A3D4E; border-radius: 10px; padding: 22px 26px; max-width: 860px; margin: 0 auto 40px; }
+  .rationale-headline { font-size: 16px; font-weight: 700; color: #F0F4F8; margin-bottom: 10px; }
+  .rationale-body { font-size: 13px; color: #B0C8D8; line-height: 1.75; margin-bottom: 14px; }
+  .rationale-impl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .impl-block { background: #111820; border-radius: 8px; padding: 12px 14px; border: 1px solid #1E3040; }
+  .impl-label { font-size: 10px; font-weight: 700; color: #7AB8D4; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 8px; }
+  .impl-line { font-size: 12px; color: #9AAEBB; line-height: 1.6; padding-left: 14px; position: relative; margin-bottom: 3px; }
+  .impl-line::before { content: '→'; position: absolute; left: 0; color: #4E8FAE; font-size: 11px; }
+  .impl-code { font-family: monospace; font-size: 11px; color: #7ADABB; background: #0E1520; border-radius: 4px; padding: 8px 10px; margin-top: 8px; line-height: 1.8; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+  .card { border-radius: 12px; overflow: hidden; border: 1px solid #263040; }
+  .preview { padding: 24px 22px 20px; }
+  .preview-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .preview-sub { font-size: 13px; margin-bottom: 14px; }
+  .preview-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; letter-spacing: 0.05em; }
+  .preview-text { font-size: 13px; line-height: 1.6; margin-bottom: 16px; }
+  .preview-btn { display: inline-block; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 6px; border: none; cursor: default; }
+  .meta { background: #111820; padding: 16px 22px; border-top: 1px solid #263040; }
+  .meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .meta-row:last-child { margin-bottom: 0; }
+  .meta-label { font-size: 11px; color: #7A9AAB; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-val { font-size: 12px; color: #B0C8D8; font-family: monospace; display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+  .meta-note { font-size: 12px; color: #9AAEBB; line-height: 1.65; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1E2D38; }
+  .who-tag { display: inline-block; font-size: 11px; background: #182030; color: #9ABFE0; border: 1px solid #2A4060; border-radius: 10px; padding: 2px 9px; margin-bottom: 10px; }
+  .sources { max-width: 860px; margin: 36px auto 0; font-size: 12px; color: #7A9AAB; text-align: center; line-height: 1.7; }
+  .footer { margin-top: 32px; font-size: 12px; color: #6A8A9A; text-align: center; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>ClearStep — Accessibility Colour Profiles</h1>
+<p class="sub">Microsoft AI Innovation Challenge 2026 — Neurodivergent Accessibility Documentation</p>
+<p class="wcag">All profiles meet WCAG 2.1 AA contrast requirements (4.5:1 for normal text)</p>
+
+<div class="rationale">
+  <div class="rationale-headline">These aren't themes — they're cognitive accessibility profiles.</div>
+  <p class="rationale-body">Each one is designed for a different type of visual processing need. ADHD, autism, and dyslexia can overlap but their visual needs differ significantly person to person. ClearStep's approach: accessible defaults + saved user preferences + low-stimulation presets. The system remembers and applies the selected profile automatically across sessions — no reconfiguration needed.</p>
+  <p class="rationale-body" style="margin-bottom:0;">There is no single best colour set for all neurodivergent users. That's the point. One size does not fit all — and this system was designed from the start to reflect that.</p>
+  <div class="rationale-impl">
+    <div class="impl-block">
+      <div class="impl-label">CSS variable system</div>
+      <div class="impl-code">--bg<br>--text<br>--accent<br>--safe / --caution / --danger</div>
+      <div class="impl-line" style="margin-top:8px;">Profiles override all variables dynamically</div>
+      <div class="impl-line">No hardcoded colour competes with the active profile</div>
+    </div>
+    <div class="impl-block">
+      <div class="impl-label">Real implementation</div>
+      <div class="impl-line">Stored in Azure Cosmos DB as user preference</div>
+      <div class="impl-line">Persists across sessions and devices</div>
+      <div class="impl-line">Applied automatically on return visits</div>
+      <div class="impl-line">Falls back to localStorage if Cosmos unavailable</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Calm Default -->
+  <div class="card">
+    <div class="preview" style="background:#F7F7F2; color:#222222;">
+      <span class="who-tag">General use</span>
+      <div class="preview-title" style="color:#222222;">Calm default</div>
+      <div class="preview-sub" style="color:#555555;">Low stimulation, high contrast</div>
+      <span class="preview-badge" style="background:#FBEAE7; color:#993C1D; border:1px solid #F0C4B8;">HIGH RISK</span>
+      <p class="preview-text" style="color:#222222;">This message is using urgency to push you to act quickly.</p>
+      <span class="preview-btn" style="background:#2F6E91; color:#ffffff;">Do not click the link</span>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><span class="meta-label">Background</span><span class="meta-val"><span class="swatch" style="background:#F7F7F2;"></span>#F7F7F2</span></div>
+      <div class="meta-row"><span class="meta-label">Text</span><span class="meta-val"><span class="swatch" style="background:#222222;"></span>#222222</span></div>
+      <div class="meta-row"><span class="meta-label">Accent</span><span class="meta-val"><span class="swatch" style="background:#2F6E91;"></span>#2F6E91</span></div>
+      <p class="meta-note">Soft off-white reduces glare vs pure white. Charcoal text passes WCAG AA. Muted teal accent draws attention without overstimulating.</p>
+    </div>
+  </div>
+
+  <!-- Low Sensory -->
+  <div class="card">
+    <div class="preview" style="background:#EDECEA; color:#1E1E1E;">
+      <span class="who-tag">Autism / sensory sensitivity</span>
+      <div class="preview-title" style="color:#1E1E1E;">Low sensory</div>
+      <div class="preview-sub" style="color:#4A4A4A;">Minimal visual noise</div>
+      <span class="preview-badge" style="background:#E2EAE6; color:#2A5A50; border:1px solid #9BBFB6;">REVIEW REQUIRED</span>
+      <p class="preview-text" style="color:#1E1E1E;">You have 3 actions to complete before your deadline.</p>
+      <span class="preview-btn" style="background:#3D7A6B; color:#ffffff;">Step 1 of 3</span>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><span class="meta-label">Background</span><span class="meta-val"><span class="swatch" style="background:#EDECEA;"></span>#EDECEA</span></div>
+      <div class="meta-row"><span class="meta-label">Text</span><span class="meta-val"><span class="swatch" style="background:#1E1E1E;"></span>#1E1E1E</span></div>
+      <div class="meta-row"><span class="meta-label">Accent</span><span class="meta-val"><span class="swatch" style="background:#3D7A6B;"></span>#3D7A6B</span></div>
+      <p class="meta-note">Warm neutral background with near-zero saturation. No bright accents. Zero red, orange, or amber anywhere — even High Risk renders in deep muted teal.</p>
+    </div>
+  </div>
+
+  <!-- Dyslexia-Friendly -->
+  <div class="card">
+    <div class="preview" style="background:#F5F0E0; color:#222222;">
+      <span class="who-tag">Dyslexia / visual stress</span>
+      <div class="preview-title" style="color:#222222;">Dyslexia-friendly</div>
+      <div class="preview-sub" style="color:#555555;">Comfortable readability</div>
+      <span class="preview-badge" style="background:#EAE6D8; color:#5A6A20; border:1px solid #C8C8A0;">ACTION NEEDED</span>
+      <p class="preview-text" style="color:#222222;">Two things need your response by end of day.</p>
+      <span class="preview-btn" style="background:#2F6E91; color:#ffffff;">Start first task</span>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><span class="meta-label">Background</span><span class="meta-val"><span class="swatch" style="background:#F5F0E0;"></span>#F5F0E0</span></div>
+      <div class="meta-row"><span class="meta-label">Text</span><span class="meta-val"><span class="swatch" style="background:#222222;"></span>#222222</span></div>
+      <div class="meta-row"><span class="meta-label">Accent</span><span class="meta-val"><span class="swatch" style="background:#2F6E91;"></span>#2F6E91</span></div>
+      <p class="meta-note">Cream background reduces the visual crowding effect of pure white. Dark gray (not black) text softens contrast slightly while remaining WCAG AA compliant.</p>
+    </div>
+  </div>
+
+  <!-- High Focus -->
+  <div class="card">
+    <div class="preview" style="background:#F8F8F8; color:#111111;">
+      <span class="who-tag">ADHD / attention difficulties</span>
+      <div class="preview-title" style="color:#111111;">High focus</div>
+      <div class="preview-sub" style="color:#444444;">Strip all distraction</div>
+      <span class="preview-badge" style="background:#E8F0F8; color:#1A4A78; border:1px solid #A0C0E0;">MEDICAL</span>
+      <p class="preview-text" style="color:#111111;">Take 1 tablet with food — morning.</p>
+      <span class="preview-btn" style="background:#2F6E91; color:#ffffff;">Mark as done</span>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><span class="meta-label">Background</span><span class="meta-val"><span class="swatch" style="background:#F8F8F8; border-color:#ddd;"></span>#F8F8F8</span></div>
+      <div class="meta-row"><span class="meta-label">Text</span><span class="meta-val"><span class="swatch" style="background:#111111;"></span>#111111</span></div>
+      <div class="meta-row"><span class="meta-label">Accent</span><span class="meta-val"><span class="swatch" style="background:#2F6E91;"></span>#2F6E91</span></div>
+      <p class="meta-note">Near-white background, single accent colour only. Maximum contrast. Minimal competing visual elements. Supports sustained attention and task completion.</p>
+    </div>
+  </div>
+
+  <!-- Dark Mode -->
+  <div class="card">
+    <div class="preview" style="background:#1C1F26; color:#E0E4EC;">
+      <span class="who-tag">Photosensitivity / migraine / night use</span>
+      <div class="preview-title" style="color:#E0E4EC;">Dark mode</div>
+      <div class="preview-sub" style="color:#9AAABB;">Reduce light exposure</div>
+      <span class="preview-badge" style="background:#1A2A36; color:#7ABFE0; border:1px solid #2A4A60;">COMPLEX</span>
+      <p class="preview-text" style="color:#E0E4EC;">Your onboarding has 5 steps across 3 departments.</p>
+      <span class="preview-btn" style="background:#5A9ABF; color:#0E1520;">Begin onboarding</span>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><span class="meta-label">Background</span><span class="meta-val"><span class="swatch" style="background:#1C1F26;"></span>#1C1F26</span></div>
+      <div class="meta-row"><span class="meta-label">Text</span><span class="meta-val"><span class="swatch" style="background:#E0E4EC;"></span>#E0E4EC</span></div>
+      <div class="meta-row"><span class="meta-label">Accent</span><span class="meta-val"><span class="swatch" style="background:#5A9ABF;"></span>#5A9ABF</span></div>
+      <p class="meta-note">Dark navy background eliminates bright light emission. Light text on dark background reduces eye strain for photosensitive users and those with migraine triggers.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="sources">Sources: WCAG 2.1 AA guidelines · National Autistic Society (sensory differences) · Understood.org (ADHD visual accessibility) · British Dyslexia Association (reading comfort)</p>
+<p class="footer">ClearStep — Microsoft AI Innovation Challenge 2026 &nbsp;·&nbsp; Every design decision is an accessibility decision.</p>
+
+</body>
+</html>
