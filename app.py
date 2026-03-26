@@ -550,12 +550,18 @@ MEDICAL_DISCLAIMER = "Reminder tool only — always follow your original prescri
 
 # Keywords used by is_medical backstop — if model returns is_medical=false but any of these
 # appear in output fields, override to true so all medical safeguards apply.
+# High-signal only: substances, dosing units, and instructional patterns.
+# Broad nouns (clinic, hospital, doctor) removed — too common in scheduling/admin/HR content.
 MEDICAL_KEYWORDS = [
-    "tablet", "capsule", "mg", "dose", "dosage", "prescription", "medication",
-    "medicine", "drug", "pharmacy", "pharmacist", "inject", "injection",
-    "inhaler", "antibiotic", "insulin", "refill", "side effect", "contraindication",
-    "doctor", "physician", "clinic", "hospital", "diagnosis", "symptom",
-    "treatment", "therapy", "surgery", "procedure", "discharge instructions",
+    # Substances and forms
+    "tablet", "capsule", "mg", "ml", "dose", "dosage", "prescription", "medication",
+    "medicine", "drug", "pharmacy", "pharmacist", "injection", "inject",
+    "inhaler", "antibiotic", "insulin", "refill",
+    # Safety terms
+    "side effect", "contraindication", "discharge instructions",
+    # Instructional patterns — unambiguous in medical context
+    "administer", "swallow", "inhale", "twice daily", "once daily",
+    "as needed", "with food", "before meals", "after meals",
 ]
 
 def _clean_list(lst):
