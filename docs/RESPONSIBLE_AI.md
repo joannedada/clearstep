@@ -1,4 +1,3 @@
-
 # Responsible AI - ClearStep
 
 This document maps ClearStep's implementation to the [Microsoft Responsible AI Standard v2](https://blogs.microsoft.com/wp-content/uploads/prod/sites/5/2022/06/Microsoft-Responsible-AI-Standard-v2-General-Requirements-3.pdf).
