@@ -1,4 +1,4 @@
-
+[README.md](https://github.com/user-attachments/files/26270277/README.md)
 # ClearStep
 ### Microsoft AI Innovation Challenge Hackathon — March 2026
 
@@ -60,7 +60,7 @@ Paste anything overwhelming like medical instructions, government appeals, confu
 | Adapts over time | Reading level auto-inferred from usage history via Cosmos DB. On return, the system applies the user's consistent preference automatically — no configuration required. The more a user interacts, the less they have to set up. |
 | Responsible AI — calm language | No fear amplification. Signals are patterns, not accusations. High Risk means take care, not danger. |
 | Explain simplification choices | "Why this result?" explainability panel on every output. |
-| Operational, observable service | 22+ custom Application Insights telemetry events. Safety features proven firing in production. |
+| Operational, observable service | 28 custom Application Insights telemetry events. Safety features proven firing in production. |
 
 ---
 
@@ -123,7 +123,7 @@ User Input (text or uploaded file)
     │
     ▼
 [Telemetry] Azure Application Insights
-          22+ custom events fired per request
+          28 custom events fired per request
 ```
 
 Full architecture and request flow diagrams: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
@@ -151,9 +151,9 @@ ClearStep uses 10 Azure services and Microsoft Foundry. Each was chosen for a sp
 | **Azure AI Speech** | Text-to-speech - converts result sections to MP3 audio on demand. 10 languages. Audio never stored. |
 | **Azure Key Vault** | Secrets management - no keys in code or config files. Managed Identity auth. |
 | **Azure Blob Storage** | Audit log - AI response JSON stored per analysis. No raw message content. |
-| **Azure Application Insights** | Telemetry - 22+ custom events prove safety features are firing in production |
+| **Azure Application Insights** | Telemetry - 28 custom events prove safety features are firing in production |
 | **Azure Cosmos DB** | Persistent accessibility preferences - palette and reading level stored anonymously per session |
-| **Microsoft Foundry** | Deployment platform for signal-classifier (gpt-4o-mini). Controlled capacity, version management, monitoring. |
+| **Microsoft Foundry** | Deployment platform for signal-classifier (gpt-4o). Controlled capacity, version management, monitoring. |
 
 Full breakdown including why each was chosen, how it's wired, and where in the code: [`docs/AZURE_SERVICES.md`](./docs/AZURE_SERVICES.md)
 
@@ -163,7 +163,7 @@ Full breakdown including why each was chosen, how it's wired, and where in the c
 
 | Principle | What ClearStep built |
 |---|---|
-| **Accountability** | Every analysis logged to Blob Storage. 22+ App Insights events track system behaviour in production including upload blocks, TTS generation, and safety enforcement events. |
+| **Accountability** | Every analysis logged to Blob Storage. 28 App Insights events track system behaviour in production including upload blocks, TTS generation, and safety enforcement events. |
 | **Reliability & Safety** | Crisis response hardcoded — cannot be altered by model behaviour. Prompt Shields detect jailbreak at infrastructure level. Upload content screening runs a full safety pipeline before any text reaches the LLM. Medical hardening enforced in Python. Schema validation rejects malformed output. Rate limiting prevents abuse. XSS sanitisation protects against model output injection. |
 | **Fairness** | 5 accessibility palettes designed for specific neurological needs. Reading level changes AI output density. Language detection serves non-English speakers automatically. File attachment supports users who cannot copy/paste. |
 | **Transparency** | "Why this result?" panel on every output. AI tool disclaimer always visible. Medical content always defers to original document. Fallback mode shows visible indicator when AI is unavailable. |
@@ -226,7 +226,7 @@ Full security documentation including all 14 attack vector test results: [`docs/
 | Frontend | Vanilla HTML/CSS/JS — single file, no build step | Zero dependency surface, instant load, works on any device |
 | Backend | Python Flask + Gunicorn | Lightweight, fast, native Azure deployment |
 | Primary AI | Anthropic Claude `claude-sonnet-4-20250514` | Best-in-class reasoning for medical and safety content |
-| Signal extraction | Azure OpenAI (gpt-4o-mini) via Microsoft Foundry | Fast, cheap, zero-temperature classification |
+| Signal extraction | Azure OpenAI (gpt-4o) via Microsoft Foundry | Fast, cheap, zero-temperature classification |
 | Crisis screening | Azure AI Content Safety | Hardened, purpose-built and not a prompt |
 | Language detection | Azure AI Language | Automatic multilingual support without UI complexity |
 | Text-to-speech | Azure AI Speech | On-demand MP3, 10 languages, audio never stored |
@@ -235,7 +235,7 @@ Full security documentation including all 14 attack vector test results: [`docs/
 | Secrets | Azure Key Vault + DefaultAzureCredential | Zero secrets in code or config files |
 | Preferences | Azure Cosmos DB | Low-latency anonymous preference storage with graceful fallback |
 | Audit log | Azure Blob Storage | Immutable result log, no PII |
-| Observability | Azure Application Insights | 22+ custom events, production safety monitoring |
+| Observability | Azure Application Insights | 28 custom events, production safety monitoring |
 | Deployment | Azure App Service + GitHub Actions CI/CD | Managed hosting, automatic deployments on push to main |
 | Rate limiting | Flask-Limiter | Per-IP request caps on all write endpoints |
 | CORS | Flask-CORS | API locked to ClearStep domain |
