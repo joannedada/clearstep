@@ -1,4 +1,4 @@
-# Security — ClearStep
+# Security Hardening & Attack Surface Analysis
 ### Application security hardening, attack surface analysis, and test results
 
 ClearStep was tested across 14+ attack vectors, including prompt injection, schema manipulation, file upload abuse, and safety bypass attempts. Security does not rely on prompt rules alone; behavior is enforced in code through validation, pre-screening, and layered defences that operate independently of model output.
