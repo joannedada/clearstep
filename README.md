@@ -304,6 +304,8 @@ clearstep/
 | [`docs/AZURE_SERVICES.md`](./docs/AZURE_SERVICES.md) | Every Azure integration — why chosen, how used, code location |
 | [`docs/DESIGN_DECISIONS.md`](./docs/DESIGN_DECISIONS.md) | Every UX decision with reasoning |
 | [`docs/CONTRIBUTIONS.md`](./docs/CONTRIBUTIONS.md) | Team contributions and ownership |
+| [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) | Local setup, architecture orientation, dev notes |
+| [`docs/QA.md`](./docs/QA.md) | Design decisions, tradeoffs, judging criteria Q&A |
 | [`docs/BUILD_STORY.md`](./docs/BUILD_STORY.md) | How this was built — the timeline, the team, and every error we hit |
 | [`docs/CLEARSTEP_HANDOFF.md`](./docs/CLEARSTEP_HANDOFF.md) | Full developer handoff — architecture, security, live pentest results, build status |
 
@@ -336,8 +338,8 @@ These decisions were made to prioritise reliable real-time interaction, clear us
 | Name | Role |
 |---|---|
 | **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (`app.py`) · Frontend development (`index.html`) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS, SECURITY) |
-| **Joanne Obodoagwu** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Cloud integration |
-| **Fatima Ahmed** | Research support · Accessibility input · Feature ideation |
+| **Joanne Obodoagwu** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Cloud integration · Video coordination · README review · Presentation support |
+| **Fatima Ahmed** | Hackathon presentation build · Research support · Accessibility input · Feature ideation |
 
 ---
 
