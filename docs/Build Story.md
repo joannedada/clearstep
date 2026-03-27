@@ -1,4 +1,4 @@
-# ClearStep — Build Story
+# ClearStep's Build Story
 
 > *Microsoft Innovation Challenge, March 2026*
 > *"If the user feels panic, the system has failed."*
@@ -25,17 +25,17 @@ I had no prior experience building a production Flask application. I had never i
 
 ## What We Built and When
 
-### March 20 — Night
+### March 20 at Night
 
 The team structure collapsed at 8PM. By the time I made the decision to take over development, it was late. I started from scratch: Flask app, project structure, first working route. The first few hours were spent reading documentation while simultaneously writing code. This is not a comfortable way to learn but it is an effective one.
 
-### March 21–22 — The Foundation
+### March 21–22: The Foundation
 
 Core pipeline took shape. Azure AI Content Safety integration came first. The safety layer had to exist before anything else. Prompt Shields followed. Then Claude. The first time the full pipeline ran end to end and returned a structured JSON response, I understood why people build things.
 
 The validator came next. `validate_response()` started simple and grew into the most important function in the codebase. Every edge case I discovered went into the validator as a hard enforcement rule: model misclassifying medical content, risk_level returning Safe when warnings existed, frequency stacked into a single task. By the end it was handling 12 distinct failure modes independently of the model.
 
-### March 22–24 — The Hard Days
+### March 22–24: The Hard Days
 
 File upload was the most complex feature. Not the extraction, which was straightforward with pypdf and python-docx. The security layer around it was the problem. Extension validation, MIME type validation, size validation that couldn't be spoofed via headers, filename sanitisation, then three layers of content screening before any text was returned. Each layer uncovered a new edge case. Each edge case became a test.
 
@@ -43,13 +43,13 @@ The frontend came entirely from scratch. No framework. No build step. Vanilla HT
 
 TTS integration happened at 2AM. I remember it because the first time it spoke back in the correct language without any configuration, I sat there for a minute.
 
-### March 25–26 — Security and Documentation
+### March 25–26: Security and Documentation
 
 Penetration testing against the live deployed application. I came into this challenge wanting to do security work, and I got to do it. Just on something I built myself. Fourteen attack vectors tested live against the production URL. Every one blocked. The telemetry in App Insights confirmed which safety layers fired on which inputs. The evidence is in the logs, not just in the code.
 
 Documentation sprint followed. README, ARCHITECTURE, RESPONSIBLE_AI, SECURITY, AZURE_SERVICES, DESIGN_DECISIONS, CONTRIBUTING, CONTRIBUTIONS. Each one written to be accurate to the actual implementation, not to what we intended to build. If a document said something worked, it worked. No aspirational writing.
 
-### March 27 — Submission Day
+### March 27: Submission Day
 
 Presentation, demo video, final deployment verification, submission. The app was live. The pipeline was working. The security held.
 
@@ -185,4 +185,4 @@ It was worth it.
 
 ---
 
-*Leishka Pagán — March 27, 2026*
+*Leishka Pagán - March 27, 2026*

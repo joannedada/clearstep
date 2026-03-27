@@ -1,113 +1,147 @@
-# Responsible AI - ClearStep
+[AZURE_SERVICES.md](https://github.com/user-attachments/files/26266728/AZURE_SERVICES.md)
+# Azure Services Used
+### Every integration explained: why it was chosen, how the app uses it, and where to find it in the code.
 
-This document maps ClearStep's implementation to the [Microsoft Responsible AI Standard v2](https://blogs.microsoft.com/wp-content/uploads/prod/sites/5/2022/06/Microsoft-Responsible-AI-Standard-v2-General-Requirements-3.pdf).
-
----
-
-## Accountability
-
-- All model outputs are schema-validated server-side before reaching the user; missing fields, wrong types, and empty task lists are caught and rejected
-- Every analysis is logged to Azure Blob Storage with risk level, mode, reading level, is_medical flag, and schema validation result — no raw message content stored
-- Application Insights fires 28 custom telemetry events per request, including `leaked_warnings_detected`, `medical_disclaimer_enforced`, `upload_blocked_crisis`, `upload_blocked_harmful`, and `schema_validation_failed`, providing production evidence that safety features are firing
-- File upload blocks are logged separately with category and severity, proving the upload safety layer is active independently of the analysis pipeline
-- Microsoft Foundry provides deployment-level monitoring and metrics for the signal-classifier (gpt-4o) used in Layer 2
+For a quick overview of all services, see the [README](../README.md#azure-services).
 
 ---
 
-## Reliability & Safety
+### 1. Azure App Service
+**Why it was chosen:** Managed PaaS hosting with native GitHub Actions CI/CD integration, Managed Identity support for Key Vault, and no server management overhead.
 
-- Azure AI Content Safety screens every input **before any LLM is invoked**, no prompt injection, adversarial input, or model behaviour can bypass it
-- **Prompt Shields:** Jailbreak detection runs as a second infrastructure-level gate after harm screening. Detected attacks return a hardcoded High Risk response; Claude never sees the message
-- Severity 4 self-harm signals short-circuit the entire pipeline — hardcoded 988 Lifeline response, model never called
-- **Upload content screening:** All uploaded file content is screened through Azure Content Safety (all 4 categories at lower thresholds), Prompt Shields, and a cyber abuse regex before any text is returned to the frontend or passed to the AI pipeline. Files are never stored — extracted in memory and discarded
-- Medical disclaimer enforced in Python code. If the model omits it, `validate_response()` appends it automatically and logs `medical_disclaimer_enforced`
-- Conditional medical instructions ("if you miss a dose", "if it is almost time", "unless", "in case") are classified as warnings, never tasks, and enforced in both the prompt and the Python validator
-- Leaked safety rules in task lists (e.g., "Do not crush tablet", "Skip dose") were detected by pattern matching and moved to the warnings array; users never see safety rules as action steps
-- **Crisis response is mode-aware:** safe mode returns `signals`/`next_steps`, simple mode returns `warnings`/`tasks`/`key_items` — the frontend never receives a mismatched JSON schema regardless of which mode triggered the crisis block
-- **Extraction-only rule:** The model is explicitly instructed to extract only actual steps from the document, never to invent general advice or meta-instructions. Enforced in the prompt
-- **Word limits enforced in Python:** signals ≤ 3 words, warnings ≤ 8 words, key_items ≤ 4 words — hard-enforced by `_trim_items()`. Tasks are prompt-guided to ≤ 8 words but are **not** hard-truncated in Python — truncating a task mid-thought is worse than a task running slightly long. If an action cannot fit in the word limit, the model is instructed to split it into 2 tasks.
-- **Frequency expansion enforced in Python:** medication instructions like "three times daily" are expanded into 3 named task instances (morning/afternoon/evening) by `validate_response()`. The model is instructed to do this, and the validator enforces it; if the model stacks frequency into a single task, the validator corrects it.
-- **is_medical keyword backstop:** if the model returns `is_medical: false` but medical keywords are detected in the output (tasks, warnings, key_items), the validator overrides to `true` and all medical safeguards apply. The model's classification cannot silently bypass medical enforcement.
-- **risk_level logic-enforced:** if real warnings exist (excluding the mandatory medical disclaimer), `Safe` is not a valid risk_level, the validator upgrades to `Caution`. The model cannot assign Safe to content that carries actual safety rules.
-- Input length capped at 2,000 chars (messages) and 5,000 chars (documents) — enforced server-side before any API call
-- Prompt injection tested across 14 attack vectors — all return High Risk or Caution, never compliance
-- Fallback mode ensures the app returns nothing. A visible indicator bar is always shown when fallback runs — the app never silently presents keyword-matching as AI analysis
-- Rate limiting on all write endpoints prevents API abuse, token burning, and denial-of-service
-- XSS sanitisation: every model output rendered via `innerHTML` escaped through `esc()` before DOM insertion
-- Generic error responses: upstream provider errors logged server-side only, never returned to users
+**How the app uses it:** Flask runs via Gunicorn on Python 3.11. Every push to `main` triggers automatic deployment via `.github/workflows/`. `DefaultAzureCredential` resolves to the App Service Managed Identity in production with no keys needed for Azure-to-Azure authentication.
+
+**Code location:** `app.py` entrypoint, `requirements.txt`, `.github/workflows/`
 
 ---
 
-## Fairness
+### 2. Azure AI Content Safety
+**Why it was chosen:** This is the most critical safety layer. It runs **before any LLM is invoked**, which means no prompt injection, adversarial input, or model behaviour can bypass it. For a tool used by vulnerable populations, a hardcoded safety net is non-negotiable.
 
-- Accessibility is a core design requirement, not an add-on — every design decision is an accessibility decision
-- Five colour palettes built for specific neurological needs:
-  - Low sensory (autism): zero red, orange, or amber — all alerts use the accent green-neutral family only
-  - Dyslexia-friendly: cream background reduces visual vibration from white
-  - High focus (ADHD): single accent colour, no competing visual elements — all alerts use one teal-blue family
-  - Dark mode: muted variants across all states, no blinding contrast shifts
-  - Calm default: off-white, non-aggressive teal accent
-- Three reading levels (Big / Normal / Small) control font size, line height, **and** AI output density — the model writes differently at each level
-- Medical content never receives a "CLEAR" badge regardless of model output — enforced in `renderResult()` in `index.html`
-- **Multilingual equity:** Azure AI Language detects input language on every request. Non-English → Claude responds entirely in that language across all fields. No configuration or extra steps required from the user
-- **No enforced timers.** For users in cognitive overload, urgency adds anxiety. Optional reminders replace enforced pacing
-- **File attachment:** Supports users who cannot copy/paste — they can attach .txt, .pdf, .docx, or screenshots (.png, .jpg, .jpeg). Reduces the barrier for users with motor difficulties or low digital literacy
-- **Mobile-first responsive design:** Full experience works on mobile browsers — both modes, all palettes, task engine, reminders, upload
+**How the app uses it:**
 
----
+*For message analysis:* `screen_with_content_safety()` sends every input to the Content Safety API using `FourSeverityLevels` output. It screens for Hate, Self-Harm, Sexual, and Violence. If `SelfHarm` severity reaches 4, the function returns a hardcoded Python dict, the 988 Suicide and Crisis Lifeline response. Claude never sees the message.
 
-## Transparency
+`screen_prompt_shield()` calls the Prompt Shields endpoint on the same Content Safety resource. This detects jailbreak and prompt injection attempts at the infrastructure level. If an attack is detected, the app returns a hardcoded High Risk response immediately. Claude never sees the message.
 
-- "Why this result?" explainability panel on every output — signals explained in plain language, not technical labels
-- Users always told ClearStep is an AI tool and to verify with a professional, present on every result
-- Medical content always shows a persistent disclaimer bar across all three phases of step-by-step flow — never cleared by phase transitions
-- The app never presents itself as a replacement for a doctor, lawyer, or financial advisor
-- Reading level labels (Big / Normal / Small) — plain language, not technical jargon
-- **Fallback transparency:** When AI is unavailable and keyword scoring runs instead, a visible caution bar appears: "AI unavailable — showing basic analysis only." The user always knows which type of result they received
-- **Batch task notice:** When a document produces more than 5 tasks, a notice appears before the user starts: "Long document — showing 5 steps at a time. More will follow." The user is never surprised by steps appearing later
+*For uploaded files:* `screen_upload_content()` runs a separate screening pass on all extracted file text before it is returned to the frontend. This inline check blocks:
+- `SelfHarm` severity ≥ 4 → crisis block with 988 message
+- `Sexual`, `Violence`, or `Hate` severity ≥ 2 → content blocked
+- Prompt injection detected via Prompt Shields → blocked
+- Cyber/malware keywords detected via regex → blocked
+
+Azure API calls in the upload screener are bound to the first 1000 characters for latency reasons. The cyber regex scans the full 5000-character extraction.
+
+**Code location:** `screen_with_content_safety()`, `screen_prompt_shield()`, `screen_upload_content()` in `app.py`
 
 ---
 
-## Privacy
+### 3. Azure OpenAI
+**Why it was chosen:** Claude is powerful but expensive and slower as a pure binary classifier. Azure OpenAI (`gpt-4o-mini`) first runs a fast, cheap, zero-temperature classification pass. This cleanly separates roles; signal detection vs. nuanced reasoning, and improves accuracy.
 
-- No message content is stored anywhere — Blob Storage logs contain AI response JSON only, never input text
-- **Uploaded files are never stored.** Text is extracted in memory, and the file object is discarded immediately. Nothing is written to disk or blob storage
-- No user accounts, no login, no tracking, no ads
-- Cosmos DB stores only: anonymous session ID (browser-generated, never linked to identity) + palette + reading level. Cosmos never receives any message or file content
+**How the app uses it:** `extract_signals_with_azure()` sends the message and returns exactly 5 boolean fields: `urgency`, `money_request`, `impersonation`, `suspicious_link`, `threat_language`. These are serialized as JSON and injected into the Claude prompt as pre-processed context. Claude uses them as supporting evidence; the final judgment must match the actual message.
 
----
-
-## Human Oversight
-
-- Medical and legal content always defers to the original document and a real professional, enforced in a prompt and persistent disclaimer bar
-- Crisis response directs users to human services (988 Lifeline), the model is never involved at severity ≥ 4
-- "Always consult a professional" is present in every medical result
-- Step-by-step task engine never auto-advances, user controls every transition, no decision is made for them
-- **Batch task control:** When more than 5 tasks exist, the user explicitly chooses to load the next set, never auto-loaded
+**Code location:** `extract_signals_with_azure()` called in `analyze()` for `safe` mode only
 
 ---
 
-## Prompt Injection Defense
+### 4. Azure AI Language
+**Why it was chosen:** ClearStep is built for accessibility. Limiting it to English excludes a significant portion of the neurodiverse, elderly, and low-literacy population it was designed to serve. Language detection makes multilingual support automatic, no language selector, no extra steps.
 
-- Azure AI Content Safety screens input before any prompt is constructed
-- Prompt Shields detects jailbreaks at the Azure infrastructure level before any LLM is called
-- Prompt explicitly instructs Claude to flag override attempts as High Risk or Caution, never comply
-- Source code protection: requests for system files or backend code are flagged as Caution and redirected to safe alternatives
-- User message delivered inside XML delimiters in the prompt, quote characters in user input cannot escape the prompt context
-- Schema validation rejects responses that don't match the expected JSON structure
-- Per-item word limits in Python (`_trim_items()`) cap signals, warnings, and key_items reduces surface area for payloads hidden in label fields
-- CORS policy: Flask-CORS restricts API to the ClearStep domain only
+**How the app uses it:** `detect_language()` calls the `LanguageDetection` endpoint on the first 500 characters of every input. It returns an ISO 639-1 code and confidence score. If the language is not English, a `lang_instruction` string is injected into the Claude prompt. The `language_detected` telemetry event fires with language code and confidence.
+
+**Code location:** `detect_language()`, called in `analyze()` after Content Safety, before Azure OpenAI
 
 ---
 
-## HAX Playbook Alignment
+### 5. Azure AI Speech
+**Why it was chosen:** Text-to-speech directly serves users with low literacy, vision impairments, and those who process spoken language better than written. It was also the lowest-friction way to add audio support without requiring any browser permissions or client-side audio processing.
 
-| HAX Guideline | ClearStep |
-|---|---|
-| Make clear what the system can and cannot do | Mode selection shows exactly two scopes. No dashboard, no ambiguity. |
-| Make clear why the system did what it did | "Why this result?" panel on every output |
-| Support efficient invocation | Example chips let users try without typing. File attachment for users who can't copy/paste. |
-| Support efficient correction | "Check another" resets cleanly. Undo is available at every step. Batch tasks allow continuation without restart. |
-| Mitigate social biases | No user data stored, no demographic targeting, personalisation limited to accessibility preferences |
-| Support appropriate trust | Medical disclaimer, professional referral, AI tool disclosure on all sensitive content |
-| Reduce cognitive burden | One step at a time. No timers. No auto-advance. 5-task batches prevent overload on long documents. Word limits on every output field. |
+**How the app uses it:** `/api/tts` accepts a text string and language code. It builds an SSML payload with a language-matched Neural voice and calls the Azure Speech REST API. The response is MP3 audio streamed directly back to the browser, no SDK dependency, no stored audio. Voices are selected per language from a 10-language map (English, Spanish, French, Portuguese, German, Chinese, Japanese, Korean, Arabic, Hindi). HTML tags are stripped before synthesis. Text is capped at 500 characters per request.
+
+**Rate limit:** 5 requests per minute per IP.
+
+**Graceful degradation:** If `AZURE_SPEECH_KEY` or `AZURE_SPEECH_REGION` are not configured, the endpoint returns HTTP 503 with `"Audio unavailable"`. The TTS buttons are simply not shown in the UI, and the rest of the app is unaffected.
+
+**Code location:** `text_to_speech()`, `VOICE_MAP`, `VOICE_LOCALE_MAP`, `strip_html()` in `app.py`; `ttsSpeak()`, `ttsStop()`, `ttsShowButtons()` in `index.html`
+
+---
+
+### 6. Azure Key Vault
+**Why it was chosen:** Zero secrets hardcoded or committed anywhere. Key Vault provides centralised, auditable, access-controlled secret storage with Managed Identity authentication. There were no API keys in any file.
+
+**How the app uses it:** At startup, `SecretClient` connects to `keyvault-clearstep.vault.azure.net` and retrieves all secrets, overwriting environment variable values. Secrets retrieved include: Anthropic key, Azure OpenAI keys, Content Safety keys, Language keys, Cosmos keys, Blob connection string, Speech keys, and Vision keys. If Key Vault is unavailable, the `try/except` block falls back to App Service environment variables; a Key Vault outage never takes down the application.
+
+**Key Vault secret names to provision:**
+`ANTHROPIC-API-KEY`, `STORAGE-CONN-STR`, `AZURE-OPENAI-API-KEY`, `AZURE-OPENAI-DEPLOYMENT`, `AZURE-OPENAI-API-VERSION`, `AZURE-OPENAI-ENDPOINT`, `AZURE-CONTENT-SAFETY-ENDPOINT`, `AZURE-CONTENT-SAFETY-KEY`, `AZURE-LANGUAGE-ENDPOINT`, `AZURE-LANGUAGE-KEY`, `COSMOS-ENDPOINT`, `COSMOS-KEY`, `AZURE-SPEECH-KEY`, `AZURE-SPEECH-REGION`, `AZURE-VISION-ENDPOINT`, `AZURE-VISION-KEY`
+
+**Note:** `APPLICATIONINSIGHTS_CONNECTION_STRING` is loaded from App Service environment variables only and not retrieved from Key Vault. This is intentional: Application Insights is initialised at logger setup before Key Vault is queried, so it must be available as an env var.
+
+**Code location:** `SecretClient` block at the top of `app.py`, executed at startup
+
+---
+
+### 7. Azure Blob Storage
+**Why it was chosen:** Audit trail and accountability. Every analysis result is stored for review. Examples include risk distributions, medical flag rates, and schema validation failures. Enables responsible AI monitoring. Raw message content is never stored.
+
+**How the app uses it:** `store_result_to_blob()` uploads a timestamped JSON file to the `results` container after every successful analysis. The stored object contains `risk_level`, `mode`, `reading_level`, `is_medical`, `schema_valid`, and the full AI response. There is no message text, no session ID, no user-identifying information of any kind. Uploaded file content is never stored, and files are read in-memory and discarded after extraction.
+
+**Code location:** `store_result_to_blob()`, called after `validate_response()` passes
+
+---
+
+### 8. Azure Application Insights
+**Why it was chosen:** Production observability. Without telemetry, there is no evidence that safety features are firing. App Insights provides proof that responsible AI features are working in production, not just designed.
+
+**How the app uses it:** `AzureLogHandler` is attached to the Python logger at startup. Custom events fire via `logger.info()` and `logger.warning()` throughout the request lifecycle.
+
+| Event | When | What it proves |
+|---|---|---|
+| `analysis_started` | Every request starts | mode and reading level distribution |
+| `task_decomposed` | Make It Simple completes | task counts, medical flag rate |
+| `message_assessed` | Is This Safe? completes | risk level distribution |
+| `analysis_complete` | Every successful analysis | full pipeline execution confirmed |
+| `content_safety_flagged` | Crisis detected in message | safety layer is firing |
+| `prompt_shield_flagged` | Jailbreak attempt detected in message | prompt shield is firing |
+| `language_detected` | Every request | multilingual usage |
+| `leaked_warnings_detected` | Model put safety rules in tasks | leaked warning correction is working |
+| `medical_disclaimer_enforced` | Model omitted disclaimer | medical enforcement is firing |
+| `is_medical_backstop_triggered` | Model returned is_medical=false but medical keywords detected | keyword backstop override fired |
+| `frequency_expanded` | Stacked frequency task corrected into named instances | frequency enforcement working |
+| `frequency_unmappable_kept` | Frequency could not be safely expanded, surfaced in key_items | graceful fallback for edge cases |
+| `risk_level_upgraded` | Model returned Safe but real warnings exist, upgraded to Caution | risk_level logic enforcement firing |
+| `schema_validation_failed` | Model returned bad structure | validation catching issues |
+| `reminder_created` | Calendar reminder added | feature usage |
+| `preferences_saved` | Palette/reading level changed | Cosmos DB writes |
+| `preferences_loaded` | Returning user detected | Cosmos DB reads |
+| `upload_processed` | File successfully extracted | upload pipeline working |
+| `upload_blocked` | File blocked by content screening | upload safety firing |
+| `upload_blocked_crisis` | SelfHarm ≥ 4 in uploaded file | upload crisis path working |
+| `upload_blocked_harmful` | Sexual/Violence/Hate ≥ 2 in file | upload harm screening firing |
+| `ocr_api_failed` | Azure Vision OCR API returned non-200 | OCR API failure monitoring |
+| `ocr_extraction_failed` | OCR ran but returned no usable text | OCR extraction failure tracking |
+| `pdf_extraction_failed` | PDF text extraction threw an exception | PDF pipeline failure monitoring |
+| `docx_extraction_failed` | DOCX text extraction threw an exception | DOCX pipeline failure monitoring |
+| `tts_generated` | Audio successfully synthesised | TTS feature usage |
+| `tts_failed` | Speech API returned non-200 | TTS API failure monitoring |
+| `tts_exception` | Speech request threw an exception | TTS exception tracking |
+
+**Code location:** `logger.info()` and `logger.warning()` calls throughout `app.py`
+
+---
+
+### 9. Azure Cosmos DB
+**Why it was chosen:** Accessibility preferences are personal. A dyslexic user who configures the cream background and large text should not have to reconfigure every visit. Cosmos DB makes ClearStep remember users across sessions and devices without storing any personal data.
+
+**How the app uses it:** `get_cosmos_container()` initialises a `CosmosClient`. The `clearstep` database and `user_preferences` container are created on first use. Each document stores exactly: `session_id` (anonymous, browser-generated random string), `palette`, and `reading_level`. The session ID is generated in JavaScript using `Date.now()` + random suffix, never linked to any identity. If Cosmos is unavailable, it falls back to localStorage silently, and the user experience is unaffected.
+
+**Code location:** `get_cosmos_container()`, `get_preferences()`, `save_preferences()` in `app.py`; `loadPreferences()`, `syncPreferencesToCloud()` in `index.html`
+
+---
+
+### 10. Microsoft Foundry
+**Why it was chosen:** Foundry provides the managed deployment platform for Azure OpenAI models. Rather than calling a raw API endpoint, Foundry gives the team a dedicated deployment with controlled capacity, version management, rate limits, and monitoring; all in one place.
+
+**How the app uses it:** Joanne deployed the `signal-classifier` endpoint through Foundry using `gpt-4o-mini`. This is the model called by `extract_signals_with_azure()` in Layer 2 of the pipeline. The deployment runs at 100,000 tokens/minute with a Standard deployment type. The endpoint URL and key are stored in Azure Key Vault and loaded at startup.
+
+**Where in code:** `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_DEPLOYMENT` variables in `app.py`, both point to the Foundry-managed signal-classifier deployment.
