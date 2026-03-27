@@ -286,7 +286,9 @@ clearstep/
     ├── CLEARSTEP_HANDOFF.md # Full developer handoff — architecture, security, build status
     ├── clearstep_pipeline.html  # Interactive AI pipeline explorer
     ├── clearstep_palettes.html  # Interactive accessibility colour profiles
-    └── clearstep_rai.html       # Interactive RAI compliance map — 6 principles, code evidence
+    ├── clearstep_rai.html       # Interactive RAI compliance map — 6 principles, code evidence
+    ├── POWERPOINT.pptx          # Hackathon presentation deck (PowerPoint)
+    └── POWERPOINT.pdf           # Hackathon presentation deck (PDF — browser preview)
     ├── pipeline_preview.png     # Pipeline diagram screenshot (README)
     ├── palette_preview.png      # Colour profiles screenshot (README)
     └── rai_preview.png          # RAI compliance map screenshot (README)
@@ -306,6 +308,8 @@ clearstep/
 | [`docs/CONTRIBUTIONS.md`](./docs/CONTRIBUTIONS.md) | Team contributions and ownership |
 | [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) | Local setup, architecture orientation, dev notes |
 | [`docs/QA.md`](./docs/QA.md) | Design decisions, tradeoffs, judging criteria Q&A |
+| [`docs/POWERPOINT.pptx`](./docs/POWERPOINT.pptx) | Hackathon presentation deck (download to open) |
+| [`docs/POWERPOINT.pdf`](./docs/POWERPOINT.pdf) | Hackathon presentation deck (browser preview) |
 | [`docs/BUILD_STORY.md`](./docs/BUILD_STORY.md) | How this was built — the timeline, the team, and every error we hit |
 | [`docs/CLEARSTEP_HANDOFF.md`](./docs/CLEARSTEP_HANDOFF.md) | Full developer handoff — architecture, security, live pentest results, build status |
 
