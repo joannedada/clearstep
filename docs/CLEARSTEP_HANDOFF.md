@@ -626,6 +626,6 @@ These are not preferences. Do not change them.
 
 ---
 
-*ClearStep — Microsoft Innovation Challenge, March 2026*
+*ClearStep - Microsoft Innovation Challenge, March 2026*
 *Primary engineer: Leishka Pagán*
 *Infrastructure: Joanne Obodoagwu*
