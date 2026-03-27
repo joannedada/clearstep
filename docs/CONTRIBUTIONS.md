@@ -48,7 +48,7 @@ This document reflects actual implementation based on the repository, system arc
 - Set up Azure Key Vault and configured all secrets
 - Provisioned Azure Blob Storage container and connection
 - Provisioned Azure Cosmos DB database and container
-- Deployed signal-classifier (gpt-4o-mini) through Microsoft Foundry — controlled capacity, Standard deployment type
+- Deployed signal-classifier (gpt-4o) through Microsoft Foundry — controlled capacity, Standard deployment type
 - Configured Azure-to-Azure Managed Identity authentication
 - Managed cloud integration between all provisioned resources
 - Repository management and branch workflow
