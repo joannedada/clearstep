@@ -1,4 +1,3 @@
-[AZURE_SERVICES.md](https://github.com/user-attachments/files/26266728/AZURE_SERVICES.md)
 # Azure Services Used
 ### Every integration explained: why it was chosen, how the app uses it, and where to find it in the code.
 
