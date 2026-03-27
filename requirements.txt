@@ -3,6 +3,7 @@ Flask-Limiter==4.1.1
 flask-cors==6.0.2
 requests==2.32.5
 gunicorn==25.2.0
+Werkzeug==3.1.7
 azure-identity==1.24.0
 azure-keyvault-secrets==4.10.0
 azure-storage-blob==12.28.0
