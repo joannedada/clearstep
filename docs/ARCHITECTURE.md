@@ -1,7 +1,7 @@
 [ARCHITECTURE.md](https://github.com/user-attachments/files/26266756/ARCHITECTURE.md)
-# Architecture - ClearStep
+# System Architecture
 
-## System Overview
+## Overview
 
 ClearStep is a Flask web application deployed on Azure App Service. It processes user-submitted text, typed or uploaded from a file, through a multi-layer safety and AI pipeline and returns structured, validated JSON to a single-page frontend.
 
