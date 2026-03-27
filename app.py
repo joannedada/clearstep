@@ -340,6 +340,7 @@ def build_prompt(msg, detected_flags=None, reading_level="standard", mode="safe"
     else:
         meaning_rule = "meaning: ONE sentence only. Max 12 words. Simple and calm. No technical words."
 
+
     if mode == "simple":
         mode_instruction = f"""
 You are breaking down a complex message into the clearest possible structure for someone with ADHD, autism, or dyslexia.
@@ -445,6 +446,7 @@ Content type: A message, email, link, or text that may be a scam, threat, or man
 STRICT LENGTH RULES — this app is for cognitively overwhelmed users. Brevity is safety.
 - signals: EXACTLY 2-3 words each. Label the pattern only. Examples: "Urgent language", "Suspicious link", "Impersonation attempt". NEVER write a full sentence. NEVER exceed 3 words.
 - next_steps: Max 8 words each. One clear action. Examples: "Do not click the link", "Call your bank directly". NEVER write a full sentence with clauses.
+- meaning: Max 12 words. One sentence.
 
 Return ONLY this JSON:
 {{
@@ -694,7 +696,7 @@ def validate_response(parsed, mode, reading_level="standard"):
         if not parsed.get("tasks"):
             errors.append("tasks list is empty")
         # Task list has no hard count cap — frontend batches in groups of 5
-
+in
         if len(parsed.get("warnings", [])) > 6:
             parsed["warnings"] = parsed["warnings"][:6]
         if len(parsed.get("key_items", [])) > 4:
@@ -739,7 +741,7 @@ def validate_response(parsed, mode, reading_level="standard"):
                 logger.warning("ClearStep medical_disclaimer_enforced")
                 parsed["warnings"].append(MEDICAL_DISCLAIMER)
 
-
+in
         real_warnings = [
             w for w in parsed.get("warnings", [])
             if MEDICAL_DISCLAIMER.lower() not in w.lower()
@@ -780,12 +782,12 @@ def analyze():
     if mode not in ["safe", "simple"]:
         mode = "safe"
     if not msg:
-        return jsonify({"error": "Please paste something to check."}), 400
+        return jsonify({"error": "Missing message"}), 400
     max_len = 5000 if mode == "simple" else 2000
     if len(msg) > max_len:
         return jsonify({"error": f"Message too long. Please limit to {max_len} characters."}), 400
     if not ANTHROPIC_API_KEY:
-        return jsonify({"error": "This feature is currently unavailable. Please try again later."}), 500
+        return jsonify({"error": "Missing ANTHROPIC_API_KEY"}), 500
 
     # ── App Insights — analysis_started ────────────────────
     logger.info("ClearStep analysis_started", extra={
@@ -854,21 +856,21 @@ def analyze():
     )
     if response.status_code != 200:
         logger.error("Anthropic API error", extra={"custom_dimensions": {"status": str(response.status_code), "detail": response.text[:200]}})
-        return jsonify({"error": "Something went wrong on our end. Please try again in a moment."}), 503
+        return jsonify({"error": "Analysis service temporarily unavailable. Please try again."}), 503
 
     result = response.json()
     raw_text = result["content"][0]["text"].strip().replace("```json", "").replace("```", "").strip()
     try:
         parsed = json.loads(raw_text)
     except Exception:
-        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
+        return jsonify({"error": "Model returned invalid JSON"}), 500
 
     validated, errors = validate_response(parsed, mode, reading_level)
     if errors:
         logger.error("ClearStep schema_validation_failed", extra={
             "custom_dimensions": {"errors": str(errors), "mode": mode}
         })
-        return jsonify({"error": "We had trouble processing that. Please try again or simplify your input."}), 500
+        return jsonify({"error": "Response validation failed", "details": errors}), 500
 
     store_result_to_blob(validated)
 
@@ -1136,7 +1138,7 @@ def extract_text_from_image(file_obj):
             if status == "failed":
                 raise RuntimeError("OCR analysis failed")
 
-main
+ main
         lines = []
         for read_result in result.get("analyzeResult", {}).get("readResults", []):
             for line in read_result.get("lines", []):
