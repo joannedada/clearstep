@@ -1,4 +1,3 @@
-[ARCHITECTURE.md](https://github.com/user-attachments/files/26266756/ARCHITECTURE.md)
 # Architecture - ClearStep
 
 ## System Overview
@@ -29,7 +28,7 @@ Flask (app.py)
         │         Non-English → lang_instruction injected into Layer 3 prompt
         │
         ├─── [Layer 2] Azure OpenAI via Microsoft Foundry (safe mode only)
-        │         gpt-4o-mini signal-classifier
+        │         gpt-4o signal-classifier
         │         Returns 5 booleans: urgency / money_request / impersonation /
         │         suspicious_link / threat_language — injected as Claude context
         │         Skipped gracefully if unavailable
@@ -65,7 +64,7 @@ Flask (app.py)
         │         No message content, no user ID
         │
         └─── Azure Application Insights
-                  25 custom events fired across the request lifecycle
+                  28 custom events fired across the request lifecycle
 ```
 
 ---
