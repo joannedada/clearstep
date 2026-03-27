@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/26293296/README.md)
 [README.md](https://github.com/user-attachments/files/26270277/README.md)
 # ClearStep
 ### Microsoft AI Innovation Challenge Hackathon — March 2026
@@ -311,17 +312,16 @@ These decisions were made to prioritise reliable real-time interaction, clear us
 
 - **Session history:** Optional anonymous history so users can revisit past analyses
 - **Browser extension:** "Is This Safe?" directly from email clients
-- **Image Upload/OCR:** Image upload and OCR integration are implemented in the backend.
-	•	In the current deployment environment, Azure Vision OCR is limited by the selected resource tier.
-	•	For demo stability, ClearStep is presented primarily as a text-first experience.
-	•	Upgrading the OCR resource tier would enable full screenshot-to-text extraction.
+
 ---
 
 ## Team
 
 | Name | Role |
 |---|---|
-
+| **Leishka Pagan** | Project lead · Product strategy · System architecture · Backend development (`app.py`) · Frontend development (`index.html`) · Azure integrations · Prompt engineering · Medical safety design · UX design · Accessibility design · Security pen testing (14 attack vectors) · Responsible AI design · Full technical documentation (README, ARCHITECTURE, RESPONSIBLE_AI, AZURE_SERVICES, DESIGN_DECISIONS, SECURITY) |
+| **Joanne Obodoagwu** | Azure infrastructure · Resource provisioning · Key Vault · Blob Storage · App Service deployment · Cosmos DB setup · Microsoft Foundry deployment · Cloud integration |
+| **Fatima** | Research support · Accessibility input · Feature ideation |
 
 ---
 
