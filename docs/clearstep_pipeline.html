@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStep — AI Pipeline Architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0E1520; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; padding: 48px 40px; }
+  h1 { color: #F0F4F8; font-size: 36px; font-weight: 600; margin-bottom: 6px; text-align: center; letter-spacing: -0.02em; }
+  .sub { color: #8A9BAA; font-size: 16px; margin-bottom: 40px; text-align: center; }
+  .layout { display: flex; gap: 32px; width: 100%; align-items: flex-start; }
+  .pipeline { flex: 0 0 400px; display: flex; flex-direction: column; align-items: center; }
+  .node { width: 100%; border-radius: 8px; padding: 13px 16px; cursor: pointer; border: 1px solid transparent; transition: transform 0.12s; }
+  .node:hover { transform: translateY(-1px); }
+  .node.active { outline: 2px solid #6AAED0; outline-offset: 2px; }
+  .node-title { font-size: 17px; font-weight: 700; }
+  .node-sub { font-size: 14px; margin-top: 4px; }
+  .arrow { width: 1px; height: 22px; background: #2A3A4A; margin: 0 auto; position: relative; }
+  .arrow::after { content: ''; position: absolute; bottom: -5px; left: -4px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #2A3A4A; }
+  .label-pill { font-size: 13px; color: #8A9BAA; background: #182030; border: 1px solid #2A3A4A; border-radius: 10px; padding: 3px 10px; margin: 5px auto; display: inline-block; letter-spacing: 0.03em; }
+  .fork { width: 100%; display: flex; gap: 8px; }
+  .fork .node { flex: 1; text-align: center; }
+
+  .n-slate  { background: #1C2A36; border-color: #3A5060; }
+  .n-slate  .node-title { color: #D8E8F0; }
+  .n-slate  .node-sub   { color: #8AAABB; }
+
+  .n-red    { background: #2A1A18; border-color: #8A3A34; }
+  .n-red    .node-title { color: #F0907A; }
+  .n-red    .node-sub   { color: #A07068; }
+
+  .n-blue   { background: #162030; border-color: #2E5880; }
+  .n-blue   .node-title { color: #80C0E8; }
+  .n-blue   .node-sub   { color: #6090A8; }
+
+  .n-purple { background: #1C1A30; border-color: #4A4490; }
+  .n-purple .node-title { color: #B0A8E8; }
+  .n-purple .node-sub   { color: #706AA8; }
+
+  .n-teal   { background: #142220; border-color: #286858; }
+  .n-teal   .node-title { color: #70C8B0; }
+  .n-teal   .node-sub   { color: #509080; }
+
+  .panel { flex: 1; min-width: 0; position: sticky; top: 48px; }
+  .info-card { background: #182030; border: 1px solid #2A3A4A; border-radius: 12px; padding: 28px 30px; min-height: 280px; }
+  .info-card.active { border-color: #6AAED0; }
+  .info-title { font-size: 24px; font-weight: 700; color: #F0F4F8; margin-bottom: 8px; }
+  .info-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 4px; margin-bottom: 14px; letter-spacing: 0.07em; text-transform: uppercase; }
+  .b-red    { background: #2A1A18; color: #F0907A; border: 1px solid #8A3A34; }
+  .b-blue   { background: #162030; color: #80C0E8; border: 1px solid #2E5880; }
+  .b-purple { background: #1C1A30; color: #B0A8E8; border: 1px solid #4A4490; }
+  .b-teal   { background: #142220; color: #70C8B0; border: 1px solid #286858; }
+  .b-slate  { background: #1C2A36; color: #D8E8F0; border: 1px solid #3A5060; }
+  .info-desc { font-size: 16px; color: #C0D0DC; line-height: 1.7; margin-bottom: 16px; }
+  .info-points { list-style: none; }
+  .info-points li { font-size: 15px; color: #C8D8E4; line-height: 1.7; padding-left: 16px; position: relative; margin-bottom: 5px; }
+  .info-points li::before { content: '→'; position: absolute; left: 0; color: #6AAED0; font-size: 12px; top: 2px; }
+  .info-note { margin-top: 16px; font-size: 13px; color: #8AAABB; background: #0E1520; border-radius: 6px; padding: 10px 14px; border-left: 2px solid #286858; line-height: 1.65; }
+  .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; text-align: center; gap: 14px; }
+  .placeholder-icon { width: 48px; height: 48px; border-radius: 50%; background: #1C2A36; display: flex; align-items: center; justify-content: center; }
+  .placeholder-text { font-size: 14px; color: #5A7A8A; line-height: 1.6; }
+  .footer { margin-top: 48px; font-size: 12px; color: #3A5060; text-align: center; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>ClearStep — AI pipeline architecture</h1>
+<p class="sub">Microsoft AI Innovation Challenge 2026 &nbsp;·&nbsp; Click any layer to explore</p>
+
+<div class="layout">
+  <div class="pipeline">
+
+    <div class="node n-slate" onclick="show('input', this)">
+      <div class="node-title">User input</div>
+      <div class="node-sub">text or uploaded file</div>
+    </div>
+    <div class="arrow"></div>
+    <span class="label-pill">safety screen</span>
+
+    <div class="node n-red" onclick="show('safety', this)">
+      <div class="node-title">Azure Content Safety</div>
+      <div class="node-sub">Crisis + harm screening</div>
+    </div>
+    <div class="arrow"></div>
+
+    <div class="node n-red" onclick="show('shields', this)">
+      <div class="node-title">Azure Prompt Shields</div>
+      <div class="node-sub">Jailbreak detection</div>
+    </div>
+    <div class="arrow"></div>
+    <span class="label-pill">context</span>
+
+    <div class="node n-blue" onclick="show('language', this)">
+      <div class="node-title">Azure AI Language</div>
+      <div class="node-sub">Language detection · multilingual</div>
+    </div>
+    <div class="arrow"></div>
+
+    <div class="node n-blue" onclick="show('openai', this)">
+      <div class="node-title">Azure OpenAI via Microsoft Foundry</div>
+      <div class="node-sub">5 boolean signal flags · Is This Safe? only</div>
+    </div>
+    <div class="arrow"></div>
+    <span class="label-pill">AI reasoning</span>
+
+    <div class="node n-purple" onclick="show('claude', this)">
+      <div class="node-title">Anthropic Claude (claude-sonnet-4-20250514)</div>
+      <div class="node-sub">Risk assessment + step generation</div>
+    </div>
+    <div class="arrow"></div>
+    <span class="label-pill">enforcement</span>
+
+    <div class="node n-teal" onclick="show('validator', this)">
+      <div class="node-title">validate_response()</div>
+      <div class="node-sub">Python enforcement layer</div>
+    </div>
+    <div class="arrow"></div>
+
+    <div class="fork">
+      <div class="node n-slate" onclick="show('blob', this)">
+        <div class="node-title">Blob Storage</div>
+        <div class="node-sub">Audit log</div>
+      </div>
+      <div class="node n-slate" onclick="show('insights', this)">
+        <div class="node-title">App Insights</div>
+        <div class="node-sub">22+ events</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel">
+    <div class="info-card" id="infoCard">
+      <div class="placeholder">
+        <div class="placeholder-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#3A5060" stroke-width="1.5"/><line x1="10" y1="7" x2="10" y2="11.5" stroke="#3A5060" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="14" r="0.9" fill="#3A5060"/></svg>
+        </div>
+        <p class="placeholder-text">Click any layer in the pipeline<br>to see how it works</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="footer">Use the model for reasoning. Use code for guarantees. &nbsp;·&nbsp; ClearStep — Microsoft AI Innovation Challenge 2026</p>
+
+<script>
+const data = {
+  input: { title:"User input", badge:"entry point", bc:"b-slate", desc:"Two paths: typed text goes directly to /api/analyze. Uploaded files go to /api/upload first and never touch the AI pipeline until fully screened.", points:["Typed text: capped at 2,000 chars (Is This Safe?) or 5,000 chars (Make It Simple)","File upload: .txt, .pdf, .docx — up to 5 MB","5 validation checks before any extraction: extension, MIME type, byte-count size, filename sanitisation","Files extracted in memory — never stored anywhere","After upload, text lands in the textarea — user submits normally from there"], note:"The two modes are separate: 'Is This Safe?' assesses risk. 'Make It Simple' decomposes complex instructions. Different prompts, different output schemas, different validation rules." },
+  safety: { title:"Azure Content Safety", badge:"layer 1 — safety screen", bc:"b-red", desc:"Runs before any LLM is invoked. No prompt injection, adversarial input, or model behaviour can bypass it. For a tool used by vulnerable populations, a hardcoded safety net is non-negotiable.", points:["Screens for Hate, SelfHarm, Sexual, Violence using FourSeverityLevels output","SelfHarm severity ≥ 4 → hardcoded 988 Suicide & Crisis Lifeline response returned immediately","Claude is NEVER called when this triggers","Upload screener also runs Content Safety on all extracted file text before returning to frontend","Upload thresholds: SelfHarm ≥ 4 = crisis block; Sexual/Violence/Hate ≥ 2 = content block"], note:"Crisis response is a hardcoded Python dict — it cannot be altered by any model behaviour, prompt injection, or input manipulation." },
+  shields: { title:"Azure Prompt Shields", badge:"layer 1b — jailbreak detection", bc:"b-red", desc:"Detects jailbreak and prompt injection attempts at the infrastructure level. Runs after harm screening, before any LLM is called.", points:["Calls /contentsafety/text:shieldPrompt endpoint on every user input","If attackDetected → hardcoded High Risk response returned immediately","Claude is NEVER called when this triggers","Also runs on all uploaded file content before text is returned to the frontend","Fires prompt_shield_flagged telemetry event to App Insights when triggered"], note:"Tested across 14+ attack vectors including direct overrides, roleplay framing, JSON schema breaks, and multi-step social engineering. All return High Risk or Caution — never compliance." },
+  language: { title:"Azure AI Language", badge:"layer 2a — context", bc:"b-blue", desc:"ClearStep is built for accessibility. Limiting it to English excludes a significant portion of the neurodiverse, elderly, and low-literacy population it was designed to serve.", points:["Calls LanguageDetection endpoint on the first 500 characters of every input","Returns ISO 639-1 code (e.g. 'en', 'es', 'fr') and confidence score","If non-English detected → lang_instruction injected into Claude prompt","Claude responds in the detected language across ALL fields: meaning, warnings, tasks, signals","No configuration or language selector required — fully automatic"], note:"Fires language_detected telemetry event with language code and confidence score." },
+  openai: { title:"Azure OpenAI via Microsoft Foundry", badge:"layer 2b — signal extraction", bc:"b-blue", desc:"Claude is powerful but expensive as a pure binary classifier. Azure OpenAI (gpt-4o-mini) runs a fast, cheap, zero-temperature classification pass first. Is This Safe? mode only.", points:["extract_signals_with_azure() sends the message, returns 5 boolean fields","Fields: urgency, money_request, impersonation, suspicious_link, threat_language","Temperature: 0 — deterministic classification, no variation","Flags injected into Claude prompt as pre-processed context","Skipped gracefully if Azure OpenAI is unavailable — Claude runs without flags"], note:"Deployed through Microsoft Foundry as 'signal-classifier' — 100,000 tokens/minute, Standard deployment type. Endpoint and key stored in Azure Key Vault." },
+  claude: { title:"Anthropic Claude", badge:"layer 3 — AI reasoning", bc:"b-purple", desc:"Final risk assessment and step generation. The reasoning layer — not the safety layer. Safety is enforced before and after this call.", points:["Model: claude-sonnet-4-20250514 · Temperature: 0 · Max tokens: 2000 (simple) / 500 (safe)","User message delivered inside XML delimiters — quote characters cannot escape prompt context","Is This Safe? returns risk/signals/next_steps; Make It Simple returns tasks/warnings/key_items","Reading level adaptation: model writes differently at Big/Normal/Small","Medical hardening: conditional instructions classified as warnings, never tasks"], note:"The model is the reasoning layer. Python is the enforcement layer. The model can suggest; validate_response() decides what ships." },
+  validator: { title:"validate_response()", badge:"python enforcement", bc:"b-teal", desc:"Runs after every Claude response. The rules enforced here exist because the model sometimes doesn't follow prompt rules. Both layers are needed.", points:["Schema validation: required fields, risk_level normalisation, type coercion","risk_level logic: if real warnings exist, Safe is not valid → upgraded to Caution","is_medical keyword backstop: model returned false but medical keywords detected → override to true","Frequency expansion: 'three times daily' → 3 named task instances (morning/afternoon/evening)","Leaked warning detection: tasks starting with 'do not', 'never', 'avoid' → moved to warnings","Medical disclaimer enforced in Python if model omits it — appended and logged"], note:"Malformed output is rejected with 500 before the user sees anything. A partial or structurally invalid result never reaches the frontend." },
+  blob: { title:"Azure Blob Storage", badge:"audit log", bc:"b-slate", desc:"Every analysis result is stored for review — risk distributions, medical flag rates, schema validation failures. Enables responsible AI monitoring.", points:["Timestamped JSON file uploaded after every successful analysis","Stores: risk_level, mode, reading_level, is_medical, schema_valid, full AI response","Never stores: message text, session ID, or any user-identifying information","Uploaded file content is never stored — extracted in memory, discarded immediately","Blob container is private — no public access"], note:"Blob Storage is the accountability layer. Without it there is no evidence of what the system did in production." },
+  insights: { title:"Azure Application Insights", badge:"22+ telemetry events", bc:"b-slate", desc:"Production observability. Without telemetry, there is no evidence that safety features are firing. App Insights provides proof that responsible AI features are working — not just designed.", points:["analysis_started, task_decomposed, message_assessed, analysis_complete — every request","content_safety_flagged, prompt_shield_flagged — safety layers firing","medical_disclaimer_enforced, is_medical_backstop_triggered — medical enforcement","leaked_warnings_detected, frequency_expanded, frequency_unmappable_kept, risk_level_upgraded — validator corrections","upload_blocked_crisis, upload_blocked_harmful, upload_blocked — upload safety","tts_generated, reminder_created, preferences_saved — feature usage"], note:"AzureLogHandler attached to Python logger at startup. Events fire via logger.info() and logger.warning() throughout the request lifecycle." }
+};
+function show(key, el) {
+  const d = data[key]; if (!d) return;
+  document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  const card = document.getElementById('infoCard');
+  card.classList.add('active');
+  card.innerHTML = `<div class="info-badge ${d.bc}">${d.badge}</div><div class="info-title">${d.title}</div><p class="info-desc">${d.desc}</p><ul class="info-points">${d.points.map(p=>`<li>${p}</li>`).join('')}</ul>${d.note?`<div class="info-note">${d.note}</div>`:''}`;
+}
+</script>
+</body>
+</html>

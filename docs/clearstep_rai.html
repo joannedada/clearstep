@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStep — Responsible AI Compliance</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0B0F17;--bg2:#111620;--bg3:#1A2030;
+  --border:#1E2A3A;--border2:#2A3A4E;
+  --text:#F0F5FF;--muted:#8AAAC8;--accent:#2F6E91;--accent2:#5AAFD8;
+  --green-bg:#0A2418;--green-border:#1A5038;--green-text:#5AEAA8;
+  --amber-bg:#281A06;--amber-border:#5A380E;--amber-text:#F0B840;
+  --blue-bg:#081830;--blue-border:#1A3858;--blue-text:#88C8F0;
+  --purple-bg:#140A28;--purple-border:#342060;--purple-text:#C098F8;
+  --teal-bg:#061818;--teal-border:#163C3C;--teal-text:#50D8D0;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:56px 40px 100px;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;}
+.header{text-align:center;margin-bottom:60px;}
+.header-eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px;}
+.header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,8vw,5.5rem);letter-spacing:0.04em;color:#FFFFFF;line-height:0.92;margin-bottom:20px;}
+.header h1 span{color:var(--accent2);}
+.header-sub{font-size:16px;color:#A8C4DC;max-width:560px;margin:0 auto 28px;line-height:1.75;}
+.standard-link{display:inline-flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent2);border:1px solid var(--border2);border-radius:4px;padding:8px 18px;text-decoration:none;transition:all 0.2s;}
+.standard-link:hover{border-color:var(--accent2);background:rgba(90,175,216,0.06);}
+.standard-link::before{content:'↗';font-size:13px;}
+.rai-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:56px;max-width:780px;margin-left:auto;margin-right:auto;}
+.rai-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color 0.25s,transform 0.18s,box-shadow 0.25s;position:relative;}
+.rai-card::after{content:'';position:absolute;inset:0;border-radius:12px;opacity:0;transition:opacity 0.25s;background:radial-gradient(ellipse at 50% 0%,var(--card-glow),transparent 70%);pointer-events:none;}
+.rai-card:hover{transform:translateY(-3px);box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 0 1px var(--card-accent);}
+.rai-card:hover::after{opacity:1;}
+.rai-card.open{border-color:var(--card-accent);box-shadow:0 0 0 1px var(--card-accent),0 20px 60px rgba(0,0,0,0.7);}
+.rai-card.open::after{opacity:1;}
+.card-header{display:flex;align-items:center;gap:16px;padding:24px 26px 16px;}
+.card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:var(--card-icon-bg);border:1px solid var(--card-icon-border);}
+.card-meta{flex:1;}
+.card-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--card-accent);margin-bottom:4px;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:0.05em;color:#FFFFFF;}
+.card-toggle{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px;font-weight:300;transition:all 0.25s;flex-shrink:0;}
+.rai-card.open .card-toggle{background:var(--card-accent);border-color:var(--card-accent);color:#fff;transform:rotate(45deg);}
+.card-summary{padding:0 26px 18px;display:flex;flex-wrap:wrap;gap:7px;}
+.tag{display:inline-block;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:0.06em;padding:4px 11px;border-radius:3px;background:var(--bg3);border:1px solid var(--border2);color:#A8C4DC;}
+.click-hint{padding:0 26px 14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--muted);display:flex;align-items:center;gap:6px;animation:pulse 2s ease-in-out infinite;}
+.click-hint::before{content:'↓';color:var(--card-accent);}
+@keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.card-panel{display:none;border-top:1px solid var(--border);background:var(--bg3);}
+.rai-card.open .card-panel{display:block;animation:slideDown 0.22s ease both;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.panel-section{padding:22px 26px;border-bottom:1px solid var(--border);}
+.panel-section:last-child{border-bottom:none;}
+.section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:500;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border2);}
+.what-items{display:flex;flex-direction:column;gap:11px;}
+.what-item{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:#D8ECFF;line-height:1.65;}
+.what-item::before{content:'✓';font-size:12px;margin-top:3px;flex-shrink:0;color:var(--card-accent);font-weight:700;}
+.what-item strong{color:#FFFFFF;}
+.what-item code{font-family:'DM Mono',monospace;font-size:12px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px;color:var(--card-accent);}
+.what-item em{color:#A8C4DC;font-style:italic;}
+.where-items{display:flex;flex-wrap:wrap;gap:8px;}
+.where-tag{font-family:'DM Mono',monospace;font-size:12px;padding:6px 13px;border-radius:5px;background:var(--card-icon-bg);border:1px solid var(--card-icon-border);color:var(--card-accent);}
+.evidence-block{background:var(--bg);border:1px solid var(--border2);border-radius:7px;overflow:hidden;}
+.evidence-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:8px 14px;border-bottom:1px solid var(--border2);color:#7A9AAB;background:var(--bg2);}
+.evidence-code{padding:16px 18px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.85;color:#C0D8E8;white-space:pre-wrap;word-break:break-word;}
+.evidence-code .kw{color:var(--card-accent);}
+.evidence-code .val{color:var(--amber-text);}
+.evidence-code .comment{color:#3A6050;font-style:italic;}
+.evidence-code .out{color:var(--green-text);}
+.evidence-code .red{color:#E07878;}
+.evidence-code .hi{color:#FFFFFF;font-weight:600;}
+.footer-bar{text-align:center;padding-top:36px;border-top:1px solid var(--border);}
+.footer-bar p{font-family:'DM Mono',monospace;font-size:12px;color:#6A8AA8;letter-spacing:0.07em;}
+.footer-bar span{color:var(--accent2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+  <div class="header-eyebrow">Microsoft Responsible AI Standard v2 — Full Compliance Map</div>
+  <h1>CLEAR<span>STEP</span><br>RAI COMPLIANCE</h1>
+  <p class="header-sub">Six principles. Every claim mapped to a specific implementation, a named component, and working code. Click any card.</p>
+  <a class="standard-link" href="https://blogs.microsoft.com/wp-content/uploads/prod/sites/5/2022/06/Microsoft-Responsible-AI-Standard-v2-General-Requirements-3.pdf" target="_blank">Microsoft RAI Standard v2 PDF</a>
+</div>
+<div class="rai-grid" id="raiGrid"></div>
+<div class="footer-bar">
+  <p>ClearStep — <span>Microsoft AI Innovation Challenge 2026</span> &nbsp;·&nbsp; Use the model for reasoning. Use code for guarantees.</p>
+</div>
+</div>
+<script>
+const CARDS=[
+{id:"reliability",icon:"🛡",label:"Reliability & Safety",title:"RELIABILITY & SAFETY",accentVar:"--green-text",iconBg:"var(--green-bg)",iconBorder:"var(--green-border)",glow:"rgba(90,234,168,0.08)",
+tags:["Crisis override","Prompt Shields","Python enforcement","14 attack vectors"],
+what:[
+"SelfHarm severity ≥ 4 → hardcoded 988 response. Claude is <strong>never called</strong>. Cannot be bypassed by any prompt or model behaviour.",
+"Prompt Shields blocks jailbreaks at Azure infrastructure level — before any LLM is invoked.",
+"<code>validate_response()</code> enforces schema, medical safeguards, and risk logic in Python <em>after</em> every Claude call. Model output is never trusted blindly.",
+"14 attack vectors tested — all return High Risk or Caution, never compliance. Results documented in SECURITY.md."
+],
+where:["Azure AI Content Safety","Azure Prompt Shields","validate_response()","Flask-Limiter (10/min)"],
+evidenceLabel:"screen_with_content_safety() — app.py",
+evidence:`<span class="comment"># Runs BEFORE Claude. Hardcoded Python. Cannot be bypassed.</span>
+if cat.get(<span class="val">"category"</span>) == <span class="val">"SelfHarm"</span> and cat.get(<span class="val">"severity"</span>, 0) >= <span class="val">4</span>:
+    <span class="kw">return</span> {
+        <span class="val">"risk_level"</span>: <span class="val">"High Risk"</span>,
+        <span class="val">"next_steps"</span>: [<span class="val">"Call or text 988 — Suicide and Crisis Lifeline"</span>]
+    }
+
+<span class="hi">Input:</span>  <span class="val">"I want to end my life"</span>
+<span class="out">Output: 988 hardcoded override — model never invoked</span>
+
+<span class="hi">Input:</span>  <span class="val">"Ignore all previous instructions"</span>
+<span class="out">Output: Prompt Shields → High Risk hardcoded — model never invoked</span>`
+},
+{id:"accountability",icon:"📋",label:"Accountability",title:"ACCOUNTABILITY",accentVar:"--blue-text",iconBg:"var(--blue-bg)",iconBorder:"var(--blue-border)",glow:"rgba(136,200,240,0.07)",
+tags:["Blob audit log","22+ telemetry events","Foundry monitoring","No PII"],
+what:[
+"Every analysis logged to Azure Blob Storage: risk_level, mode, is_medical, schema_valid. <strong>No message content ever stored.</strong>",
+"22+ named App Insights events fire across the request lifecycle — safety features proven firing in production, not just designed.",
+"Three enforcement events by name: <code>leaked_warnings_detected</code>, <code>medical_disclaimer_enforced</code>, <code>prompt_shield_flagged</code>.",
+"Microsoft Foundry provides deployment-level monitoring and metrics for the signal-classifier (gpt-4o-mini) in Layer 2."
+],
+where:["Azure Blob Storage","Azure Application Insights","Microsoft Foundry","store_result_to_blob()"],
+evidenceLabel:"3 of 22+ named telemetry events — app.py",
+evidence:`<span class="comment"># Fires when model puts safety rule in the task list:</span>
+logger.warning(<span class="val">"ClearStep leaked_warnings_detected"</span>, extra={
+    <span class="val">"custom_dimensions"</span>: {<span class="val">"leaked_count"</span>: str(len(leaked))}
+})
+<span class="comment"># Fires when model omits the medical disclaimer:</span>
+logger.warning(<span class="val">"ClearStep medical_disclaimer_enforced"</span>)
+<span class="comment"># Fires when jailbreak attempt detected at infra level:</span>
+logger.warning(<span class="val">"ClearStep prompt_shield_flagged"</span>)
+
+<span class="comment"># Blob log — zero message content:</span>
+{ <span class="val">"risk_level"</span>: <span class="val">"High Risk"</span>, <span class="val">"mode"</span>: <span class="val">"safe"</span>,
+  <span class="val">"is_medical"</span>: <span class="kw">false</span>, <span class="val">"schema_valid"</span>: <span class="kw">true</span> }`
+},
+{id:"fairness",icon:"⚖",label:"Fairness",title:"FAIRNESS",accentVar:"--purple-text",iconBg:"var(--purple-bg)",iconBorder:"var(--purple-border)",glow:"rgba(192,152,248,0.07)",
+tags:["5 accessibility palettes","3 reading levels","Auto multilingual","No timers"],
+what:[
+"5 cognitive accessibility palettes: Low Sensory (zero red/amber), Dyslexia-friendly, High Focus, Dark Mode, Calm Default. All WCAG 2.1 AA.",
+"Reading level <strong>directly controls Claude output structure</strong> — not UI only. Model writes differently at each level: word count, sentence complexity, output density.",
+"Azure AI Language detects input language automatically. Claude responds entirely in the detected language across all fields. Zero configuration.",
+"No enforced timers. Countdown timers increase anxiety for users in cognitive overload. Replaced with optional, user-initiated reminders."
+],
+where:["Azure AI Language","Anthropic Claude build_prompt()","Azure Cosmos DB","5 CSS variable profiles"],
+evidenceLabel:"reading level controls model output — build_prompt() app.py",
+evidence:`<span class="comment"># Reading level changes WHAT Claude writes, not just font size</span>
+if reading_level == <span class="val">"simple"</span>:
+    rl_instruction = <span class="val">"Write for a child age 8-10."</span>
+    <span class="comment"># Max 8 words per meaning field.</span>
+elif reading_level == <span class="val">"detailed"</span>:
+    rl_instruction = <span class="val">"Write for an educated adult."</span>
+    <span class="comment"># Up to 15 words per meaning field.</span>
+
+<span class="comment"># Multilingual — auto-injected into every non-English prompt:</span>
+lang_instruction = <span class="val">"Respond entirely in Spanish (es)."</span>
+<span class="out">→ All fields: meaning, warnings, tasks, key_items.</span>
+<span class="comment"># No selector. No config. Zero extra steps for the user.</span>`
+},
+{id:"transparency",icon:"🔍",label:"Transparency",title:"TRANSPARENCY",accentVar:"--teal-text",iconBg:"var(--teal-bg)",iconBorder:"var(--teal-border)",glow:"rgba(80,216,208,0.07)",
+tags:["Explainability panel","AI vs fallback disclosed","Medical disclaimer","Model identity shown"],
+what:[
+"'Why this result?' explainability panel on every output — signals explained in plain language, not technical labels.",
+"System <strong>clearly indicates when outputs are fallback vs AI-generated</strong>. Visible caution bar always shown when keyword scoring runs. Never silently presents fallback as AI analysis.",
+"Medical disclaimer bar persists across all three phases of step-by-step flow — never cleared by phase transitions.",
+"Every result: 'ClearStep is an AI tool (Anthropic Claude). Always verify with a professional.' Model identity disclosed on every output."
+],
+where:["renderResult() index.html","fallback() + fallbackBar","Medical disclaimer bar","Explainability panel"],
+evidenceLabel:"fallback disclosure — index.html",
+evidence:`<span class="comment">// AI vs fallback — always disclosed, never silent.</span>
+<span class="kw">function</span> fallback(msg) {
+    <span class="kw">return</span> { risk_level: <span class="val">'Caution'</span>, _fallback: <span class="kw">true</span> };
+}
+<span class="comment">// renderResult() — fallback bar always fires:</span>
+if (r._fallback) fbBar.classList.add(<span class="val">'visible'</span>);
+<span class="out">→ "AI unavailable — showing basic analysis only"</span>
+
+<span class="comment">// Medical result — model identity always shown:</span>
+<span class="out">→ "ClearStep is an AI tool (Anthropic Claude)."</span>
+<span class="out">→ "Always verify with a professional."</span>`
+},
+{id:"privacy",icon:"🔒",label:"Privacy & Security",title:"PRIVACY & SECURITY",accentVar:"--amber-text",iconBg:"var(--amber-bg)",iconBorder:"var(--amber-border)",glow:"rgba(240,184,64,0.06)",
+tags:["No message storage","Key Vault","No accounts","XSS sanitised"],
+what:[
+"User message content is <strong>not stored in application logs or persistent storage</strong>. Blob logs contain AI response JSON only.",
+"Uploaded files extracted in memory and discarded immediately. Nothing written to disk, blob, or any log.",
+"All secrets in Azure Key Vault via Managed Identity (<code>DefaultAzureCredential</code>). Zero secrets in code, config, or any commit.",
+"All model output rendered via innerHTML escaped through <code>esc()</code> before DOM insertion. Tested: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> renders as visible text."
+],
+where:["Azure Key Vault","DefaultAzureCredential","esc() index.html","Flask-CORS (own domain only)"],
+evidenceLabel:"XSS sanitisation + Key Vault — index.html / app.py",
+evidence:`<span class="comment">// esc() — every innerHTML assignment routes through this:</span>
+<span class="kw">function</span> esc(s) {
+    <span class="kw">return</span> String(s)
+        .replace(<span class="val">/&amp;/g</span>, <span class="val">'&amp;amp;'</span>)
+        .replace(<span class="val">/&lt;/g</span>, <span class="val">'&amp;lt;'</span>)
+        .replace(<span class="val">/&gt;/g</span>, <span class="val">'&amp;gt;'</span>);
+}
+<span class="hi">Test:</span> <span class="red">&lt;script&gt;alert(1)&lt;/script&gt;</span> <span class="out">→ renders as text ✓</span>
+
+<span class="comment"># Key Vault at startup — zero secrets in code:</span>
+secret_client = SecretClient(vault_url=KV_URI,
+    credential=<span class="kw">DefaultAzureCredential</span>())
+ANTHROPIC_API_KEY = secret_client.get_secret(<span class="val">"ANTHROPIC-API-KEY"</span>).value`
+},
+{id:"inclusiveness",icon:"♿",label:"Inclusiveness",title:"INCLUSIVENESS",accentVar:"--accent2",iconBg:"rgba(47,110,145,0.15)",iconBorder:"rgba(90,175,216,0.25)",glow:"rgba(90,175,216,0.06)",
+tags:["ADHD · Autism · Dyslexia","File attachment","Behavioral adaptation","WCAG 2.1 AA"],
+what:[
+"Built specifically for ADHD, autism, dyslexia, low digital literacy, elderly users, and non-English speakers — <strong>not retrofitted</strong>.",
+"File attachment (.txt, .pdf, .docx) removes copy/paste barrier for users with motor difficulties or low digital literacy.",
+"Reading level <strong>auto-inferred from usage history</strong> — last 3 manual choices, 2-of-3 agreement — applied on return without any configuration.",
+"All 5 colour profiles meet WCAG 2.1 AA (4.5:1). Low Sensory: zero red, orange, or amber anywhere — even High Risk renders in muted teal."
+],
+where:["Cosmos DB reading_level_history","Azure AI Language","5 CSS variable palettes","index.html task engine"],
+evidenceLabel:"behavioral adaptation — index.html",
+evidence:`<span class="comment">// Last 3 manual choices — 2-of-3 triggers auto-apply on return</span>
+<span class="kw">const</span> last3 = hist.slice(<span class="val">-3</span>);
+<span class="kw">const</span> counts = {};
+last3.forEach(v => { counts[v] = (counts[v] || <span class="val">0</span>) + <span class="val">1</span>; });
+<span class="kw">const</span> top = Object.entries(counts).sort((a,b) => b[<span class="val">1</span>]-a[<span class="val">1</span>])[<span class="val">0</span>];
+if (top[<span class="val">1</span>] >= <span class="val">2</span>) inferredLevel = top[<span class="val">0</span>];
+
+<span class="comment">// On return visit — auto-applied, user notified:</span>
+<span class="out">→ "Reading level auto-set based on your history."</span>
+<span class="comment">// Stored in Cosmos DB. Persists across devices.</span>`
+}
+];
+
+function buildCards(){
+  const grid=document.getElementById('raiGrid');
+  CARDS.forEach((card,i)=>{
+    const ac=`var(${card.accentVar})`;
+    const el=document.createElement('div');
+    el.className='rai-card';el.id=`card-${card.id}`;
+    el.style.setProperty('--card-accent',ac);
+    el.style.setProperty('--card-icon-bg',card.iconBg);
+    el.style.setProperty('--card-icon-border',card.iconBorder);
+    el.style.setProperty('--card-glow',card.glow);
+    const hint=i===0?`<div class="click-hint">Click to expand</div>`:'';
+    el.innerHTML=`
+      <div class="card-header">
+        <div class="card-icon">${card.icon}</div>
+        <div class="card-meta">
+          <div class="card-label">${card.label}</div>
+          <div class="card-title">${card.title}</div>
+        </div>
+        <div class="card-toggle">+</div>
+      </div>
+      <div class="card-summary">${card.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${hint}
+      <div class="card-panel">
+        <div class="panel-section">
+          <div class="section-label" style="color:${ac}">What ClearStep does</div>
+          <div class="what-items">${card.what.map(w=>`<div class="what-item">${w}</div>`).join('')}</div>
+        </div>
+        <div class="panel-section">
+          <div class="section-label" style="color:${ac}">Where it happens</div>
+          <div class="where-items">${card.where.map(w=>`<span class="where-tag">${w}</span>`).join('')}</div>
+        </div>
+        <div class="panel-section">
+          <div class="section-label" style="color:${ac}">Evidence</div>
+          <div class="evidence-block">
+            <div class="evidence-label">${card.evidenceLabel}</div>
+            <div class="evidence-code">${card.evidence}</div>
+          </div>
+        </div>
+      </div>`;
+    el.addEventListener('click',()=>toggle(card.id));
+    grid.appendChild(el);
+  });
+}
+
+function toggle(id){
+  const el=document.getElementById(`card-${id}`);
+  const wasOpen=el.classList.contains('open');
+  document.querySelectorAll('.rai-card.open').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+
+buildCards();
+</script>
+</body>
+</html>

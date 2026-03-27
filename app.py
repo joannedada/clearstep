@@ -339,8 +339,7 @@ def build_prompt(msg, detected_flags=None, reading_level="standard", mode="safe"
         meaning_rule = "meaning: ONE sentence only. Max 15 words. Include the key context and reason why this matters."
     else:
         meaning_rule = "meaning: ONE sentence only. Max 12 words. Simple and calm. No technical words."
-    # steps_rule is now unified across all reading levels — see TASK STRUCTURE RULES in mode_instruction
-    steps_rule = ""
+
 
     if mode == "simple":
         mode_instruction = f"""
@@ -436,7 +435,7 @@ Return ONLY this JSON:
 FORMAT RULES:
 - key_items: 2-4 words each. Label only. Examples: "7-day course", "60-day deadline", "Two forms of ID". Never a sentence.
 - warnings: Max 8 words each. Short facts. No "Do not" prefix.
-- meaning: Max 12 words. One sentence.
+
 - {meaning_rule}
 """
     else:
@@ -608,7 +607,7 @@ def _clean_list(lst):
     return [str(item).strip() for item in lst if str(item).strip()]
 
 # Per-item word limits — enforces what the prompt requests
-# tasks are excluded — prompt-guided to ≤8 words but not hard-truncated (truncation corrupts meaning)
+ main
 ITEM_WORD_LIMITS = {
     "signals": 3,
     "next_steps": 8,
@@ -697,7 +696,7 @@ def validate_response(parsed, mode, reading_level="standard"):
         if not parsed.get("tasks"):
             errors.append("tasks list is empty")
         # Task list has no hard count cap — frontend batches in groups of 5
-        # Tasks are prompt-guided to ≤8 words — not hard-truncated. Model splits overlong actions into multiple tasks.
+in
         if len(parsed.get("warnings", [])) > 6:
             parsed["warnings"] = parsed["warnings"][:6]
         if len(parsed.get("key_items", [])) > 4:
@@ -728,34 +727,7 @@ def validate_response(parsed, mode, reading_level="standard"):
                 if w.lower() not in existing:
                     parsed["warnings"].append(w)
 
-        # Frequency expansion — expand stacked frequencies into named task instances.
-        # Unmappable frequencies are moved to key_items and logged separately.
-        expanded_tasks = []
-        freq_expanded_count = 0
-        freq_unmappable = []
-        for task in parsed.get("tasks", []):
-            result, was_expanded, is_unmappable = expand_frequency_task(task)
-            if was_expanded:
-                expanded_tasks.extend(result)
-                freq_expanded_count += 1
-            elif is_unmappable:
-                freq_unmappable.append(task)
-            else:
-                expanded_tasks.append(task)
-        if freq_expanded_count:
-            parsed["tasks"] = expanded_tasks
-            logger.warning("ClearStep frequency_expanded", extra={
-                "custom_dimensions": {"expanded_count": str(freq_expanded_count)}
-            })
-        if freq_unmappable:
-            existing_key_items = [k.lower() for k in parsed.get("key_items", [])]
-            for t in freq_unmappable:
-                if t.lower() not in existing_key_items:
-                    parsed.setdefault("key_items", []).append(t)
-            parsed["tasks"] = [t for t in parsed.get("tasks", []) if t not in freq_unmappable]
-            logger.warning("ClearStep frequency_unmappable_kept", extra={
-                "custom_dimensions": {"count": str(len(freq_unmappable)), "examples": str(freq_unmappable[:2])}
-            })
+
 
         if parsed["is_medical"]:
             if not parsed.get("warnings"):
@@ -769,22 +741,12 @@ def validate_response(parsed, mode, reading_level="standard"):
                 logger.warning("ClearStep medical_disclaimer_enforced")
                 parsed["warnings"].append(MEDICAL_DISCLAIMER)
 
-        # risk_level logic enforcement — if real warnings exist, Safe is not valid.
-        # The medical disclaimer alone does not count as a real warning.
-        # Runs last so it sees the final warnings list after all enforcement above.
+in
         real_warnings = [
             w for w in parsed.get("warnings", [])
             if MEDICAL_DISCLAIMER.lower() not in w.lower()
         ]
-        if parsed.get("risk_level") == "Safe" and real_warnings:
-            parsed["risk_level"] = "Caution"
-            logger.warning("ClearStep risk_level_upgraded", extra={
-                "custom_dimensions": {
-                    "from": "Safe",
-                    "to": "Caution",
-                    "reason": "real_warnings_present"
-                }
-            })
+
 
         parsed.pop("next_steps", None)
 
@@ -1176,9 +1138,7 @@ def extract_text_from_image(file_obj):
             if status == "failed":
                 raise RuntimeError("OCR analysis failed")
 
-        if result.get("status") != "succeeded":
-            raise RuntimeError("OCR did not complete successfully in time")
-
+ main
         lines = []
         for read_result in result.get("analyzeResult", {}).get("readResults", []):
             for line in read_result.get("lines", []):
